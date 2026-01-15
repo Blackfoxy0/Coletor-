@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coletor Pro</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background: #f4f4f9; }
+        #reader { width: 100%; max-width: 500px; margin: auto; }
+        .controls { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        input, button { padding: 12px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; }
+        .btn-export { background: #28a745; }
+        .btn-import { background: #6c757d; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    </style>
+</head>
+<body>
+
+    <h2>Coletor de Dados</h2>
+    
+    <div id="reader"></div>
+
+    <div class="controls">
+        <input type="text" id="barcode-res" placeholder="Código de Barras">
+        <input type="number" id="qtd" placeholder="Quantidade" value="1">
+        <button onclick="adicionarItem()">Adicionar Item</button>
+        <hr>
+        <button class="btn-import" onclick="document.getElementById('fileInput').click()">Importar CSV</button>
+        <input type="file" id="fileInput" style="display:none" accept=".csv" onchange="importarCSV(event)">
+        <button class="btn-export" onclick="exportarCSV()">Exportar Relatório (CSV)</button>
+        <button style="background:red" onclick="limparDados()">Limpar Tudo</button>
+    </div>
+
+    <table id="tabela">
+        <thead>
+            <tr><th>Código</th><th>Qtd</th></tr>
+        </thead>
+        <tbody id="corpo-tabela"></tbody>
+    </table>
+
+    <script>
+        let inventario = JSON.parse(localStorage.getItem('coleta')) || [];
+
+        // Configuração do Scanner
+        const html5QrCode = new Html5Qrcode("reader");
+        html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 },
+            (decodedText) => {
+                document.getElementById('barcode-res').value = decodedText;
+                vibratePhone(); // Feedback tátil
+            }
+        );
+
+        function adicionarItem() {
+            const code = document.getElementById('barcode-res').value;
+            const qtd = document.getElementById('qtd').value;
+            if(!code || !qtd) return alert("Preencha código e quantidade");
+
+            inventario.push({ code, qtd });
+            salvarEAtualizar();
+            document.getElementById('barcode-res').value = "";
+        }
+
+        function salvarEAtualizar() {
+            localStorage.setItem('coleta', JSON.stringify(inventario));
+            const corpo = document.getElementById('corpo-tabela');
+            corpo.innerHTML = inventario.map(i => `<tr><td>${i.code}</td><td>${i.qtd}</td></tr>`).join('');
+        }
+
+        function exportarCSV() {
+            let csv = "Codigo,Quantidade\n";
+            inventario.forEach(i => csv += `${i.code},${i.qtd}\n`);
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'coleta_estoque.csv';
+            a.click();
+        }
+
+        function importarCSV(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const linhas = e.target.result.split('\n');
+                linhas.forEach((linha, index) => {
+                    if(index === 0 || !linha) return; // Pula cabeçalho
+                    const [code, qtd] = linha.split(',');
+                    inventario.push({ code, qtd: qtd.trim() });
+                });
+                salvarEAtualizar();
+            };
+            reader.readAsText(file);
+        }
+
+        function limparDados() {
+            if(confirm("Deseja apagar toda a coleta?")) {
+                inventario = [];
+                salvarEAtualizar();
+            }
+        }
+
+        function vibratePhone() {
+            if (navigator.vibrate) navigator.vibrate(100);
+        }
+
+        salvarEAtualizar();
+    </script>
+</body>
+</html>
