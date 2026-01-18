@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coletor Pro - TXT</title>
+    <title>Coletor de Inventário</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        body { font-family: sans-serif; margin: 15px; background: #f4f4f9; color: #333; }
+        body { font-family: sans-serif; margin: 15px; background: #f4f4f9; }
         #reader { width: 100%; max-width: 450px; margin: auto; border-radius: 12px; overflow: hidden; border: 3px solid #007bff; }
-        .controls { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; max-width: 450px; margin-left: auto; margin-right: auto; }
+        .controls { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; max-width: 450px; margin: 15px auto; }
         input, button { padding: 15px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; }
         button { background: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; }
         .btn-export { background: #28a745; }
@@ -52,13 +52,11 @@
 
         function adicionarOrSomar() {
             const code = document.getElementById('barcode-res').value.trim();
-            const qtdInput = document.getElementById('qtd').value;
-            const qtd = parseInt(qtdInput);
+            const qtd = parseInt(document.getElementById('qtd').value);
             
             if(!code || isNaN(qtd)) return alert("Bipe o código e defina a quantidade.");
 
             const indexExistente = inventario.findIndex(item => item.code === code);
-
             if (indexExistente !== -1) {
                 inventario[indexExistente].qtd = parseInt(inventario[indexExistente].qtd) + qtd;
             } else {
@@ -78,22 +76,30 @@
             corpo.innerHTML = listaReversa.map(i => `<tr><td>${i.code}</td><td>${i.qtd}</td></tr>`).join('');
         }
 
-        // --- FUNÇÃO CORRIGIDA PARA GERAR UMA LINHA POR ITEM ---
+        // --- CORREÇÃO DEFINITIVA DA QUEBRA DE LINHA ---
         function exportarTXT() {
             if(inventario.length === 0) return alert("Lista vazia.");
             
-            // Usamos \r\n para garantir que o Windows quebre a linha corretamente
-            let conteudo = inventario.map(i => `${i.code} ${i.qtd}`).join('\r\n');
+            // Geramos o conteúdo com \r\n (CRLF) para compatibilidade Windows
+            let conteudo = "";
+            for (let i = 0; i < inventario.length; i++) {
+                conteudo += inventario[i].code + " " + inventario[i].qtd + "\r\n";
+            }
             
-            const blob = new Blob([conteudo], { type: 'text/plain' });
+            // Forçamos o tipo de arquivo para garantir a interpretação de texto
+            const blob = new Blob([conteudo], { type: 'text/plain;charset=utf-8' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
             a.download = 'invent.txt';
+            
+            // Garante o clique no mobile
             document.body.appendChild(a);
             a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
+            setTimeout(() => {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 100);
         }
 
         function limparDados() {
@@ -107,4 +113,3 @@
     </script>
 </body>
 </html>
-
