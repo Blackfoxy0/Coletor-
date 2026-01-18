@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Coletor de Inventário Ultra</title>
+    <title>Coletor de Inventário Balança</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root {
@@ -28,8 +28,11 @@
         .panel { background: #fff; border-radius: 24px; padding: 20px; margin-top: -30px; position: relative; z-index: 100; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); }
         .row { display: flex; gap: 10px; margin-bottom: 12px; }
         label { font-size: 11px; font-weight: bold; color: #6b7280; text-transform: uppercase; margin-bottom: 4px; display: block; }
+        
+        /* Input de Qtd ajustado para decimais */
         input { width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px; font-weight: bold; box-sizing: border-box; }
         input:focus { border-color: var(--accent); outline: none; }
+        
         .btn-add { width: 100%; background: var(--accent); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; font-size: 16px; }
 
         /* List */
@@ -42,5 +45,168 @@
         .footer-row { display: flex; gap: 8px; }
         .btn-export { flex: 2; background: var(--success); color: white; border: none; border-radius: 10px; font-weight: bold; padding: 12px; }
         .btn-import { flex: 1; background: #64748b; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 11px; }
-        .btn-clear { width: 100%; background:
-            
+        .btn-clear { width: 100%; background: #fff; color: var(--danger); border: 1px solid #fee2e2; border-radius: 8px; font-size: 11px; padding: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="header">COLETOR PROFISSIONAL (PESO/QTD)</div>
+
+<div class="container">
+    <div class="scanner-card">
+        <button class="cam-btn" onclick="proximaCamera()">🔄 TROCAR LENTE</button>
+        <div id="reader"></div>
+    </div>
+
+    <div class="stats">
+        <span id="stat-unicos">ITENS: 0</span>
+        <span id="stat-total">TOTAL ACUMULADO: 0</span>
+    </div>
+
+    <div class="panel">
+        <div class="row">
+            <div style="flex: 1.5;">
+                <label>Cód. Barras (13 dgt)</label>
+                <input type="text" id="barcode-res" placeholder="Bipe aqui">
+            </div>
+            <div style="flex: 1;">
+                <label>Qtd / Peso (kg)</label>
+                <input type="number" id="qtd" value="1" step="any" inputmode="decimal" onfocus="this.select()">
+            </div>
+        </div>
+        <button class="btn-add" onclick="adicionarOrSomar()">REGISTAR PESO/ITEM</button>
+    </div>
+
+    <div class="list-section">
+        <label>Últimos Registos</label>
+        <div id="lista-corpo"></div>
+    </div>
+</div>
+
+<div class="footer">
+    <div class="footer-row">
+        <button class="btn-import" onclick="document.getElementById('fileIn').click()">📥 IMPORTAR</button>
+        <button class="btn-export" onclick="exportarTXT()">💾 EXPORTAR INVENT.TXT</button>
+    </div>
+    <button class="btn-clear" onclick="limparDados()">LIMPAR TUDO</button>
+    <input type="file" id="fileIn" style="display:none" accept=".txt" onchange="importarArquivo(event)">
+</div>
+
+<script>
+    let inventario = JSON.parse(localStorage.getItem('coleta')) || [];
+    let cameras = [];
+    let cameraIdx = 0;
+    const scanner = new Html5Qrcode("reader");
+
+    Html5Qrcode.getCameras().then(devices => {
+        if (devices.length > 0) {
+            cameras = devices;
+            cameraIdx = cameras.length - 1;
+            iniciarScanner(cameras[cameraIdx].id);
+        }
+    });
+
+    function iniciarScanner(id) {
+        scanner.start(id, { fps: 20, qrbox: { width: 250, height: 200 } },
+            (text) => {
+                document.getElementById('barcode-res').value = text;
+                if(navigator.vibrate) navigator.vibrate(80);
+            }
+        ).catch(e => console.error(e));
+    }
+
+    async function proximaCamera() {
+        if (cameras.length < 2) return;
+        await scanner.stop();
+        cameraIdx = (cameraIdx + 1) % cameras.length;
+        iniciarScanner(cameras[cameraIdx].id);
+    }
+
+    function formatar13(v) { return v.toString().trim().padStart(13, '0'); }
+
+    function adicionarOrSomar() {
+        let raw = document.getElementById('barcode-res').value.trim();
+        // parseFloat permite ler números decimais
+        let qtd = parseFloat(document.getElementById('qtd').value.replace(',', '.'));
+        
+        if(!raw || isNaN(qtd)) return alert("Verifique o código e o peso/quantidade.");
+
+        const code = formatar13(raw);
+        const idx = inventario.findIndex(i => i.code === code);
+
+        if(idx !== -1) {
+            // Soma garantindo precisão decimal
+            inventario[idx].qtd = parseFloat((parseFloat(inventario[idx].qtd) + qtd).toFixed(3));
+        } else {
+            inventario.push({ code, qtd: qtd });
+        }
+
+        atualizarTela();
+        document.getElementById('barcode-res').value = "";
+        document.getElementById('qtd').value = "1";
+    }
+
+    function atualizarTela() {
+        localStorage.setItem('coleta', JSON.stringify(inventario));
+        const lista = document.getElementById('lista-corpo');
+        const unicos = inventario.length;
+        const totalPecas = inventario.reduce((acc, curr) => acc + parseFloat(curr.qtd), 0).toFixed(3);
+        
+        document.getElementById('stat-unicos').innerText = `ITENS: ${unicos}`;
+        document.getElementById('stat-total').innerText = `TOTAL: ${parseFloat(totalPecas)}`;
+
+        lista.innerHTML = [...inventario].reverse().slice(0, 10).map(i => `
+            <div class="list-item">
+                <span>${i.code}</span>
+                <span class="qty-badge">${i.qtd}</span>
+            </div>
+        `).join('') || '<p style="font-size:11px;color:#94a3b8">Lista vazia...</p>';
+    }
+
+    function exportarTXT() {
+        if(inventario.length === 0) return alert("Nada para exportar.");
+        // Exporta mantendo o ponto decimal para compatibilidade com sistemas
+        let txt = inventario.map(i => formatar13(i.code) + " " + i.qtd).join("\r\n");
+        const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'invent.txt';
+        document.body.appendChild(a); a.click();
+        setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(url); }, 100);
+    }
+
+    function importarArquivo(event) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const linhas = e.target.result.split('\n');
+            linhas.forEach(linha => {
+                const partes = linha.trim().split(/\s+/);
+                if(partes.length >= 2) {
+                    const code = formatar13(partes[0]);
+                    const qtd = parseFloat(partes[1].replace(',', '.'));
+                    const idx = inventario.findIndex(i => i.code === code);
+                    if(idx !== -1) inventario[idx].qtd = parseFloat((inventario[idx].qtd + qtd).toFixed(3));
+                    else inventario.push({ code, qtd });
+                }
+            });
+            atualizarTela();
+            alert("Importado com sucesso!");
+        };
+        reader.readAsText(event.target.files[0]);
+    }
+
+    function limparDados() {
+        if(confirm("Deseja apagar tudo?")) {
+            inventario = []; atualizarTela();
+        }
+    }
+
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) scanner.stop();
+        else if (cameras.length > 0) iniciarScanner(cameras[cameraIdx].id);
+    });
+
+    atualizarTela();
+</script>
+</body>
+</html>
