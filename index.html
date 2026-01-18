@@ -3,246 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Coletor Pro | Inventário</title>
+    <title>Coletor Pro v3</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root {
-            --primary: #2563eb;
-            --success: #16a34a;
-            --danger: #dc2626;
-            --bg: #f8fafc;
-            --card: #ffffff;
-            --text: #1e293b;
+            --primary: #1e293b; /* Azul escuro industrial */
+            --accent: #3b82f6;  /* Azul vivo para ação */
+            --success: #10b981; /* Verde */
+            --danger: #ef4444;  /* Vermelho */
+            --bg: #f1f5f9;
+            --white: #ffffff;
         }
 
         body { 
-            font-family: 'Segoe UI', Roboto, sans-serif; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             margin: 0; 
-            background: var(--bg); 
-            color: var(--text);
-            padding-bottom: 80px;
+            background-color: var(--bg); 
+            color: var(--primary);
+            padding-bottom: 100px;
         }
 
-        header {
+        /* Top Bar */
+        .app-bar {
             background: var(--primary);
             color: white;
-            padding: 1rem;
+            padding: 15px;
             text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .container { padding: 15px; max-width: 600px; margin: auto; }
-
-        #reader { 
-            width: 100%; 
-            border-radius: 16px; 
-            overflow: hidden; 
-            border: none; 
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-            background: #000;
-        }
-
-        .card {
-            background: var(--card);
-            border-radius: 16px;
-            padding: 20px;
-            margin-top: 20px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-        }
-
-        .input-group { margin-bottom: 15px; }
-        label { display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 5px; color: #64748b; }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 1rem;
-            box-sizing: border-box;
-            transition: border-color 0.2s;
-        }
-
-        input:focus { border-color: var(--primary); outline: none; }
-
-        .btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
             font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: transform 0.1s;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
-        .btn:active { transform: scale(0.98); }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-outline { background: #f1f5f9; color: var(--text); border: 1px solid #e2e8f0; margin-top: 10px; }
-        .btn-danger { background: #fee2e2; color: var(--danger); font-size: 0.8rem; margin-top: 20px; }
+        .container { padding: 15px; max-width: 500px; margin: auto; }
 
-        .fab {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 150px;
-            height: 50px;
-            background: var(--success);
+        /* Scanner Area */
+        .scanner-card {
+            background: black;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border: 2px solid var(--white);
+        }
+        #reader { width: 100%; min-height: 250px; }
+
+        /* Camera Switch Overlay */
+        .camera-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+            background: rgba(0,0,0,0.6);
             color: white;
-            border-radius: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
-            font-weight: bold;
-            text-decoration: none;
-            z-index: 99;
-            border: none;
+            border: 1px solid white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
         }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9rem; }
-        th { background: #f8fafc; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; padding: 12px; text-align: left; }
-        td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-family: 'Courier New', monospace; }
-        tr:nth-child(even) { background: #fafafa; }
+        /* Form Area */
+        .action-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: -20px;
+            position: relative;
+            z-index: 20;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
+        }
+
+        .field-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            margin-bottom: 5px;
+            display: block;
+            text-transform: uppercase;
+        }
+
+        .input-row { display: flex; gap: 10px; margin-bottom: 15px; }
         
-        .badge { background: #dbeafe; color: var(--primary); padding: 4px 8px; border-radius: 6px; font-weight: bold; }
+        input {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+            outline: none;
+            transition: border 0.3s;
+        }
+        input:focus { border-color: var(--accent); }
+
+        .btn-main {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            width: 100%;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
+        }
+
+        /* List Area */
+        .list-card {
+            background: var(--white);
+            border-radius: 12px;
+            margin-top: 20px;
+            padding: 10px;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; font-size: 12px; color: #94a3b8; padding: 10px; border-bottom: 1px solid #f1f5f9; }
+        td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; font-family: 'Courier New', monospace; font-weight: bold; }
+        
+        .qty-badge {
+            background: #dbeafe;
+            color: var(--accent);
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        /* Bottom Floating Export */
+        .export-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
+        }
+
+        .btn-export { background: var(--success); flex: 2; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; }
+        .btn-clear { background: #fee2e2; color: var(--danger); flex: 1; border: none; border-radius: 8px; font-size: 12px; }
     </style>
 </head>
 <body>
 
-<header>
-    <strong>COLETOR PRO</strong>
-</header>
+<div class="app-bar">COLETOR INVENTÁRIO PRO</div>
 
 <div class="container">
-    <div id="reader"></div>
-
-    <div class="card">
-        <button class="btn btn-outline" onclick="trocarCamera()">🔄 Alternar Lente</button>
-        
-        <div class="input-group" style="margin-top: 20px;">
-            <label>CÓDIGO LIDO</label>
-            <input type="text" id="barcode-res" placeholder="Aguardando bip...">
-        </div>
-
-        <div class="input-group">
-            <label>QUANTIDADE</label>
-            <input type="number" id="qtd" value="1" onfocus="this.select()">
-        </div>
-
-        <button class="btn btn-primary" onclick="adicionarOrSomar()">📥 REGISTRAR ITEM</button>
-        
-        <button class="btn btn-danger" onclick="limparDados()">🗑️ LIMPAR COLETA ATUAL</button>
+    <div class="scanner-card">
+        <button class="camera-toggle" onclick="trocarCamera()">🔄 TROCAR LENTE</button>
+        <div id="reader"></div>
     </div>
 
-    <div class="card" style="margin-bottom: 50px;">
-        <label>ITENS COLETADOS</label>
-        <table>
-            <thead>
-                <tr>
-                    <th>Código (13 dígitos)</th>
-                    <th>Qtd</th>
-                </tr>
-            </thead>
-            <tbody id="corpo-tabela"></tbody>
-        </table>
-    </div>
-</div>
-
-<button class="fab" onclick="exportarTXT()">💾 EXPORTAR TXT</button>
-
-<script>
-    let inventario = JSON.parse(localStorage.getItem('coleta')) || [];
-    const html5QrCode = new Html5Qrcode("reader");
-    let cameraAtiva = false;
-    let modoCamera = "environment";
-
-    function ligarCamera() {
-        if (cameraAtiva) return;
-        html5QrCode.start({ facingMode: modoCamera }, { fps: 20, qrbox: {width: 250, height: 150} },
-            (decodedText) => {
-                document.getElementById('barcode-res').value = decodedText;
-                document.getElementById('barcode-res').style.borderColor = "#2563eb";
-                if(navigator.vibrate) navigator.vibrate(80);
-            }
-        ).then(() => cameraAtiva = true).catch(() => {});
-    }
-
-    function desligarCamera() {
-        if (cameraAtiva) {
-            return html5QrCode.stop().then(() => cameraAtiva = false);
-        }
-        return Promise.resolve();
-    }
-
-    async function trocarCamera() {
-        await desligarCamera();
-        modoCamera = (modoCamera === "environment") ? "user" : "environment";
-        ligarCamera();
-    }
-
-    document.addEventListener("visibilitychange", () => {
-        if (document.hidden) desligarCamera();
-        else setTimeout(ligarCamera, 500);
-    });
-
-    function formatar13Digitos(valor) {
-        return valor.toString().trim().padStart(13, '0');
-    }
-
-    function adicionarOrSomar() {
-        let rawCode = document.getElementById('barcode-res').value.trim();
-        let qtd = parseInt(document.getElementById('qtd').value);
-        
-        if(!rawCode || isNaN(qtd)) return;
-
-        const code = formatar13Digitos(rawCode);
-        const index = inventario.findIndex(item => item.code === code);
-
-        if (index !== -1) inventario[index].qtd += qtd;
-        else inventario.push({ code, qtd });
-
-        salvarEAtualizar();
-        document.getElementById('barcode-res').value = "";
-        document.getElementById('barcode-res').style.borderColor = "#e2e8f0";
-        document.getElementById('qtd').value = "1";
-    }
-
-    function salvarEAtualizar() {
-        localStorage.setItem('coleta', JSON.stringify(inventario));
-        const corpo = document.getElementById('corpo-tabela');
-        corpo.innerHTML = [...inventario].reverse().map(i => 
-            `<tr><td>${i.code}</td><td><span class="badge">${i.qtd}</span></td></tr>`
-        ).join('');
-    }
-
-    function exportarTXT() {
-        if(inventario.length === 0) return alert("Lista vazia.");
-        let conteudo = inventario.map(i => formatar13Digitos(i.code) + " " + i.qtd).join("\r\n");
-        const blob = new Blob([conteudo], { type: 'text/plain;charset=utf-8' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = 'invent.txt';
-        document.body.appendChild(a); a.click();
-        setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(url); }, 100);
-    }
-
-    function limparDados() {
-        if(confirm("Deseja apagar todos os dados coletados?")) {
-            inventario = [];
-            salvarEAtualizar();
-        }
-    }
-
-    salvarEAtualizar();
-    ligarCamera();
-</script>
-</body>
-</html>
+    <div class="action-card">
+        <div class="input-row">
+            <div style="flex: 2;">
+                <span class="field-label">Código (EAN-13)</span>
+                <input type="text" id="barcode-res" placeholder="Bipe aqui">
+            </div>
+            <div style="flex: 1;">
+                <span class="field-label">Qtd</span>
+                <input type="number" id="
+                    
