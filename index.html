@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coletor de Inventário</title>
+    <title>Coletor Pro - 13 Dígitos</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         body { font-family: sans-serif; margin: 15px; background: #f4f4f9; }
@@ -14,13 +14,13 @@
         .btn-export { background: #28a745; }
         .btn-clear { background: #dc3545; font-size: 12px; }
         table { width: 100%; max-width: 450px; border-collapse: collapse; margin: 20px auto; background: white; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background: #007bff; color: white; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; font-family: monospace; }
+        th { background: #007bff; color: white; font-family: sans-serif; }
     </style>
 </head>
 <body>
 
-    <h2 style="text-align: center;">Coletor de Inventário</h2>
+    <h2 style="text-align: center;">Coletor 13 Dígitos</h2>
     <div id="reader"></div>
 
     <div class="controls">
@@ -34,7 +34,7 @@
 
     <table>
         <thead>
-            <tr><th>Código</th><th>Qtd</th></tr>
+            <tr><th>Código (13 dgt)</th><th>Qtd</th></tr>
         </thead>
         <tbody id="corpo-tabela"></tbody>
     </table>
@@ -50,11 +50,21 @@
             }
         ).catch(err => console.error("Erro na câmera", err));
 
+        // Função que força os 13 dígitos com zeros à esquerda
+        function formatarCodigo(codigo) {
+            let s = codigo.toString().trim();
+            // Se o código for menor que 13, preenche com '0' no início
+            return s.padStart(13, '0');
+        }
+
         function adicionarOrSomar() {
-            const code = document.getElementById('barcode-res').value.trim();
+            let rawCode = document.getElementById('barcode-res').value.trim();
+            if(!rawCode) return alert("Bipe ou digite um código.");
+            
+            const code = formatarCodigo(rawCode);
             const qtd = parseInt(document.getElementById('qtd').value);
             
-            if(!code || isNaN(qtd)) return alert("Bipe o código e defina a quantidade.");
+            if(isNaN(qtd)) return alert("Defina a quantidade.");
 
             const indexExistente = inventario.findIndex(item => item.code === code);
             if (indexExistente !== -1) {
@@ -76,24 +86,20 @@
             corpo.innerHTML = listaReversa.map(i => `<tr><td>${i.code}</td><td>${i.qtd}</td></tr>`).join('');
         }
 
-        // --- CORREÇÃO DEFINITIVA DA QUEBRA DE LINHA ---
         function exportarTXT() {
             if(inventario.length === 0) return alert("Lista vazia.");
             
-            // Geramos o conteúdo com \r\n (CRLF) para compatibilidade Windows
             let conteudo = "";
             for (let i = 0; i < inventario.length; i++) {
+                // Garante: CÓDIGO[ESPAÇO]QUANTIDADE[QUEBRA DE LINHA]
                 conteudo += inventario[i].code + " " + inventario[i].qtd + "\r\n";
             }
             
-            // Forçamos o tipo de arquivo para garantir a interpretação de texto
             const blob = new Blob([conteudo], { type: 'text/plain;charset=utf-8' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
             a.download = 'invent.txt';
-            
-            // Garante o clique no mobile
             document.body.appendChild(a);
             a.click();
             setTimeout(() => {
