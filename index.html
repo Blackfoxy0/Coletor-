@@ -3,127 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Coletor Pro v5</title>
+    <title>Coletor Pro v6</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root {
-            --primary: #1e293b;
+            --primary: #111827;
             --accent: #2563eb;
             --success: #16a34a;
-            --danger: #ef4444;
-            --bg: #f1f5f9;
+            --danger: #dc2626;
+            --bg: #f3f4f6;
         }
 
-        body { font-family: system-ui, -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--primary); padding-bottom: 100px; }
+        body { font-family: -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--primary); overscroll-behavior: none; }
         
-        .header { background: var(--primary); color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 1.1rem; }
+        /* Cabeçalho */
+        .header { background: var(--primary); color: white; padding: 15px; text-align: center; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
         .container { padding: 12px; max-width: 500px; margin: auto; }
 
-        /* Área da Câmera */
-        .camera-container {
-            background: #000;
-            border-radius: 20px;
-            overflow: hidden;
-            position: relative;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-            border: 2px solid white;
-            aspect-ratio: 1/1; /* Quadrado ajuda no foco central */
+        /* Camera */
+        .scanner-card {
+            background: #000; border-radius: 20px; overflow: hidden; position: relative;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2); aspect-ratio: 1/1; border: 2px solid #fff;
         }
         #reader { width: 100%; height: 100%; }
 
-        /* Controles de Câmera */
-        .cam-controls {
-            position: absolute;
-            bottom: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-cam {
-            background: rgba(0,0,0,0.7);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.4);
-            padding: 10px 15px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: bold;
-            backdrop-filter: blur(4px);
+        /* Botão Flutuante de Câmera */
+        .cam-switch-btn {
+            position: absolute; top: 15px; right: 15px; z-index: 50;
+            background: rgba(37, 99, 235, 0.9); color: white; border: none;
+            padding: 10px 18px; border-radius: 25px; font-weight: bold; font-size: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
         /* Painel de Registro */
         .panel {
-            background: white;
-            border-radius: 24px;
-            padding: 20px;
-            margin-top: -30px;
-            position: relative;
-            z-index: 20;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            background: #fff; border-radius: 24px; padding: 20px; margin-top: -40px;
+            position: relative; z-index: 100; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
         }
 
-        .input-group { display: flex; gap: 10px; margin-bottom: 15px; }
-        .input-box { flex: 1; }
-        label { font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 4px; display: block; }
+        .row { display: flex; gap: 10px; margin-bottom: 15px; }
+        .col { flex: 1; }
+        label { font-size: 11px; font-weight: bold; color: #6b7280; text-transform: uppercase; margin-bottom: 4px; display: block; }
         
         input {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid #f1f5f9;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: bold;
-            box-sizing: border-box;
-            background: #f8fafc;
+            width: 100%; padding: 14px; border: 2px solid #e5e7eb; border-radius: 12px;
+            font-size: 18px; font-weight: bold; box-sizing: border-box; background: #f9fafb;
         }
-        input:focus { border-color: var(--accent); outline: none; background: white; }
+        input:focus { border-color: var(--accent); outline: none; background: #fff; }
 
         .btn-add {
-            width: 100%;
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 18px;
-            border-radius: 14px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+            width: 100%; background: var(--accent); color: white; border: none;
+            padding: 16px; border-radius: 12px; font-size: 1.1rem; font-weight: bold;
         }
 
-        /* Tabela */
-        .history { background: white; border-radius: 20px; margin-top: 15px; padding: 15px; }
-        table { width: 100%; border-collapse: collapse; }
-        td { padding: 12px 5px; border-bottom: 1px solid #f1f5f9; font-family: monospace; font-size: 0.95rem; }
-        .qty { font-weight: bold; color: var(--accent); text-align: right; }
+        /* Lista de Itens */
+        .list-section { background: #fff; border-radius: 20px; margin-top: 15px; padding: 15px; margin-bottom: 80px; }
+        .list-item { 
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid #f3f4f6; font-family: monospace;
+        }
+        .qty-badge { background: #dbeafe; color: var(--accent); padding: 4px 12px; border-radius: 8px; font-weight: bold; }
 
         /* Rodapé Fixo */
         .footer {
             position: fixed; bottom: 0; left: 0; right: 0;
-            background: white; padding: 15px;
-            display: flex; gap: 10px;
-            border-top: 1px solid #e2e8f0;
-            z-index: 100;
+            background: #fff; padding: 15px; display: flex; gap: 10px;
+            border-top: 1px solid #e5e7eb; z-index: 200;
         }
-        .btn-export { flex: 2; background: var(--success); color: white; border: none; border-radius: 12px; font-weight: bold; padding: 15px; font-size: 1rem; }
+        .btn-export { flex: 2; background: var(--success); color: white; border: none; border-radius: 12px; font-weight: bold; padding: 16px; font-size: 1rem; }
         .btn-clear { flex: 1; background: #fff; color: var(--danger); border: 1px solid #fee2e2; border-radius: 12px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="header">COLETOR PROFISSIONAL</div>
+<div class="header">COLETOR INVENTÁRIO PRO</div>
 
 <div class="container">
-    <div class="camera-container">
+    <div class="scanner-card">
+        <button class="cam-switch-btn" onclick="proximaCamera()">🔄 TROCAR LENTE</button>
         <div id="reader"></div>
-        <div class="cam-controls">
-            <button class="btn-cam" onclick="proximaCamera()">🔄 ALTERNAR LENTE</button>
-        </div>
     </div>
 
     <div class="panel">
-        <div class="input-group">
-            <div class="input-box" style="flex:
-                
+        <div class="row">
+            <div class="col" style="flex: 2;">
+                <label>Código de Barras (13 dgt)</label>
+                <input type="text" id="barcode-res" placeholder="Bipe aqui">
+            </div>
+            <div class="col">
+                <label>Qtd</label>
+                <input type="number" id="qtd" value="1" onfocus="this.select()">
+            </div>
+        </div>
+        <button class="btn-add" onclick="adicionarOrSomar()">REGISTRAR ITEM</button>
+    </div>
+
+    <div class="list-section">
+        <label>Itens na Memória</label>
+        <div id="lista-corpo"></div>
+    </div>
+</div>
+
+<div class="footer">
+    <button class="btn-clear" onclick="limparDados()">LIMPAR</button>
+    <button class="btn-export" onclick="exportarTXT()">💾 EXPORTAR INVENT.TXT</button>
+</div>
+
+<script>
+    let inventario = JSON.parse(localStorage.getItem('coleta')) || [];
+    let cameras = [];
+    let cameraIdx = 0;
+    const scanner = new Html5Qrcode("reader");
+
+    // Início: Carregar câmeras
+    Html5Qrcode.getCameras().then(devices => {
+        if (devices && devices.length > 0) {
+            cameras = devices;
+            // Inicia preferencialmente pela última (traseira principal na maioria dos Androids)
+            cameraIdx = cameras.length - 1;
+            iniciarScanner(cameras[cameraIdx].id);
+        }
+    }).catch(e => alert("Erro ao acessar câmeras. Verifique as permissões."));
+
+    function iniciarScanner(id) {
+        scanner.start(id, { fps: 20, qrbox: { width: 250, height: 200 } },
+            (text) => {
+                document.getElementById('barcode-res').value = text;
+                if(navigator.vibrate) navigator.vibrate(80);
+            }
+        ).catch(err => console.error(err));
+    }
+
+    async function proximaCamera() {
+        if (cameras.length < 2) return;
+        await scanner.stop();
+        cameraIdx = (cameraIdx + 1) % cameras.length;
+        iniciarScanner(cameras[cameraIdx].id);
+    }
+
+    function formatar13(v) {
+        return v.toString().trim().padStart(13, '0');
+    }
+
+    function adicionarOrSomar() {
+        let raw = document.getElementById('barcode-res').value.trim();
+        let qtd = parseInt(document.getElementById('qtd').value);
+        if(!raw || isNaN(qtd)) return;
+
+        const code = formatar13(raw);
+        const idx = inventario.findIndex(i => i.code === code);
+
+        if(idx !== -1) inventario[idx].qtd += qtd;
+        else inventario.push({ code, qtd });
+
+        atualizarTela();
+        document.getElementById('barcode-res').value = "";
+        document.getElementById('qtd').value = "1";
+        document.getElementById('barcode-res').focus();
+    }
+
+    function atualizarTela() {
+        localStorage.setItem('coleta', JSON.stringify(inventario));
+        const lista = document.getElementById('lista-corpo');
+        lista.innerHTML = [...inventario].reverse().slice(0, 10).map(i => `
+            <div class="list-item">
+                <span>${i.code}</span>
+                <span class="qty-badge">${i.qtd}</span>
+            </div>
+        `).join('') || '<p style="color:#9ca3af; font-size:12px; margin-top:10px;">Aguardando leitura...</p>';
+    }
+
+    function exportarTXT() {
+        if(inventario.length === 0) return alert("Nada para exportar.");
+        // Geração do conteúdo: CÓDIGO [ESPAÇO] QTD [PULA LINHA]
+        let txt = inventario.map(i => formatar13(i.code) + " " + i.qtd).join("\r\n");
+        const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'invent.txt';
+        document.body.appendChild(a); a.click();
+        setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(url); }, 100);
+    }
+
+    function limparDados() {
+        if(confirm("Deseja apagar toda a coleta?")) {
+            inventario = [];
+            atualizarTela();
+        }
+    }
+
+    // Gerenciar troca de aba
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) scanner.stop();
+        else if (cameras.length > 0) iniciarScanner(cameras[cameraIdx].id);
+    });
+
+    atualizarTela();
+</script>
+</body>
+</html>
