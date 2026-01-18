@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coletor Pro - 13 Dígitos</title>
+    <title>Coletor Pro - Estável</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         body { font-family: sans-serif; margin: 15px; background: #f4f4f9; }
-        #reader { width: 100%; max-width: 450px; margin: auto; border-radius: 12px; overflow: hidden; border: 3px solid #007bff; }
+        #reader { width: 100%; max-width: 450px; margin: auto; border-radius: 12px; overflow: hidden; border: 3px solid #007bff; min-height: 250px; background: #000; }
         .controls { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; max-width: 450px; margin: 15px auto; }
         input, button { padding: 15px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; }
         button { background: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; }
@@ -20,7 +20,7 @@
 </head>
 <body>
 
-    <h2 style="text-align: center;">Coletor 13 Dígitos</h2>
+    <h2 style="text-align: center;">Coletor Inventário</h2>
     <div id="reader"></div>
 
     <div class="controls">
@@ -41,16 +41,39 @@
 
     <script>
         let inventario = JSON.parse(localStorage.getItem('coleta')) || [];
-
         const html5QrCode = new Html5Qrcode("reader");
-        html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 },
-            (decodedText) => {
-                document.getElementById('barcode-res').value = decodedText;
-                if(navigator.vibrate) navigator.vibrate(100);
-            }
-        ).catch(err => console.error("Erro na câmera", err));
+        let cameraAtiva = false;
 
-        // GARANTE 13 DÍGITOS
+        // Função para INICIAR a câmera
+        function ligarCamera() {
+            if (cameraAtiva) return;
+            html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 },
+                (decodedText) => {
+                    document.getElementById('barcode-res').value = decodedText;
+                    if(navigator.vibrate) navigator.vibrate(100);
+                }
+            ).then(() => cameraAtiva = true)
+             .catch(err => console.error("Erro na câmera", err));
+        }
+
+        // Função para DESLIGAR a câmera
+        function desligarCamera() {
+            if (cameraAtiva) {
+                html5QrCode.stop().then(() => {
+                    cameraAtiva = false;
+                }).catch(err => console.error("Erro ao parar câmera", err));
+            }
+        }
+
+        // MONITOR DE VISIBILIDADE: Resolve o travamento ao minimizar
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden) {
+                desligarCamera(); // Para a câmera ao sair da aba
+            } else {
+                setTimeout(ligarCamera, 500); // Religa ao voltar (com atraso para o sistema liberar o hardware)
+            }
+        });
+
         function formatar13Digitos(valor) {
             return valor.toString().trim().padStart(13, '0');
         }
@@ -85,14 +108,11 @@
 
         function exportarTXT() {
             if(inventario.length === 0) return alert("Lista vazia.");
-            
             let conteudo = "";
             for (let i = 0; i < inventario.length; i++) {
-                // Força a formatação de 13 dígitos de novo na saída por segurança
                 let codigoFormatado = formatar13Digitos(inventario[i].code);
                 conteudo += codigoFormatado + " " + inventario[i].qtd + "\r\n";
             }
-            
             const blob = new Blob([conteudo], { type: 'text/plain;charset=utf-8' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -113,7 +133,9 @@
             }
         }
 
+        // Inicialização
         salvarEAtualizar();
+        ligarCamera();
     </script>
 </body>
 </html>
