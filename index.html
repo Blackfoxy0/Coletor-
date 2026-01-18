@@ -7,38 +7,41 @@
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         body { font-family: sans-serif; margin: 20px; background: #f4f4f9; color: #333; }
-        #reader { width: 100%; max-width: 500px; margin: auto; border-radius: 10px; overflow: hidden; }
+        #reader { width: 100%; max-width: 500px; margin: auto; border-radius: 10px; overflow: hidden; border: 2px solid #007bff; }
         .controls { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; max-width: 500px; margin-left: auto; margin-right: auto; }
         input, button { padding: 15px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; }
-        button { background: #007bff; color: white; border: none; font-weight: bold; }
+        button { background: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; }
         .btn-export { background: #28a745; }
         .btn-import { background: #6c757d; }
         .btn-clear { background: #dc3545; font-size: 12px; margin-top: 10px; }
-        table { width: 100%; max-width: 500px; border-collapse: collapse; margin: 20px auto; background: white; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background: #eee; }
+        .stats { text-align: center; font-weight: bold; margin: 10px; color: #555; }
+        table { width: 100%; max-width: 500px; border-collapse: collapse; margin: 20px auto; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #007bff; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
     </style>
 </head>
 <body>
 
-    <h2 style="text-align: center;">Coletor de Estoque</h2>
+    <h2 style="text-align: center;">Coletor de Inventário</h2>
     
     <div id="reader"></div>
+    <div class="stats" id="total-itens">Itens únicos: 0</div>
 
     <div class="controls">
         <input type="text" id="barcode-res" placeholder="Código de Barras">
-        <input type="number" id="qtd" placeholder="Quantidade" value="1">
-        <button onclick="adicionarItem()">REGISTRAR ITEM</button>
+        <input type="number" id="qtd" placeholder="Quantidade" value="1" onfocus="this.select()">
+        <button onclick="adicionarOrSomar()">REGISTRAR / SOMAR</button>
         <hr>
         <button class="btn-export" onclick="exportarTXT()">EXPORTAR INVENT.TXT</button>
-        <button class="btn-import" onclick="document.getElementById('fileInput').click()">IMPORTAR TXT / CSV</button>
+        <button class="btn-import" onclick="document.getElementById('fileInput').click()">IMPORTAR LISTA</button>
         <input type="file" id="fileInput" style="display:none" accept=".txt,.csv" onchange="importarArquivo(event)">
         <button class="btn-clear" onclick="limparDados()">LIMPAR COLETA ATUAL</button>
     </div>
 
     <table>
         <thead>
-            <tr><th>Código</th><th>Qtd</th></tr>
+            <tr><th>Código</th><th>Qtd Total</th></tr>
         </thead>
         <tbody id="corpo-tabela"></tbody>
     </table>
@@ -46,28 +49,37 @@
     <script>
         let inventario = JSON.parse(localStorage.getItem('coleta')) || [];
 
-        // Inicializa o Scanner
         const html5QrCode = new Html5Qrcode("reader");
-        html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 },
+        html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 },
             (decodedText) => {
                 document.getElementById('barcode-res').value = decodedText;
-                if(navigator.vibrate) navigator.vibrate(100); 
+                if(navigator.vibrate) navigator.vibrate(100);
             }
-        ).catch(err => console.error("Erro ao abrir câmera: ", err));
+        ).catch(err => console.error("Câmera não disponível.", err));
 
-        function adicionarItem() {
+        function adicionarOrSomar() {
             const code = document.getElementById('barcode-res').value.trim();
-            const qtd = document.getElementById('qtd').value.trim();
+            const qtd = parseInt(document.getElementById('qtd').value);
             
-            if(!code || !qtd) {
-                alert("Por favor, bip o código e insira a quantidade.");
+            if(!code || isNaN(qtd)) {
+                alert("Bipe um código e insira uma quantidade válida.");
                 return;
             }
 
-            inventario.push({ code, qtd });
+            // Lógica de Somar se já existir
+            const indexExistente = inventario.findIndex(item => item.code === code);
+
+            if (indexExistente !== -1) {
+                // Soma à quantidade existente
+                inventario[indexExistente].qtd = parseInt(inventario[indexExistente].qtd) + qtd;
+            } else {
+                // Adiciona novo item
+                inventario.push({ code, qtd });
+            }
+
             salvarEAtualizar();
             
-            // Limpa campos para a próxima leitura
+            // Feedback visual e limpa campos
             document.getElementById('barcode-res').value = "";
             document.getElementById('qtd').value = "1";
             document.getElementById('barcode-res').focus();
@@ -75,22 +87,24 @@
 
         function salvarEAtualizar() {
             localStorage.setItem('coleta', JSON.stringify(inventario));
+            document.getElementById('total-itens').innerText = `Itens únicos: ${inventario.length}`;
+            
             const corpo = document.getElementById('corpo-tabela');
-            corpo.innerHTML = inventario.slice().reverse().map(i => `<tr><td>${i.code}</td><td>${i.qtd}</td></tr>`).join('');
+            // Mostra os últimos alterados primeiro
+            const listaExibicao = [...inventario].reverse();
+            corpo.innerHTML = listaExibicao.map(i => `<tr><td>${i.code}</td><td>${i.qtd}</td></tr>`).join('');
         }
 
-        // EXPORTAÇÃO NO FORMATO SOLICITADO: CODIGO QUANTIDADE
         function exportarTXT() {
-            if(inventario.length === 0) return alert("Nada para exportar.");
+            if(inventario.length === 0) return alert("A lista está vazia.");
             
-            // Cria o conteúdo: Código [ESPAÇO] Quantidade [QUEBRA DE LINHA]
             let conteudo = inventario.map(i => `${i.code} ${i.qtd}`).join('\n');
             
             const blob = new Blob([conteudo], { type: 'text/plain' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'invent.txt'; // Nome do arquivo solicitado
+            a.download = 'invent.txt';
             a.click();
             window.URL.revokeObjectURL(url);
         }
@@ -101,11 +115,16 @@
             reader.onload = function(e) {
                 const linhas = e.target.result.split('\n');
                 linhas.forEach(linha => {
-                    if(!linha.trim()) return;
-                    // Tenta separar por espaço (novo padrão) ou vírgula (padrão antigo/csv)
-                    const partes = linha.includes(' ') ? linha.split(' ') : linha.split(',');
+                    const l = linha.trim();
+                    if(!l) return;
+                    const partes = l.includes(' ') ? l.split(' ') : l.split(',');
                     if(partes.length >= 2) {
-                        inventario.push({ code: partes[0].trim(), qtd: partes[1].trim() });
+                        const code = partes[0].trim();
+                        const qtd = parseInt(partes[1].trim());
+                        
+                        const idx = inventario.findIndex(i => i.code === code);
+                        if(idx !== -1) inventario[idx].qtd += qtd;
+                        else inventario.push({ code, qtd });
                     }
                 });
                 salvarEAtualizar();
@@ -114,13 +133,12 @@
         }
 
         function limparDados() {
-            if(confirm("Isso apagará todos os itens da lista atual. Confirmar?")) {
+            if(confirm("Deseja zerar toda a coleta atual?")) {
                 inventario = [];
                 salvarEAtualizar();
             }
         }
 
-        // Carrega dados ao abrir
         salvarEAtualizar();
     </script>
 </body>
