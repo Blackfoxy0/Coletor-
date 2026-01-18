@@ -179,5 +179,31 @@
     }
 
     function exportarTXT() {
-        if(inventario.length ===
-    
+        if(inventario.length === 0) return alert("Lista vazia.");
+        let conteudo = inventario.map(i => formatar13Digitos(i.code) + " " + i.qtd).join("\r\n");
+        const blob = new Blob([conteudo], { type: 'text/plain;charset=utf-8' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'invent.txt';
+        document.body.appendChild(a); a.click();
+        setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(url); }, 100);
+    }
+
+    function limparDados() {
+        if(confirm("Deseja apagar tudo?")) {
+            inventario = [];
+            salvarEAtualizar();
+        }
+    }
+
+    // Reiniciar câmera ao voltar para a aba
+    document.addEventListener("visibilitychange", () => {
+        if (!document.hidden && cameras.length > 0) {
+            iniciarCamera(cameras[cameraAtualIndex].id);
+        }
+    });
+
+    salvarEAtualizar();
+</script>
+</body>
+</html>
