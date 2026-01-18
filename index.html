@@ -50,18 +50,16 @@
             }
         ).catch(err => console.error("Erro na câmera", err));
 
-        // Função que força os 13 dígitos com zeros à esquerda
-        function formatarCodigo(codigo) {
-            let s = codigo.toString().trim();
-            // Se o código for menor que 13, preenche com '0' no início
-            return s.padStart(13, '0');
+        // GARANTE 13 DÍGITOS
+        function formatar13Digitos(valor) {
+            return valor.toString().trim().padStart(13, '0');
         }
 
         function adicionarOrSomar() {
             let rawCode = document.getElementById('barcode-res').value.trim();
             if(!rawCode) return alert("Bipe ou digite um código.");
             
-            const code = formatarCodigo(rawCode);
+            const code = formatar13Digitos(rawCode);
             const qtd = parseInt(document.getElementById('qtd').value);
             
             if(isNaN(qtd)) return alert("Defina a quantidade.");
@@ -76,7 +74,6 @@
             salvarEAtualizar();
             document.getElementById('barcode-res').value = "";
             document.getElementById('qtd').value = "1";
-            document.getElementById('barcode-res').focus();
         }
 
         function salvarEAtualizar() {
@@ -91,8 +88,9 @@
             
             let conteudo = "";
             for (let i = 0; i < inventario.length; i++) {
-                // Garante: CÓDIGO[ESPAÇO]QUANTIDADE[QUEBRA DE LINHA]
-                conteudo += inventario[i].code + " " + inventario[i].qtd + "\r\n";
+                // Força a formatação de 13 dígitos de novo na saída por segurança
+                let codigoFormatado = formatar13Digitos(inventario[i].code);
+                conteudo += codigoFormatado + " " + inventario[i].qtd + "\r\n";
             }
             
             const blob = new Blob([conteudo], { type: 'text/plain;charset=utf-8' });
