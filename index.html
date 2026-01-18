@@ -2,140 +2,247 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coletor Pro - Estável</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Coletor Pro | Inventário</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        body { font-family: sans-serif; margin: 15px; background: #f4f4f9; }
-        #reader { width: 100%; max-width: 450px; margin: auto; border-radius: 12px; overflow: hidden; border: 3px solid #007bff; min-height: 250px; background: #000; }
-        .controls { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; max-width: 450px; margin: 15px auto; }
-        input, button { padding: 15px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; }
-        button { background: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; }
-        .btn-export { background: #28a745; }
-        .btn-clear { background: #dc3545; font-size: 12px; }
-        table { width: 100%; max-width: 450px; border-collapse: collapse; margin: 20px auto; background: white; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; font-family: monospace; }
-        th { background: #007bff; color: white; font-family: sans-serif; }
+        :root {
+            --primary: #2563eb;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Roboto, sans-serif; 
+            margin: 0; 
+            background: var(--bg); 
+            color: var(--text);
+            padding-bottom: 80px;
+        }
+
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .container { padding: 15px; max-width: 600px; margin: auto; }
+
+        #reader { 
+            width: 100%; 
+            border-radius: 16px; 
+            overflow: hidden; 
+            border: none; 
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            background: #000;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 5px; color: #64748b; }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        input:focus { border-color: var(--primary); outline: none; }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: transform 0.1s;
+        }
+
+        .btn:active { transform: scale(0.98); }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-outline { background: #f1f5f9; color: var(--text); border: 1px solid #e2e8f0; margin-top: 10px; }
+        .btn-danger { background: #fee2e2; color: var(--danger); font-size: 0.8rem; margin-top: 20px; }
+
+        .fab {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 150px;
+            height: 50px;
+            background: var(--success);
+            color: white;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+            font-weight: bold;
+            text-decoration: none;
+            z-index: 99;
+            border: none;
+        }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9rem; }
+        th { background: #f8fafc; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; padding: 12px; text-align: left; }
+        td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-family: 'Courier New', monospace; }
+        tr:nth-child(even) { background: #fafafa; }
+        
+        .badge { background: #dbeafe; color: var(--primary); padding: 4px 8px; border-radius: 6px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <h2 style="text-align: center;">Coletor Inventário</h2>
+<header>
+    <strong>COLETOR PRO</strong>
+</header>
+
+<div class="container">
     <div id="reader"></div>
 
-    <div class="controls">
-        <input type="text" id="barcode-res" placeholder="Código de Barras">
-        <input type="number" id="qtd" placeholder="Quantidade" value="1" onfocus="this.select()">
-        <button onclick="adicionarOrSomar()">REGISTRAR / SOMAR</button>
-        <hr>
-        <button class="btn-export" onclick="exportarTXT()">GERAR INVENT.TXT</button>
-        <button class="btn-clear" onclick="limparDados()">LIMPAR TUDO</button>
+    <div class="card">
+        <button class="btn btn-outline" onclick="trocarCamera()">🔄 Alternar Lente</button>
+        
+        <div class="input-group" style="margin-top: 20px;">
+            <label>CÓDIGO LIDO</label>
+            <input type="text" id="barcode-res" placeholder="Aguardando bip...">
+        </div>
+
+        <div class="input-group">
+            <label>QUANTIDADE</label>
+            <input type="number" id="qtd" value="1" onfocus="this.select()">
+        </div>
+
+        <button class="btn btn-primary" onclick="adicionarOrSomar()">📥 REGISTRAR ITEM</button>
+        
+        <button class="btn btn-danger" onclick="limparDados()">🗑️ LIMPAR COLETA ATUAL</button>
     </div>
 
-    <table>
-        <thead>
-            <tr><th>Código (13 dgt)</th><th>Qtd</th></tr>
-        </thead>
-        <tbody id="corpo-tabela"></tbody>
-    </table>
+    <div class="card" style="margin-bottom: 50px;">
+        <label>ITENS COLETADOS</label>
+        <table>
+            <thead>
+                <tr>
+                    <th>Código (13 dígitos)</th>
+                    <th>Qtd</th>
+                </tr>
+            </thead>
+            <tbody id="corpo-tabela"></tbody>
+        </table>
+    </div>
+</div>
 
-    <script>
-        let inventario = JSON.parse(localStorage.getItem('coleta')) || [];
-        const html5QrCode = new Html5Qrcode("reader");
-        let cameraAtiva = false;
+<button class="fab" onclick="exportarTXT()">💾 EXPORTAR TXT</button>
 
-        // Função para INICIAR a câmera
-        function ligarCamera() {
-            if (cameraAtiva) return;
-            html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 },
-                (decodedText) => {
-                    document.getElementById('barcode-res').value = decodedText;
-                    if(navigator.vibrate) navigator.vibrate(100);
-                }
-            ).then(() => cameraAtiva = true)
-             .catch(err => console.error("Erro na câmera", err));
-        }
+<script>
+    let inventario = JSON.parse(localStorage.getItem('coleta')) || [];
+    const html5QrCode = new Html5Qrcode("reader");
+    let cameraAtiva = false;
+    let modoCamera = "environment";
 
-        // Função para DESLIGAR a câmera
-        function desligarCamera() {
-            if (cameraAtiva) {
-                html5QrCode.stop().then(() => {
-                    cameraAtiva = false;
-                }).catch(err => console.error("Erro ao parar câmera", err));
+    function ligarCamera() {
+        if (cameraAtiva) return;
+        html5QrCode.start({ facingMode: modoCamera }, { fps: 20, qrbox: {width: 250, height: 150} },
+            (decodedText) => {
+                document.getElementById('barcode-res').value = decodedText;
+                document.getElementById('barcode-res').style.borderColor = "#2563eb";
+                if(navigator.vibrate) navigator.vibrate(80);
             }
+        ).then(() => cameraAtiva = true).catch(() => {});
+    }
+
+    function desligarCamera() {
+        if (cameraAtiva) {
+            return html5QrCode.stop().then(() => cameraAtiva = false);
         }
+        return Promise.resolve();
+    }
 
-        // MONITOR DE VISIBILIDADE: Resolve o travamento ao minimizar
-        document.addEventListener("visibilitychange", () => {
-            if (document.hidden) {
-                desligarCamera(); // Para a câmera ao sair da aba
-            } else {
-                setTimeout(ligarCamera, 500); // Religa ao voltar (com atraso para o sistema liberar o hardware)
-            }
-        });
-
-        function formatar13Digitos(valor) {
-            return valor.toString().trim().padStart(13, '0');
-        }
-
-        function adicionarOrSomar() {
-            let rawCode = document.getElementById('barcode-res').value.trim();
-            if(!rawCode) return alert("Bipe ou digite um código.");
-            
-            const code = formatar13Digitos(rawCode);
-            const qtd = parseInt(document.getElementById('qtd').value);
-            
-            if(isNaN(qtd)) return alert("Defina a quantidade.");
-
-            const indexExistente = inventario.findIndex(item => item.code === code);
-            if (indexExistente !== -1) {
-                inventario[indexExistente].qtd = parseInt(inventario[indexExistente].qtd) + qtd;
-            } else {
-                inventario.push({ code, qtd });
-            }
-
-            salvarEAtualizar();
-            document.getElementById('barcode-res').value = "";
-            document.getElementById('qtd').value = "1";
-        }
-
-        function salvarEAtualizar() {
-            localStorage.setItem('coleta', JSON.stringify(inventario));
-            const corpo = document.getElementById('corpo-tabela');
-            const listaReversa = [...inventario].reverse();
-            corpo.innerHTML = listaReversa.map(i => `<tr><td>${i.code}</td><td>${i.qtd}</td></tr>`).join('');
-        }
-
-        function exportarTXT() {
-            if(inventario.length === 0) return alert("Lista vazia.");
-            let conteudo = "";
-            for (let i = 0; i < inventario.length; i++) {
-                let codigoFormatado = formatar13Digitos(inventario[i].code);
-                conteudo += codigoFormatado + " " + inventario[i].qtd + "\r\n";
-            }
-            const blob = new Blob([conteudo], { type: 'text/plain;charset=utf-8' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'invent.txt';
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(() => {
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-            }, 100);
-        }
-
-        function limparDados() {
-            if(confirm("Apagar toda a lista?")) {
-                inventario = [];
-                salvarEAtualizar();
-            }
-        }
-
-        // Inicialização
-        salvarEAtualizar();
+    async function trocarCamera() {
+        await desligarCamera();
+        modoCamera = (modoCamera === "environment") ? "user" : "environment";
         ligarCamera();
-    </script>
+    }
+
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) desligarCamera();
+        else setTimeout(ligarCamera, 500);
+    });
+
+    function formatar13Digitos(valor) {
+        return valor.toString().trim().padStart(13, '0');
+    }
+
+    function adicionarOrSomar() {
+        let rawCode = document.getElementById('barcode-res').value.trim();
+        let qtd = parseInt(document.getElementById('qtd').value);
+        
+        if(!rawCode || isNaN(qtd)) return;
+
+        const code = formatar13Digitos(rawCode);
+        const index = inventario.findIndex(item => item.code === code);
+
+        if (index !== -1) inventario[index].qtd += qtd;
+        else inventario.push({ code, qtd });
+
+        salvarEAtualizar();
+        document.getElementById('barcode-res').value = "";
+        document.getElementById('barcode-res').style.borderColor = "#e2e8f0";
+        document.getElementById('qtd').value = "1";
+    }
+
+    function salvarEAtualizar() {
+        localStorage.setItem('coleta', JSON.stringify(inventario));
+        const corpo = document.getElementById('corpo-tabela');
+        corpo.innerHTML = [...inventario].reverse().map(i => 
+            `<tr><td>${i.code}</td><td><span class="badge">${i.qtd}</span></td></tr>`
+        ).join('');
+    }
+
+    function exportarTXT() {
+        if(inventario.length === 0) return alert("Lista vazia.");
+        let conteudo = inventario.map(i => formatar13Digitos(i.code) + " " + i.qtd).join("\r\n");
+        const blob = new Blob([conteudo], { type: 'text/plain;charset=utf-8' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'invent.txt';
+        document.body.appendChild(a); a.click();
+        setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(url); }, 100);
+    }
+
+    function limparDados() {
+        if(confirm("Deseja apagar todos os dados coletados?")) {
+            inventario = [];
+            salvarEAtualizar();
+        }
+    }
+
+    salvarEAtualizar();
+    ligarCamera();
+</script>
 </body>
 </html>
