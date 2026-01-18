@@ -6,42 +6,35 @@
     <title>Coletor Pro - TXT</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        body { font-family: sans-serif; margin: 20px; background: #f4f4f9; color: #333; }
-        #reader { width: 100%; max-width: 500px; margin: auto; border-radius: 10px; overflow: hidden; border: 2px solid #007bff; }
-        .controls { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; max-width: 500px; margin-left: auto; margin-right: auto; }
+        body { font-family: sans-serif; margin: 15px; background: #f4f4f9; color: #333; }
+        #reader { width: 100%; max-width: 450px; margin: auto; border-radius: 12px; overflow: hidden; border: 3px solid #007bff; }
+        .controls { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; max-width: 450px; margin-left: auto; margin-right: auto; }
         input, button { padding: 15px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; }
         button { background: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; }
         .btn-export { background: #28a745; }
-        .btn-import { background: #6c757d; }
-        .btn-clear { background: #dc3545; font-size: 12px; margin-top: 10px; }
-        .stats { text-align: center; font-weight: bold; margin: 10px; color: #555; }
-        table { width: 100%; max-width: 500px; border-collapse: collapse; margin: 20px auto; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .btn-clear { background: #dc3545; font-size: 12px; }
+        table { width: 100%; max-width: 450px; border-collapse: collapse; margin: 20px auto; background: white; }
         th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
         th { background: #007bff; color: white; }
-        tr:nth-child(even) { background-color: #f2f2f2; }
     </style>
 </head>
 <body>
 
     <h2 style="text-align: center;">Coletor de Inventário</h2>
-    
     <div id="reader"></div>
-    <div class="stats" id="total-itens">Itens únicos: 0</div>
 
     <div class="controls">
         <input type="text" id="barcode-res" placeholder="Código de Barras">
         <input type="number" id="qtd" placeholder="Quantidade" value="1" onfocus="this.select()">
         <button onclick="adicionarOrSomar()">REGISTRAR / SOMAR</button>
         <hr>
-        <button class="btn-export" onclick="exportarTXT()">EXPORTAR INVENT.TXT</button>
-        <button class="btn-import" onclick="document.getElementById('fileInput').click()">IMPORTAR LISTA</button>
-        <input type="file" id="fileInput" style="display:none" accept=".txt,.csv" onchange="importarArquivo(event)">
-        <button class="btn-clear" onclick="limparDados()">LIMPAR COLETA ATUAL</button>
+        <button class="btn-export" onclick="exportarTXT()">GERAR INVENT.TXT</button>
+        <button class="btn-clear" onclick="limparDados()">LIMPAR TUDO</button>
     </div>
 
     <table>
         <thead>
-            <tr><th>Código</th><th>Qtd Total</th></tr>
+            <tr><th>Código</th><th>Qtd</th></tr>
         </thead>
         <tbody id="corpo-tabela"></tbody>
     </table>
@@ -55,31 +48,24 @@
                 document.getElementById('barcode-res').value = decodedText;
                 if(navigator.vibrate) navigator.vibrate(100);
             }
-        ).catch(err => console.error("Câmera não disponível.", err));
+        ).catch(err => console.error("Erro na câmera", err));
 
         function adicionarOrSomar() {
             const code = document.getElementById('barcode-res').value.trim();
-            const qtd = parseInt(document.getElementById('qtd').value);
+            const qtdInput = document.getElementById('qtd').value;
+            const qtd = parseInt(qtdInput);
             
-            if(!code || isNaN(qtd)) {
-                alert("Bipe um código e insira uma quantidade válida.");
-                return;
-            }
+            if(!code || isNaN(qtd)) return alert("Bipe o código e defina a quantidade.");
 
-            // Lógica de Somar se já existir
             const indexExistente = inventario.findIndex(item => item.code === code);
 
             if (indexExistente !== -1) {
-                // Soma à quantidade existente
                 inventario[indexExistente].qtd = parseInt(inventario[indexExistente].qtd) + qtd;
             } else {
-                // Adiciona novo item
                 inventario.push({ code, qtd });
             }
 
             salvarEAtualizar();
-            
-            // Feedback visual e limpa campos
             document.getElementById('barcode-res').value = "";
             document.getElementById('qtd').value = "1";
             document.getElementById('barcode-res').focus();
@@ -87,53 +73,31 @@
 
         function salvarEAtualizar() {
             localStorage.setItem('coleta', JSON.stringify(inventario));
-            document.getElementById('total-itens').innerText = `Itens únicos: ${inventario.length}`;
-            
             const corpo = document.getElementById('corpo-tabela');
-            // Mostra os últimos alterados primeiro
-            const listaExibicao = [...inventario].reverse();
-            corpo.innerHTML = listaExibicao.map(i => `<tr><td>${i.code}</td><td>${i.qtd}</td></tr>`).join('');
+            const listaReversa = [...inventario].reverse();
+            corpo.innerHTML = listaReversa.map(i => `<tr><td>${i.code}</td><td>${i.qtd}</td></tr>`).join('');
         }
 
+        // --- FUNÇÃO CORRIGIDA PARA GERAR UMA LINHA POR ITEM ---
         function exportarTXT() {
-            if(inventario.length === 0) return alert("A lista está vazia.");
+            if(inventario.length === 0) return alert("Lista vazia.");
             
-            let conteudo = inventario.map(i => `${i.code} ${i.qtd}`).join('\n');
+            // Usamos \r\n para garantir que o Windows quebre a linha corretamente
+            let conteudo = inventario.map(i => `${i.code} ${i.qtd}`).join('\r\n');
             
             const blob = new Blob([conteudo], { type: 'text/plain' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
             a.download = 'invent.txt';
+            document.body.appendChild(a);
             a.click();
+            document.body.removeChild(a);
             window.URL.revokeObjectURL(url);
         }
 
-        function importarArquivo(event) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const linhas = e.target.result.split('\n');
-                linhas.forEach(linha => {
-                    const l = linha.trim();
-                    if(!l) return;
-                    const partes = l.includes(' ') ? l.split(' ') : l.split(',');
-                    if(partes.length >= 2) {
-                        const code = partes[0].trim();
-                        const qtd = parseInt(partes[1].trim());
-                        
-                        const idx = inventario.findIndex(i => i.code === code);
-                        if(idx !== -1) inventario[idx].qtd += qtd;
-                        else inventario.push({ code, qtd });
-                    }
-                });
-                salvarEAtualizar();
-            };
-            reader.readAsText(file);
-        }
-
         function limparDados() {
-            if(confirm("Deseja zerar toda a coleta atual?")) {
+            if(confirm("Apagar toda a lista?")) {
                 inventario = [];
                 salvarEAtualizar();
             }
@@ -143,3 +107,4 @@
     </script>
 </body>
 </html>
+
