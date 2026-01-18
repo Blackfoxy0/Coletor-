@@ -3,207 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Coletor Pro v4</title>
+    <title>Coletor Pro v5</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root {
-            --primary: #0f172a;
+            --primary: #1e293b;
             --accent: #2563eb;
-            --success: #059669;
-            --danger: #dc2626;
-            --bg: #f8fafc;
+            --success: #16a34a;
+            --danger: #ef4444;
+            --bg: #f1f5f9;
         }
 
-        body { font-family: sans-serif; margin: 0; background: var(--bg); color: var(--primary); padding-bottom: 100px; }
-        .app-header { background: var(--primary); color: white; padding: 16px; text-align: center; font-weight: 800; font-size: 1.2rem; }
+        body { font-family: system-ui, -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--primary); padding-bottom: 100px; }
         
+        .header { background: var(--primary); color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 1.1rem; }
+
         .container { padding: 12px; max-width: 500px; margin: auto; }
 
-        /* Scanner Area */
-        .scanner-box { 
-            background: #000; border-radius: 20px; overflow: hidden; position: relative; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2); aspect-ratio: 4/3;
+        /* Área da Câmera */
+        .camera-container {
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            border: 2px solid white;
+            aspect-ratio: 1/1; /* Quadrado ajuda no foco central */
         }
         #reader { width: 100%; height: 100%; }
 
-        /* Floating Badge for Camera Info */
-        .cam-info {
-            position: absolute; top: 12px; left: 12px; z-index: 10;
-            background: rgba(0,0,0,0.6); color: #fff; padding: 6px 12px;
-            border-radius: 20px; font-size: 11px; font-weight: bold;
+        /* Controles de Câmera */
+        .cam-controls {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            display: flex;
+            gap: 10px;
         }
 
-        /* Controls */
-        .panel { background: #fff; border-radius: 20px; padding: 20px; margin-top: -30px; position: relative; z-index: 20; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); }
+        .btn-cam {
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.4);
+            padding: 10px 15px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: bold;
+            backdrop-filter: blur(4px);
+        }
+
+        /* Painel de Registro */
+        .panel {
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            margin-top: -30px;
+            position: relative;
+            z-index: 20;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+        }
+
+        .input-group { display: flex; gap: 10px; margin-bottom: 15px; }
+        .input-box { flex: 1; }
+        label { font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 4px; display: block; }
         
-        .btn-switch { 
-            width: 100%; background: #e2e8f0; color: #475569; border: none; padding: 10px;
-            border-radius: 12px; font-weight: bold; margin-bottom: 15px; cursor: pointer;
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #f1f5f9;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            box-sizing: border-box;
+            background: #f8fafc;
+        }
+        input:focus { border-color: var(--accent); outline: none; background: white; }
+
+        .btn-add {
+            width: 100%;
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 14px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.3);
         }
 
-        .row { display: flex; gap: 10px; margin-bottom: 15px; }
-        .input-wrap { flex: 1; }
-        label { font-size: 11px; font-weight: bold; color: #94a3b8; text-transform: uppercase; margin-bottom: 5px; display: block; }
-        
-        input { 
-            width: 100%; padding: 14px; border: 2px solid #f1f5f9; border-radius: 12px; 
-            box-sizing: border-box; font-size: 16px; font-weight: bold; background: #f8fafc;
-        }
-        input:focus { border-color: var(--accent); outline: none; }
-
-        .btn-add { 
-            width: 100%; background: var(--accent); color: white; border: none; padding: 16px;
-            border-radius: 12px; font-size: 1.1rem; font-weight: bold; box-shadow: 0 4px 12px rgba(37,99,235,0.3);
-        }
-
-        /* History */
-        .history { background: #fff; border-radius: 20px; margin-top: 15px; padding: 15px; }
+        /* Tabela */
+        .history { background: white; border-radius: 20px; margin-top: 15px; padding: 15px; }
         table { width: 100%; border-collapse: collapse; }
-        td { padding: 12px 8px; border-bottom: 1px solid #f1f5f9; font-family: monospace; font-weight: bold; }
-        .qty-tag { background: #eff6ff; color: var(--accent); padding: 4px 10px; border-radius: 8px; float: right; }
+        td { padding: 12px 5px; border-bottom: 1px solid #f1f5f9; font-family: monospace; font-size: 0.95rem; }
+        .qty { font-weight: bold; color: var(--accent); text-align: right; }
 
-        /* Footer */
-        .footer { 
-            position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 15px; 
-            display: flex; gap: 12px; border-top: 1px solid #e2e8f0; z-index: 100;
+        /* Rodapé Fixo */
+        .footer {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: white; padding: 15px;
+            display: flex; gap: 10px;
+            border-top: 1px solid #e2e8f0;
+            z-index: 100;
         }
-        .btn-export { flex: 2; background: var(--success); color: white; border: none; border-radius: 12px; font-weight: bold; padding: 15px; }
+        .btn-export { flex: 2; background: var(--success); color: white; border: none; border-radius: 12px; font-weight: bold; padding: 15px; font-size: 1rem; }
         .btn-clear { flex: 1; background: #fff; color: var(--danger); border: 1px solid #fee2e2; border-radius: 12px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="app-header">COLETOR PROFISSIONAL</div>
+<div class="header">COLETOR PROFISSIONAL</div>
 
 <div class="container">
-    <div class="scanner-box">
-        <div id="cam-label" class="cam-info">Lente 1</div>
+    <div class="camera-container">
         <div id="reader"></div>
+        <div class="cam-controls">
+            <button class="btn-cam" onclick="proximaCamera()">🔄 ALTERNAR LENTE</button>
+        </div>
     </div>
 
     <div class="panel">
-        <button class="btn-switch" onclick="proximaCamera()">🔄 ALTERNAR ENTRE TODAS AS LENTES</button>
-        
-        <div class="row">
-            <div class="input-wrap" style="flex: 2;">
-                <label>Código de Barras</label>
-                <input type="text" id="barcode-res" placeholder="Bipe aqui...">
-            </div>
-            <div class="input-wrap">
-                <label>Qtd</label>
-                <input type="number" id="qtd" value="1" onfocus="this.select()">
-            </div>
-        </div>
-        
-        <button class="btn-add" onclick="adicionarOrSomar()">REGISTRAR ITEM</button>
-    </div>
-
-    <div class="history">
-        <label>Últimas Coletas</label>
-        <div id="lista"></div>
-    </div>
-</div>
-
-<div class="footer">
-    <button class="btn-clear" onclick="limparDados()">LIMPAR</button>
-    <button class="btn-export" onclick="exportarTXT()">💾 EXPORTAR INVENT.TXT</button>
-</div>
-
-<script>
-    let inventario = JSON.parse(localStorage.getItem('coleta')) || [];
-    let cameras = [];
-    let cameraAtualIndex = 0;
-    const html5QrCode = new Html5Qrcode("reader");
-
-    // 1. LISTAR TODAS AS CÂMERAS DISPONÍVEIS
-    Html5Qrcode.getCameras().then(devices => {
-        if (devices && devices.length) {
-            cameras = devices;
-            // Tenta começar pela última da lista (geralmente é a traseira principal em muitos Androids)
-            cameraAtualIndex = cameras.length - 1;
-            iniciarCamera(cameras[cameraAtualIndex].id);
-        }
-    }).catch(err => alert("Erro ao listar câmeras: " + err));
-
-    function iniciarCamera(cameraId) {
-        document.getElementById('cam-label').innerText = "Lente: " + (cameraAtualIndex + 1);
-        
-        html5QrCode.start(
-            cameraId, 
-            { fps: 20, qrbox: {width: 250, height: 150} },
-            (decodedText) => {
-                document.getElementById('barcode-res').value = decodedText;
-                if(navigator.vibrate) navigator.vibrate(80);
-            }
-        ).catch(err => console.error(err));
-    }
-
-    async function proximaCamera() {
-        if (cameras.length < 2) return alert("Apenas uma câmera detectada.");
-        
-        await html5QrCode.stop();
-        cameraAtualIndex = (cameraAtualIndex + 1) % cameras.length;
-        iniciarCamera(cameras[cameraAtualIndex].id);
-    }
-
-    function formatar13Digitos(valor) {
-        return valor.toString().trim().padStart(13, '0');
-    }
-
-    function adicionarOrSomar() {
-        let rawCode = document.getElementById('barcode-res').value.trim();
-        let qtd = parseInt(document.getElementById('qtd').value);
-        if(!rawCode || isNaN(qtd)) return;
-
-        const code = formatar13Digitos(rawCode);
-        const index = inventario.findIndex(item => item.code === code);
-
-        if (index !== -1) inventario[index].qtd += qtd;
-        else inventario.push({ code, qtd });
-
-        salvarEAtualizar();
-        document.getElementById('barcode-res').value = "";
-        document.getElementById('qtd').value = "1";
-    }
-
-    function salvarEAtualizar() {
-        localStorage.setItem('coleta', JSON.stringify(inventario));
-        const listaDiv = document.getElementById('lista');
-        const html = [...inventario].reverse().slice(0, 5).map(i => `
-            <div style="padding: 12px 0; border-bottom: 1px solid #f1f5f9;">
-                <span>${i.code}</span>
-                <span class="qty-tag">${i.qtd}</span>
-            </div>
-        `).join('');
-        listaDiv.innerHTML = html || '<p style="color:#94a3b8; font-size:12px;">Nenhum item coletado.</p>';
-    }
-
-    function exportarTXT() {
-        if(inventario.length === 0) return alert("Lista vazia.");
-        let conteudo = inventario.map(i => formatar13Digitos(i.code) + " " + i.qtd).join("\r\n");
-        const blob = new Blob([conteudo], { type: 'text/plain;charset=utf-8' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = 'invent.txt';
-        document.body.appendChild(a); a.click();
-        setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(url); }, 100);
-    }
-
-    function limparDados() {
-        if(confirm("Deseja apagar tudo?")) {
-            inventario = [];
-            salvarEAtualizar();
-        }
-    }
-
-    // Reiniciar câmera ao voltar para a aba
-    document.addEventListener("visibilitychange", () => {
-        if (!document.hidden && cameras.length > 0) {
-            iniciarCamera(cameras[cameraAtualIndex].id);
-        }
-    });
-
-    salvarEAtualizar();
-</script>
-</body>
-</html>
+        <div class="input-group">
+            <div class="input-box" style="flex:
+                
