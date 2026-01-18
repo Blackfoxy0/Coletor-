@@ -3,38 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coletor Pro</title>
+    <title>Coletor Pro - TXT</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        body { font-family: sans-serif; margin: 20px; background: #f4f4f9; }
-        #reader { width: 100%; max-width: 500px; margin: auto; }
-        .controls { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
-        input, button { padding: 12px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; }
-        button { background: #007bff; color: white; border: none; cursor: pointer; }
+        body { font-family: sans-serif; margin: 20px; background: #f4f4f9; color: #333; }
+        #reader { width: 100%; max-width: 500px; margin: auto; border-radius: 10px; overflow: hidden; }
+        .controls { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; max-width: 500px; margin-left: auto; margin-right: auto; }
+        input, button { padding: 15px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; }
+        button { background: #007bff; color: white; border: none; font-weight: bold; }
         .btn-export { background: #28a745; }
         .btn-import { background: #6c757d; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .btn-clear { background: #dc3545; font-size: 12px; margin-top: 10px; }
+        table { width: 100%; max-width: 500px; border-collapse: collapse; margin: 20px auto; background: white; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #eee; }
     </style>
 </head>
 <body>
 
-    <h2>Coletor de Dados</h2>
+    <h2 style="text-align: center;">Coletor de Estoque</h2>
     
     <div id="reader"></div>
 
     <div class="controls">
         <input type="text" id="barcode-res" placeholder="Código de Barras">
         <input type="number" id="qtd" placeholder="Quantidade" value="1">
-        <button onclick="adicionarItem()">Adicionar Item</button>
+        <button onclick="adicionarItem()">REGISTRAR ITEM</button>
         <hr>
-        <button class="btn-import" onclick="document.getElementById('fileInput').click()">Importar CSV</button>
-        <input type="file" id="fileInput" style="display:none" accept=".csv" onchange="importarCSV(event)">
-        <button class="btn-export" onclick="exportarCSV()">Exportar Relatório (CSV)</button>
-        <button style="background:red" onclick="limparDados()">Limpar Tudo</button>
+        <button class="btn-export" onclick="exportarTXT()">EXPORTAR INVENT.TXT</button>
+        <button class="btn-import" onclick="document.getElementById('fileInput').click()">IMPORTAR TXT / CSV</button>
+        <input type="file" id="fileInput" style="display:none" accept=".txt,.csv" onchange="importarArquivo(event)">
+        <button class="btn-clear" onclick="limparDados()">LIMPAR COLETA ATUAL</button>
     </div>
 
-    <table id="tabela">
+    <table>
         <thead>
             <tr><th>Código</th><th>Qtd</th></tr>
         </thead>
@@ -44,51 +46,67 @@
     <script>
         let inventario = JSON.parse(localStorage.getItem('coleta')) || [];
 
-        // Configuração do Scanner
+        // Inicializa o Scanner
         const html5QrCode = new Html5Qrcode("reader");
         html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 },
             (decodedText) => {
                 document.getElementById('barcode-res').value = decodedText;
-                vibratePhone(); // Feedback tátil
+                if(navigator.vibrate) navigator.vibrate(100); 
             }
-        );
+        ).catch(err => console.error("Erro ao abrir câmera: ", err));
 
         function adicionarItem() {
-            const code = document.getElementById('barcode-res').value;
-            const qtd = document.getElementById('qtd').value;
-            if(!code || !qtd) return alert("Preencha código e quantidade");
+            const code = document.getElementById('barcode-res').value.trim();
+            const qtd = document.getElementById('qtd').value.trim();
+            
+            if(!code || !qtd) {
+                alert("Por favor, bip o código e insira a quantidade.");
+                return;
+            }
 
             inventario.push({ code, qtd });
             salvarEAtualizar();
+            
+            // Limpa campos para a próxima leitura
             document.getElementById('barcode-res').value = "";
+            document.getElementById('qtd').value = "1";
+            document.getElementById('barcode-res').focus();
         }
 
         function salvarEAtualizar() {
             localStorage.setItem('coleta', JSON.stringify(inventario));
             const corpo = document.getElementById('corpo-tabela');
-            corpo.innerHTML = inventario.map(i => `<tr><td>${i.code}</td><td>${i.qtd}</td></tr>`).join('');
+            corpo.innerHTML = inventario.slice().reverse().map(i => `<tr><td>${i.code}</td><td>${i.qtd}</td></tr>`).join('');
         }
 
-        function exportarCSV() {
-            let csv = "Codigo,Quantidade\n";
-            inventario.forEach(i => csv += `${i.code},${i.qtd}\n`);
-            const blob = new Blob([csv], { type: 'text/csv' });
+        // EXPORTAÇÃO NO FORMATO SOLICITADO: CODIGO QUANTIDADE
+        function exportarTXT() {
+            if(inventario.length === 0) return alert("Nada para exportar.");
+            
+            // Cria o conteúdo: Código [ESPAÇO] Quantidade [QUEBRA DE LINHA]
+            let conteudo = inventario.map(i => `${i.code} ${i.qtd}`).join('\n');
+            
+            const blob = new Blob([conteudo], { type: 'text/plain' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'coleta_estoque.csv';
+            a.download = 'invent.txt'; // Nome do arquivo solicitado
             a.click();
+            window.URL.revokeObjectURL(url);
         }
 
-        function importarCSV(event) {
+        function importarArquivo(event) {
             const file = event.target.files[0];
             const reader = new FileReader();
             reader.onload = function(e) {
                 const linhas = e.target.result.split('\n');
-                linhas.forEach((linha, index) => {
-                    if(index === 0 || !linha) return; // Pula cabeçalho
-                    const [code, qtd] = linha.split(',');
-                    inventario.push({ code, qtd: qtd.trim() });
+                linhas.forEach(linha => {
+                    if(!linha.trim()) return;
+                    // Tenta separar por espaço (novo padrão) ou vírgula (padrão antigo/csv)
+                    const partes = linha.includes(' ') ? linha.split(' ') : linha.split(',');
+                    if(partes.length >= 2) {
+                        inventario.push({ code: partes[0].trim(), qtd: partes[1].trim() });
+                    }
                 });
                 salvarEAtualizar();
             };
@@ -96,16 +114,13 @@
         }
 
         function limparDados() {
-            if(confirm("Deseja apagar toda a coleta?")) {
+            if(confirm("Isso apagará todos os itens da lista atual. Confirmar?")) {
                 inventario = [];
                 salvarEAtualizar();
             }
         }
 
-        function vibratePhone() {
-            if (navigator.vibrate) navigator.vibrate(100);
-        }
-
+        // Carrega dados ao abrir
         salvarEAtualizar();
     </script>
 </body>
