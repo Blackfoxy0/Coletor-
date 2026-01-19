@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Coletor Pro v16.6 - Isaque Prussak Silveira</title>
+    <title>Coletor Pro v16.10 - Isaque Prussak Silveira</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root { --bg: #000; --card: #111; --primary: #fff; --accent: #3b82f6; --border: #222; --success: #10b981; --danger: #ef4444; }
@@ -25,22 +25,19 @@
         .btn-export { background: var(--success); color: #fff; border: none; padding: 15px; border-radius: 12px; font-weight: bold; width: 100%; margin-bottom: 8px; font-size: 14px; }
         .btn-mini { background: none; border: 1px solid #333; color: #777; padding: 8px; border-radius: 8px; font-size: 9px; flex: 1; font-weight: bold; text-transform: uppercase; }
         .btn-edit { background: #222; color: var(--accent); border: 1px solid var(--accent); padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 3000; justify-content: center; align-items: center; }
-        .modal-content { background: #111; border: 1px solid #333; padding: 20px; border-radius: 20px; width: 85%; max-width: 400px; max-height: 70vh; overflow-y: auto; }
-        .backup-item { background: #1a1a1a; padding: 12px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #333; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div id="modal-recuperar" class="modal">
-    <div class="modal-content">
-        <h3 style="color:var(--accent); margin-top:0;">🩹 Restaurar Backup</h3>
+<div id="modal-recuperar" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 3000; justify-content: center; align-items: center;">
+    <div style="background: #111; border: 1px solid #333; padding: 20px; border-radius: 20px; width: 85%; max-width: 400px;">
+        <h3 style="color:var(--accent); margin-top:0;">🩹 Backup de Coletas</h3>
         <div id="lista-backups"></div>
-        <button onclick="fecharModal()" style="width:100%; background:#333; color:#fff; padding:12px; border:none; border-radius:12px; margin-top:10px; font-weight:bold;">FECHAR</button>
+        <button onclick="document.getElementById('modal-recuperar').style.display='none'" style="width:100%; background:#333; color:#fff; padding:12px; border:none; border-radius:12px; margin-top:10px;">FECHAR</button>
     </div>
 </div>
 
-<div class="header" id="header-info">ISAQUE PRUSSAK SILVEIRA - v16.6</div>
+<div class="header" id="header-info">ISAQUE PRUSSAK SILVEIRA - v16.10</div>
 <div class="stats-bar" id="stats-info">ITENS NA LISTA: 0</div>
 
 <div class="container">
@@ -57,19 +54,19 @@
             <div id="suggestions-box" class="suggestions"></div>
         </div>
         <input type="number" id="qtd" value="1" step="any" inputmode="decimal" onfocus="this.select()">
-        <button class="btn-add" onclick="adicionarItem()">REGISTRAR</button>
+        <button class="btn-add" onclick="adicionarItem()">REGISTRAR ITEM</button>
     </div>
     <div id="lista-corpo"></div>
 </div>
 
 <div class="footer">
-    <button class="btn-export" onclick="exportarTXT()">💾 EXPORTAR INVENTARIO.TXT</button>
+    <button class="btn-export" onclick="exportarBinario()">💾 GERAR INVENT.TXT (PROGRESS)</button>
     <div style="display: flex; gap: 5px;">
-        <button class="btn-mini" onclick="window.location.reload()">🔄 ATUALIZAR</button>
+        <button class="btn-mini" onclick="window.location.reload()">🔄 RECARREGAR</button>
         <button class="btn-mini" style="color:var(--accent); border-color:var(--accent);" onclick="abrirModalRecuperacao()">🩹 RECUPERAR</button>
         <button class="btn-mini" style="color:var(--danger); border-color:var(--danger);" onclick="limparLista()">🗑️ LIMPAR</button>
     </div>
-    <div style="text-align: center; font-size: 9px; color: #444; margin-top: 8px; font-weight: bold;">ISAQUE PRUSSAK SILVEIRA - Versão 16.6 © 2026</div>
+    <div style="text-align: center; font-size: 9px; color: #444; margin-top: 8px;">COLETOR v16.10 - COMPATÍVEL WINDOWS 2012</div>
 </div>
 
 <script>
@@ -89,8 +86,8 @@
                 code: linha.substring(0, 13).trim().padStart(13, '0'),
                 nome: linha.substring(13).slice(0, -10).trim()
             }));
-            document.getElementById('header-info').innerText = "✅ CATÁLOGO OK - v16.6";
-        } catch (e) { document.getElementById('header-info').innerText = "❌ ERRO NO PRODUTO.TXT"; }
+            document.getElementById('header-info').innerText = "✅ CATÁLOGO CARREGADO - v16.10";
+        } catch (e) { document.getElementById('header-info').innerText = "⚠️ ERRO NO PRODUTO.TXT"; }
     }
 
     Html5Qrcode.getCameras().then(devices => {
@@ -102,12 +99,8 @@
     });
 
     function iniciarScanner(id) {
-        if (html5QrCode) {
-            html5QrCode.stop().then(() => start(id));
-        } else {
-            html5QrCode = new Html5Qrcode("reader");
-            start(id);
-        }
+        if (html5QrCode) { html5QrCode.stop().then(() => start(id)); } 
+        else { html5QrCode = new Html5Qrcode("reader"); start(id); }
     }
 
     function start(id) {
@@ -128,27 +121,18 @@
         const v = val.trim().toUpperCase();
         const box = document.getElementById('suggestions-box');
         const displayNome = document.getElementById('prod-nome');
-        
         if(v.length < 2) { box.style.display = 'none'; displayNome.innerText = "PRONTO"; return; }
-
+        
         const isNumerico = /^\d+$/.test(v);
         const match = catalogoMemo.find(i => i.code === v || i.code === v.padStart(13, '0'));
-
-        if(match) {
-            displayNome.innerText = match.nome;
-            produtoAtivo = match;
-        } else {
-            displayNome.innerText = "NÃO CADASTRADO / AVULSO";
-            produtoAtivo = { code: v.padStart(13, '0'), nome: "ITEM AVULSO" };
-        }
+        
+        if(match) { displayNome.innerText = match.nome; produtoAtivo = match; } 
+        else { displayNome.innerText = "ITEM NÃO CADASTRADO"; produtoAtivo = { code: v.padStart(13, '0'), nome: "AVULSO" }; }
 
         if (!isNumerico) {
             const resultados = catalogoMemo.filter(i => i.nome.includes(v)).slice(0, 15);
             if (resultados.length > 0) {
-                box.innerHTML = resultados.map(item => `
-                    <div class="suggestion-item" onclick="selecionarSugestao('${item.code}', '${item.nome}')">
-                        <span>${item.nome}</span> <small>${item.code}</small>
-                    </div>`).join('');
+                box.innerHTML = resultados.map(item => `<div class="suggestion-item" onclick="selecionarSugestao('${item.code}', '${item.nome}')"><span>${item.nome}</span> <small>${item.code}</small></div>`).join('');
                 box.style.display = 'block';
             } else { box.style.display = 'none'; }
         } else { box.style.display = 'none'; }
@@ -168,20 +152,18 @@
         const qtd = parseFloat(document.getElementById('qtd').value.replace(',', '.'));
         if(!code || isNaN(qtd)) return;
 
-        const nome = produtoAtivo ? produtoAtivo.nome : "ITEM AVULSO";
         const idx = inventario.findIndex(i => i.code === code);
-        
         if(idx !== -1) inventario[idx].qtd = parseFloat((inventario[idx].qtd + qtd).toFixed(3));
-        else inventario.push({ code, nome, qtd });
-
+        else inventario.push({ code, nome: produtoAtivo ? produtoAtivo.nome : "AVULSO", qtd });
+        
         atualizarTela();
         input.value = ""; document.getElementById('qtd').value = "1";
-        produtoAtivo = null; document.getElementById('prod-nome').innerText = "✓ REGISTRADO";
+        document.getElementById('prod-nome').innerText = "✓ ITEM ADICIONADO";
     }
 
     function editarItem(code) {
         const idx = inventario.findIndex(i => i.code === code);
-        const novaQtd = prompt(`Editar quantidade para ${inventario[idx].nome}:`, inventario[idx].qtd);
+        const novaQtd = prompt(`Nova quantidade para ${inventario[idx].nome}:`, inventario[idx].qtd);
         if (novaQtd !== null) {
             const num = parseFloat(novaQtd.replace(',', '.'));
             if(!isNaN(num)) { inventario[idx].qtd = num; atualizarTela(); }
@@ -195,13 +177,30 @@
             <div style="background:#111; padding:12px; margin-top:8px; border:1px solid #222; border-radius:12px;">
                 <div style="font-size:10px; color:#666; font-weight:bold;">${i.nome}</div>
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-family:monospace; font-size:13px;">${i.code}</span>
-                    <div style="display:flex; align-items:center; gap:12px;">
+                    <span style="font-family:monospace;">${i.code}</span>
+                    <div style="display:flex; align-items:center; gap:10px;">
                         <b style="color:var(--accent); font-size:16px;">${i.qtd}</b>
                         <button class="btn-edit" onclick="editarItem('${i.code}')">EDITAR</button>
                     </div>
                 </div>
             </div>`).join('');
+    }
+
+    function exportarBinario() {
+        if(inventario.length === 0) return alert("Lista vazia!");
+        
+        // Padrão Progress: "Inventario" + EAN + Quantidade + CRLF
+        let conteudo = "";
+        inventario.forEach(i => {
+            conteudo += "Inventario " + i.code.trim() + " " + i.qtd + "\r\n";
+        });
+
+        // Força a criação de um Blob de texto puro para evitar conflitos no Progress/Windows 2012
+        const blob = new Blob([conteudo], { type: 'text/plain' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'invent.txt';
+        a.click();
     }
 
     function abrirModalRecuperacao() {
@@ -211,30 +210,16 @@
             const dados = JSON.parse(localStorage.getItem(chave));
             if(dados && dados.length > 0) {
                 const div = document.createElement('div');
-                div.className = 'backup-item';
-                div.innerHTML = `<strong>${chave}</strong><br><small>${dados.length} itens encontrados</small>`;
-                div.onclick = () => { if(confirm("Restaurar esta lista?")) { inventario = dados; atualizarTela(); fecharModal(); } };
+                div.style.cssText = "background:#1a1a1a; padding:12px; margin-top:8px; border-radius:10px; cursor:pointer; border:1px solid #333;";
+                div.innerHTML = `<strong>${chave}</strong><br><small>${dados.length} itens</small>`;
+                div.onclick = () => { if(confirm("Restaurar este backup?")) { inventario = dados; atualizarTela(); document.getElementById('modal-recuperar').style.display='none'; } };
                 lista.appendChild(div);
             }
         });
         document.getElementById('modal-recuperar').style.display = 'flex';
     }
 
-    function fecharModal() { document.getElementById('modal-recuperar').style.display = 'none'; }
-    function limparLista() { if(confirm("Deseja limpar toda a lista atual?")) { inventario = []; atualizarTela(); } }
-
-    function exportarTXT() {
-        if(inventario.length === 0) return alert("Lista vazia!");
-        // FORMATO LÓGICO VAREJO: "Inventario" + Código + Qtd + Quebra de Linha Windows (\r\n)
-        let txt = inventario.map(i => `Inventario ${i.code.trim()} ${i.qtd}`).join("\r\n");
-        
-        const blob = new Blob([txt], { type: 'text/plain' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'inventario.txt';
-        a.click();
-    }
-
+    function limparLista() { if(confirm("Deseja apagar a lista atual?")) { inventario = []; atualizarTela(); } }
     window.onload = carregarCatalogo;
     atualizarTela();
 </script>
