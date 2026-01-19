@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Coletor Pro v32.2</title>
+    <title>Coletor Pro v32.4</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     <style>
@@ -14,39 +14,36 @@
         .header { padding: 10px; text-align: center; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 1000; }
         .v-tag { font-size: 9px; letter-spacing: 2px; font-weight: 900; color: var(--primary); text-transform: uppercase; }
         
-        /* Câmera Compacta */
         .scanner-container { padding: 8px; max-width: 500px; margin: auto; }
-        .scanner-frame { position: relative; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); background: #000; box-shadow: 0 15px 30px rgba(0,0,0,0.6); line-height: 0; }
+        .scanner-frame { position: relative; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); background: #000; line-height: 0; }
         #reader { width: 100%; aspect-ratio: 16/10; } 
 
         .btn-switch-cam { position: absolute; top: 10px; right: 10px; z-index: 1100; width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.3); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-        
-        .main-panel { background: var(--card); border-radius: 24px; padding: 15px; margin-top: 10px; border: 1px solid var(--border); }
+
+        .main-panel { background: var(--card); border-radius: 24px; padding: 15px; margin-top: 10px; border: 1px solid var(--border); position: relative; }
         .display-prod { background: rgba(0,0,0,0.4); padding: 12px; border-radius: 12px; margin-bottom: 10px; text-align: center; border: 1px solid var(--border); min-height: 45px; display: flex; align-items: center; justify-content: center; }
         .display-prod b { font-size: 12px; color: var(--accent); text-transform: uppercase; }
         
-        input { width: 100%; padding: 14px; background: rgba(255,255,255,0.05); border: 2px solid transparent; border-radius: 14px; color: #fff; font-size: 16px; font-weight: 600; margin-bottom: 10px; outline: none; transition: 0.2s; }
-        input:focus { border-color: var(--primary); background: rgba(255,255,255,0.08); }
-        
+        input { width: 100%; padding: 14px; background: rgba(255,255,255,0.05); border: 2px solid transparent; border-radius: 14px; color: #fff; font-size: 16px; font-weight: 600; margin-bottom: 10px; outline: none; }
+        input:focus { border-color: var(--primary); }
+
+        .suggestions { background: #1a1a22; border: 1px solid var(--primary); border-radius: 14px; position: absolute; width: calc(100% - 30px); z-index: 4000; max-height: 200px; overflow-y: auto; top: 125px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .sug-item { padding: 14px; border-bottom: 1px solid var(--border); font-size: 13px; color: #fff; cursor: pointer; }
+        .sug-item b { display: block; color: var(--accent); }
+
         .btn-main { width: 100%; background: var(--primary); color: white; border: none; padding: 16px; border-radius: 16px; font-weight: 900; font-size: 15px; cursor: pointer; }
         .item-card { background: var(--card); border: 1px solid var(--border); padding: 12px 18px; border-radius: 20px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
         
-        /* Dashboard Fixo */
-        .dashboard { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 10, 15, 0.95); backdrop-filter: blur(25px); padding: 15px 15px calc(15px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); z-index: 3000; }
+        .dashboard { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 10, 15, 0.95); backdrop-filter: blur(25px); padding: 15px 15px calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); z-index: 3000; }
         .stats { display: flex; gap: 8px; margin-bottom: 10px; }
         .stat-box { flex: 1; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 14px; text-align: center; border: 1px solid var(--border); }
-        .stat-box small { font-size: 8px; color: #888; text-transform: uppercase; }
-        
         .btn-group { display: flex; gap: 8px; }
-        .btn-export { background: var(--success); flex: 1; border: none; padding: 14px; border-radius: 14px; font-weight: 900; color: white; cursor: pointer; }
-        .btn-share { background: var(--whatsapp); flex: 1; border: none; padding: 14px; border-radius: 14px; font-weight: 900; color: white; cursor: pointer; }
-        
-        .footer-tools { display: flex; justify-content: space-between; margin-top: 10px; }
-        .btn-tool { background: none; border: none; color: #666; font-size: 10px; font-weight: bold; cursor: pointer; }
+        .btn-export, .btn-share { flex: 1; border: none; padding: 14px; border-radius: 14px; font-weight: 900; color: white; cursor: pointer; }
+        .btn-export { background: var(--success); }
+        .btn-share { background: var(--whatsapp); }
 
-        /* Modal de Backup */
         #modal-backups { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 5000; padding: 20px; align-items: center; justify-content: center; }
-        .modal-content { background: var(--card); padding: 25px; border-radius: 32px; border: 1px solid var(--border); width: 100%; max-width: 450px; max-height: 80vh; display: flex; flex-direction: column; }
+        .modal-content { background: var(--card); padding: 25px; border-radius: 32px; border: 1px solid var(--border); width: 100%; max-width: 450px; display: flex; flex-direction: column; }
     </style>
 </head>
 <body>
@@ -54,13 +51,12 @@
 <div id="modal-backups" onclick="this.style.display='none'">
     <div class="modal-content" onclick="event.stopPropagation()">
         <h3 style="margin:0; color:var(--primary);">Histórico de Backups</h3>
-        <p style="font-size: 11px; color: #888; margin-bottom: 15px;">Selecione uma sessão anterior para restaurar.</p>
-        <div id="lista-backups" style="overflow-y: auto; flex-grow: 1;"></div>
-        <button onclick="document.getElementById('modal-backups').style.display='none'" style="width:100%; margin-top:20px; padding:18px; border-radius:18px; background:#222; color:#fff; font-weight:bold; border:none;">FECHAR</button>
+        <div id="lista-backups" style="overflow-y: auto; flex-grow: 1; margin-top:15px;"></div>
+        <button onclick="document.getElementById('modal-backups').style.display='none'" style="width:100%; margin-top:20px; padding:18px; border-radius:18px; background:#222; color:#fff; border:none; font-weight:bold;">FECHAR</button>
     </div>
 </div>
 
-<div class="header"><div class="v-tag">ISAQUE PRUSSAK • PRO v32.2</div></div>
+<div class="header"><div class="v-tag">ISAQUE PRUSSAK • PRO v32.4</div></div>
 
 <div class="scanner-container">
     <div class="scanner-frame">
@@ -71,7 +67,8 @@
     <div class="main-panel">
         <div class="display-prod"><b id="p-nome">PRONTO PARA COLETAR</b></div>
         <input type="text" id="barcode-res" placeholder="CÓDIGO OU NOME" oninput="buscaHibrida(this.value)" autocomplete="off">
-        <input type="number" id="qtd" value="1" step="any" inputmode="decimal" onfocus="this.select()" style="border-color: rgba(59, 130, 246, 0.4);">
+        <div id="suggestions-box" class="suggestions" style="display:none"></div>
+        <input type="number" id="qtd" value="1" step="any" inputmode="decimal" onfocus="this.select()">
         <button class="btn-main" onclick="adicionarItem()">REGISTRAR PRODUTO</button>
     </div>
     
@@ -87,10 +84,10 @@
         <button class="btn-export" onclick="exportarBinario()">💾 BAIXAR</button>
         <button class="btn-share" onclick="compartilharZap()">🟢 WHATSAPP</button>
     </div>
-    <div class="footer-tools">
-        <button class="btn-tool" onclick="abrirModalRecuperacao()">🩹 HISTÓRICO</button>
-        <button class="btn-tool" onclick="location.reload()">🔄 RECARREGAR</button>
-        <button class="btn-tool" onclick="limparLista()" style="color:var(--danger)">🗑️ LIMPAR</button>
+    <div class="footer-tools" style="display:flex; justify-content:space-between; margin-top:10px;">
+        <button onclick="abrirModalRecuperacao()" style="background:none; border:none; color:#666; font-size:10px; font-weight:bold;">🩹 HISTÓRICO</button>
+        <button onclick="location.reload()" style="background:none; border:none; color:#666; font-size:10px; font-weight:bold;">🔄 RECARREGAR</button>
+        <button onclick="limparLista()" style="background:none; border:none; color:var(--danger); font-size:10px; font-weight:bold;">🗑️ LIMPAR</button>
     </div>
 </div>
 
@@ -130,28 +127,45 @@
         if(html5QrCode) { html5QrCode.stop().then(() => start(id)).catch(() => start(id)); } else { start(id); }
         function start(camId) {
             html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start(camId, { fps: 25, qrbox: { width: 220, height: 150 } }, (t) => {
+            html5QrCode.start(camId, { fps: 20, qrbox: { width: 220, height: 150 } }, (t) => {
                 document.getElementById('barcode-res').value = t;
                 buscaHibrida(t);
                 document.getElementById('qtd').focus();
-            }).then(() => { scannerAtivo = true; });
+            }).then(() => scannerAtivo = true);
         }
     }
 
-    // Auto-Desliga ao minimizar
     document.addEventListener("visibilitychange", () => {
-        if (document.hidden) { if (html5QrCode && scannerAtivo) { html5QrCode.stop().then(() => { scannerAtivo = false; }); } }
-        else { if (camerasTraseiras.length > 0 && !scannerAtivo) { iniciarScanner(camerasTraseiras[cameraIndiceAtual].id); } }
+        if (document.hidden) { if (html5QrCode && scannerAtivo) html5QrCode.stop().then(() => scannerAtivo = false); }
+        else { if (camerasTraseiras.length > 0 && !scannerAtivo) iniciarScanner(camerasTraseiras[cameraIndiceAtual].id); }
     });
 
     function buscaHibrida(val) {
         let v = val.trim().toUpperCase();
-        if(v.length < 2) return;
+        const box = document.getElementById('suggestions-box');
+        if(v.length < 2) { box.style.display = 'none'; return; }
         const isNum = /^\d+$/.test(v);
-        let vBusca = isNum ? v.padStart(13, '0') : v;
-        const match = catalogoMemo.find(i => i.code === vBusca);
-        if(match) { document.getElementById('p-nome').innerText = match.nome; produtoAtivo = match; }
-        else { document.getElementById('p-nome').innerText = isNum ? "NOVO" : "PESQUISANDO..."; produtoAtivo = { code: isNum ? vBusca : "", nome: "AVULSO" }; }
+        if(isNum) {
+            let vBusca = v.padStart(13, '0');
+            const match = catalogoMemo.find(i => i.code === vBusca);
+            if(match) { document.getElementById('p-nome').innerText = match.nome; produtoAtivo = match; }
+            else { document.getElementById('p-nome').innerText = "NOVO PRODUTO"; produtoAtivo = { code: vBusca, nome: "AVULSO" }; }
+            box.style.display = 'none';
+        } else {
+            const resultados = catalogoMemo.filter(i => i.nome.includes(v)).slice(0, 10);
+            if(resultados.length > 0) {
+                box.innerHTML = resultados.map(i => `<div class="sug-item" onclick="selecionarSugestao('${i.code}', '${i.nome}')"><b>${i.nome}</b><small>${i.code}</small></div>`).join('');
+                box.style.display = 'block';
+            } else { box.style.display = 'none'; document.getElementById('p-nome').innerText = "NÃO ENCONTRADO"; }
+        }
+    }
+
+    function selecionarSugestao(code, nome) {
+        produtoAtivo = { code, nome };
+        document.getElementById('barcode-res').value = code;
+        document.getElementById('p-nome').innerText = nome;
+        document.getElementById('suggestions-box').style.display = 'none';
+        document.getElementById('qtd').focus();
     }
 
     function adicionarItem() {
@@ -164,50 +178,38 @@
         if(idx !== -1) inventario[idx].qtd = parseFloat((inventario[idx].qtd + q).toFixed(3));
         else inventario.push({ code, nome: produtoAtivo ? produtoAtivo.nome : "AVULSO", qtd: q });
         atualizarTela(); input.value = ""; document.getElementById('qtd').value = "1"; input.focus();
-    }
-
-    function gerarConteudoTXT() {
-        let c = ""; inventario.forEach(i => { c += "Inventario " + i.code.padStart(13,'0') + " " + i.qtd + "\r\n"; });
-        return c;
+        document.getElementById('p-nome').innerText = "PRONTO PARA COLETAR";
     }
 
     function exportarBinario() {
-        if(inventario.length === 0) return alert("Lista vazia!");
-        const blob = new Blob([gerarConteudoTXT()], { type: 'text/plain' });
+        if(inventario.length === 0) return alert("Vazio!");
+        const c = inventario.map(i => "Inventario " + i.code.padStart(13,'0') + " " + i.qtd).join("\r\n");
+        const blob = new Blob([c], { type: 'text/plain' });
         const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'invent.txt'; a.click();
     }
 
     async function compartilharZap() {
-        if(inventario.length === 0) return alert("Lista vazia!");
-        const data = new Date().toLocaleDateString().replace(/\//g, '-');
-        const file = new File([gerarConteudoTXT()], `invent_${data}.txt`, { type: 'text/plain' });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            try { await navigator.share({ files: [file], title: 'Inventário Isaque' }); } catch (e) {}
-        } else { alert("Navegador não suporta compartilhamento. Use o botão BAIXAR."); }
+        if(inventario.length === 0) return;
+        const c = inventario.map(i => "Inventario " + i.code.padStart(13,'0') + " " + i.qtd).join("\r\n");
+        const file = new File([c], `inventario.txt`, { type: 'text/plain' });
+        if (navigator.share) try { await navigator.share({ files: [file], title: 'Inventário' }); } catch (e) {}
     }
 
     function abrirModalRecuperacao() {
         const modal = document.getElementById('modal-backups');
         const listaUI = document.getElementById('lista-backups');
         listaUI.innerHTML = "";
-        let encontrados = 0;
         for (let i = 0; i < localStorage.length; i++) {
             const chave = localStorage.key(i);
-            if (chave.toLowerCase().includes('coleta') || chave.toLowerCase().includes('v15')) {
-                try {
-                    const dados = JSON.parse(localStorage.getItem(chave));
-                    if (Array.isArray(dados) && dados.length > 0) {
-                        encontrados++;
-                        const div = document.createElement('div');
-                        div.style = "padding:12px; background:rgba(255,255,255,0.05); margin-bottom:8px; border-radius:12px; border:1px solid var(--border);";
-                        div.innerHTML = `<b>${chave}</b><br><small>${dados.length} itens</small>`;
-                        div.onclick = () => { if(confirm("Restaurar dados de " + chave + "?")) { inventario = dados; atualizarTela(); modal.style.display='none'; }};
-                        listaUI.appendChild(div);
-                    }
-                } catch(e) {}
+            if (chave.includes('coleta')) {
+                const dados = JSON.parse(localStorage.getItem(chave));
+                const div = document.createElement('div');
+                div.className = "sug-item";
+                div.innerHTML = `<b>${chave}</b><small>${dados.length} itens</small>`;
+                div.onclick = () => { inventario = dados; atualizarTela(); modal.style.display='none'; };
+                listaUI.appendChild(div);
             }
         }
-        if(encontrados === 0) listaUI.innerHTML = "<p style='color:#666; text-align:center;'>Nenhum backup encontrado.</p>";
         modal.style.display = 'flex';
     }
 
@@ -217,18 +219,16 @@
         iniciarScanner(camerasTraseiras[cameraIndiceAtual].id);
     }
 
-    function limparLista() { if(confirm("Limpar tudo?")) { inventario = []; atualizarTela(); } }
-    function editarItem(code) { const idx = inventario.findIndex(i => i.code === code); const n = prompt("Nova Qtd:", inventario[idx].qtd); if(n) { inventario[idx].qtd = parseFloat(n.replace(',','.')); atualizarTela(); } }
+    function limparLista() { if(confirm("Limpar?")) { inventario = []; atualizarTela(); } }
+    function editarItem(code) { const idx = inventario.findIndex(i => i.code === code); const n = prompt("Qtd:", inventario[idx].qtd); if(n) { inventario[idx].qtd = parseFloat(n.replace(',','.')); atualizarTela(); } }
 
     window.onload = () => {
         carregarCatalogo(); atualizarTela();
         Html5Qrcode.getCameras().then(devices => {
-            camerasTraseiras = devices.filter(d => !d.label.toLowerCase().includes('front') && !d.label.toLowerCase().includes('selfie'));
+            camerasTraseiras = devices.filter(d => !d.label.toLowerCase().includes('front'));
             if (camerasTraseiras.length === 0) camerasTraseiras = devices;
-            if (camerasTraseiras.length > 0) {
-                if (camerasTraseiras.length > 1) document.getElementById('cam-toggle').style.display = 'flex';
-                iniciarScanner(camerasTraseiras[0].id);
-            }
+            if (camerasTraseiras.length > 1) document.getElementById('cam-toggle').style.display = 'flex';
+            iniciarScanner(camerasTraseiras[0].id);
         });
     };
 </script>
