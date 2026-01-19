@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Coletor Pro v15.0</title>
+    <title>Coletor Pro v15.2</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root { --bg: #000; --card: #111; --primary: #fff; --accent: #3b82f6; --border: #222; --text-muted: #888; --success: #10b981; --danger: #ef4444; }
@@ -24,7 +24,7 @@
         .panel { background: var(--card); border-radius: 24px; padding: 20px; margin-top: -40px; position: relative; z-index: 100; border: 1px solid var(--border); }
         .product-name-display { color: var(--accent); font-weight: 800; font-size: 14px; margin-bottom: 12px; text-align: center; min-height: 20px; text-transform: uppercase; border: 1px dashed #333; padding: 8px; border-radius: 8px; background: #050505; }
         
-        .suggestions { background: #1a1a1a; border-radius: 10px; margin-top: 5px; max-height: 180px; overflow-y: auto; border: 1px solid #333; display: none; position: absolute; width: 100%; z-index: 500; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .suggestions { background: #1a1a1a; border-radius: 10px; margin-top: 5px; max-height: 180px; overflow-y: auto; border: 1px solid #333; display: none; position: absolute; width: 100%; z-index: 500; }
         .suggestion-item { padding: 14px; border-bottom: 1px solid #222; font-size: 13px; cursor: pointer; display: flex; justify-content: space-between; }
 
         input { width: 100%; padding: 12px; background: #000; border: 1px solid var(--border); border-radius: 10px; color: #fff; font-weight: bold; font-size: 16px; outline: none; box-sizing: border-box; }
@@ -48,8 +48,8 @@
     </div>
 </div>
 
-<div class="header" id="header-info">CARREGANDO...</div>
-<div class="stats-bar" id="stats-info">ITENS COLETADOS: 0</div>
+<div class="header" id="header-info">SINCRONIZANDO...</div>
+<div class="stats-bar" id="stats-info">ITENS NA LISTA: 0</div>
 
 <div class="container">
     <div class="scanner-card">
@@ -65,7 +65,6 @@
             <input type="text" id="barcode-res" placeholder="NOME OU CÓDIGO" oninput="buscaHibrida(this.value)" autocomplete="off">
             <div id="suggestions-box" class="suggestions"></div>
         </div>
-        <label style="font-size: 10px; color: #888; font-weight: bold;">QUANTIDADE</label>
         <input type="number" id="qtd" value="1" step="any" inputmode="decimal" onfocus="this.select()">
         <button class="btn-add" onclick="adicionarItem()">REGISTRAR</button>
     </div>
@@ -73,7 +72,7 @@
 </div>
 
 <div class="footer">
-    <button class="btn-export" onclick="exportarTXT()">💾 EXPORTAR COLETA.TXT</button>
+    <button class="btn-export" onclick="exportarTXT()">💾 EXPORTAR INVENTARIO.TXT</button>
     <div style="display: flex; gap: 5px;">
         <button class="btn-mini" onclick="window.location.reload()">🔄 ATUALIZAR</button>
         <button class="btn-mini" onclick="abrirModalRecuperacao()" style="color:var(--accent); border-color:var(--accent);">🩹 RECUPERAR</button>
@@ -82,7 +81,7 @@
 </div>
 
 <script>
-    let inventario = JSON.parse(localStorage.getItem('coleta_v15_0')) || [];
+    let inventario = JSON.parse(localStorage.getItem('coleta_v15_2')) || [];
     let catalogoMemo = [];
     let produtoAtivo = null;
     let html5QrCode;
@@ -140,9 +139,7 @@
         const v = val.trim().toUpperCase();
         const box = document.getElementById('suggestions-box');
         if(v.length < 2) { box.style.display = 'none'; return; }
-        
         const resultados = catalogoMemo.filter(i => i.code.includes(v) || i.nome.includes(v)).slice(0, 15);
-
         if (resultados.length > 0) {
             box.innerHTML = resultados.map(item => `
                 <div class="suggestion-item" onclick="selecionarSugestao('${item.code}', '${item.nome}')">
@@ -161,35 +158,28 @@
         produtoAtivo = { code, nome };
         document.getElementById('barcode-res').value = nome;
         document.getElementById('prod-nome').innerText = nome;
-        
-        // --- MELHORIA AQUI: MINIMIZA A LISTA E FOCA NA QTD ---
         document.getElementById('suggestions-box').style.display = 'none';
         const inputQtd = document.getElementById('qtd');
         inputQtd.focus();
-        inputQtd.select(); // Já deixa o '1' selecionado para digitar por cima
+        inputQtd.select();
     }
 
     function adicionarItem() {
         const input = document.getElementById('barcode-res');
         const qtdInput = document.getElementById('qtd');
         const qtd = parseFloat(qtdInput.value.replace(',', '.'));
-        
         if(!input.value || isNaN(qtd)) return;
-
         if(!produtoAtivo) {
             const v = input.value.trim().toUpperCase();
             const manual = catalogoMemo.find(i => i.code === v.padStart(13, '0') || i.nome === v);
             produtoAtivo = manual || { code: v.padStart(13, '0'), nome: "ITEM AVULSO" };
         }
-
         const idx = inventario.findIndex(i => i.code === produtoAtivo.code);
         if(idx !== -1) inventario[idx].qtd = parseFloat((inventario[idx].qtd + qtd).toFixed(3));
         else inventario.push({ code: produtoAtivo.code, nome: produtoAtivo.nome, qtd });
-        
         atualizarTela();
         input.value = ""; qtdInput.value = "1";
         produtoAtivo = null; document.getElementById('prod-nome').innerText = "✓ REGISTRADO";
-        input.focus(); // Volta para o campo de busca para o próximo item
     }
 
     function editarItem(code) {
@@ -202,8 +192,8 @@
     }
 
     function atualizarTela() {
-        localStorage.setItem('coleta_v15_0', JSON.stringify(inventario));
-        document.getElementById('stats-info').innerText = "ITENS COLETADOS: " + inventario.length;
+        localStorage.setItem('coleta_v15_2', JSON.stringify(inventario));
+        document.getElementById('stats-info').innerText = "ITENS NA LISTA: " + inventario.length;
         const lista = document.getElementById('lista-corpo');
         lista.innerHTML = [...inventario].reverse().map(i => `
             <div class="list-item">
@@ -237,13 +227,19 @@
     }
 
     function fecharModal() { document.getElementById('modal-recuperar').style.display = 'none'; }
-    function limparLista() { if(confirm("Limpar tudo?")) { inventario = []; atualizarTela(); } }
+    function limparLista() { if(confirm("Limpar lista atual?")) { inventario = []; atualizarTela(); } }
 
     function exportarTXT() {
-        let txt = inventario.map(i => i.code + " " + i.qtd).join("\r\n");
+        if(inventario.length === 0) return alert("Lista vazia!");
+        
+        // --- NOVO PADRÃO: "inventario EAN QTD" ---
+        let txt = inventario.map(i => `inventario ${i.code} ${i.qtd}`).join("\r\n");
+        
         const blob = new Blob([txt], { type: 'text/plain' });
         const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob); a.download = 'coleta.txt'; a.click();
+        a.href = URL.createObjectURL(blob);
+        a.download = 'inventario.txt';
+        a.click();
     }
 
     window.onload = carregarCatalogo;
