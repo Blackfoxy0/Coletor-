@@ -3,74 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Coletor Pro v25.0 - Isaque</title>
+    <title>Coletor Pro v27.0</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #050505; --card: #121216; --primary: #3b82f6; --accent: #60a5fa; --success: #10b981; --danger: #ef4444; --border: rgba(255, 255, 255, 0.1); --text: #fff; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: 280px; overflow-x: hidden; }
+        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: 280px; }
         
-        /* Header */
         .header { padding: 12px; text-align: center; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.5); }
         .v-tag { font-size: 9px; letter-spacing: 2px; font-weight: 900; color: var(--primary); text-transform: uppercase; }
 
         /* Scanner */
         .scanner-container { padding: 10px; max-width: 450px; margin: auto; }
-        .scanner-frame { position: relative; border-radius: 28px; overflow: hidden; border: 1px solid var(--border); background: #000; line-height: 0; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .scanner-frame { position: relative; border-radius: 28px; overflow: hidden; border: 1px solid var(--border); background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         #reader { width: 100%; aspect-ratio: 1/1; }
         .btn-switch-cam { position: absolute; top: 15px; right: 15px; z-index: 100; width: 42px; height: 42px; border-radius: 50%; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(5px); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; }
 
-        /* Painel Principal */
+        /* Painel */
         .main-panel { background: var(--card); border-radius: 30px; padding: 22px; margin-top: 15px; border: 1px solid var(--border); box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
         .display-prod { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 15px; margin-bottom: 18px; text-align: center; border: 1px solid var(--border); min-height: 45px; display: flex; align-items: center; justify-content: center; }
-        .display-prod b { font-size: 14px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; }
+        .display-prod b { font-size: 14px; color: var(--accent); text-transform: uppercase; }
 
-        /* Inputs */
         .input-group { position: relative; }
-        input { width: 100%; padding: 16px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 16px; color: #fff; font-size: 16px; font-weight: 600; box-sizing: border-box; margin-bottom: 12px; transition: 0.3s; outline: none; }
-        input:focus { border-color: var(--primary); background: rgba(255,255,255,0.07); }
-
-        /* Sugestões de Busca */
+        input { width: 100%; padding: 16px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 16px; color: #fff; font-size: 16px; font-weight: 600; box-sizing: border-box; margin-bottom: 12px; outline: none; }
+        
         .suggestions { background: #1a1a20; border: 1px solid var(--primary); border-radius: 14px; position: absolute; width: 100%; z-index: 1000; max-height: 200px; overflow-y: auto; top: 58px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
         .sug-item { padding: 14px; border-bottom: 1px solid var(--border); font-size: 13px; color: #eee; }
-        .sug-item b { color: var(--accent); display: block; margin-bottom: 2px; }
 
-        .btn-main { width: 100%; background: var(--primary); color: white; border: none; padding: 18px; border-radius: 18px; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3); }
-        .btn-main:active { transform: scale(0.98); }
+        .btn-main { width: 100%; background: var(--primary); color: white; border: none; padding: 18px; border-radius: 18px; font-weight: 900; font-size: 16px; cursor: pointer; }
 
-        /* Lista de Itens */
+        /* Lista */
         .item-card { background: var(--card); border: 1px solid var(--border); padding: 16px; border-radius: 22px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .btn-edit { background: rgba(59, 130, 246, 0.1); border: none; color: var(--primary); padding: 7px 14px; border-radius: 10px; font-size: 11px; font-weight: 900; margin-top: 6px; }
+        .btn-edit { background: rgba(59, 130, 246, 0.1); border: none; color: var(--primary); padding: 7px 14px; border-radius: 10px; font-size: 11px; font-weight: 900; }
 
-        /* Dashboard Rodapé */
+        /* Rodapé */
         .dashboard { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 10, 15, 0.96); backdrop-filter: blur(20px); padding: 18px 22px; border-top: 1px solid var(--border); z-index: 2000; }
         .stats { display: flex; gap: 12px; margin-bottom: 15px; }
         .stat-box { flex: 1; background: rgba(255,255,255,0.03); padding: 12px; border-radius: 14px; text-align: center; border: 1px solid var(--border); }
-        .stat-box small { font-size: 8px; color: #666; text-transform: uppercase; display: block; margin-bottom: 3px; }
-        .stat-box b { font-size: 16px; letter-spacing: -0.5px; }
+        .stat-box small { font-size: 8px; color: #666; text-transform: uppercase; display: block; }
 
-        .btn-export { background: var(--success); color: white; border: none; padding: 18px; border-radius: 18px; font-weight: 900; width: 100%; font-size: 15px; cursor: pointer; box-shadow: 0 8px 20px rgba(16, 185, 129, 0.2); }
-        .footer-tools { display: flex; justify-content: space-between; margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--border); }
+        .btn-export { background: var(--success); color: white; border: none; padding: 18px; border-radius: 18px; font-weight: 900; width: 100%; font-size: 15px; cursor: pointer; }
+        .footer-tools { display: flex; justify-content: space-between; margin-top: 15px; }
         .btn-tool { background: none; border: none; color: #555; font-size: 10px; font-weight: bold; cursor: pointer; }
 
         /* Modal Backup */
         #modal-backups { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 3000; padding: 20px; align-items: center; justify-content: center; }
         .modal-content { background: var(--card); padding: 25px; border-radius: 28px; border: 1px solid var(--border); width: 100%; max-width: 400px; max-height: 80vh; display: flex; flex-direction: column; }
+        .backup-item { padding: 15px; border-bottom: 1px solid #222; cursor: pointer; background: rgba(255,255,255,0.02); margin-bottom: 8px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .dup-icon { font-size: 14px; filter: grayscale(1); opacity: 0.5; }
+        .dup-active { filter: grayscale(0); opacity: 1; color: #ff9800; }
     </style>
 </head>
 <body>
 
 <div id="modal-backups" onclick="this.style.display='none'">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <h3 style="margin-top:0; color:var(--primary);">Histórico de Coletas</h3>
-        <p style="font-size: 11px; color: #666; margin-bottom: 15px;">Toque para restaurar qualquer backup encontrado no navegador:</p>
+        <h3 style="margin-top:0; color:var(--primary);">Histórico de Backups</h3>
+        <p style="font-size: 10px; color: #666; margin-bottom: 15px;">Ícone 📂 indica que existem outros backups idênticos a este no histórico.</p>
         <div id="lista-backups" style="overflow-y: auto; flex-grow: 1;"></div>
-        <button onclick="document.getElementById('modal-backups').style.display='none'" style="width:100%; margin-top:20px; padding:15px; border-radius:15px; border:none; background:#222; color:#fff; font-weight:bold;">FECHAR</button>
+        <button onclick="document.getElementById('modal-backups').style.display='none'" style="width:100%; margin-top:20px; padding:15px; border-radius:15px; border:none; background:#222; color:#fff; font-weight:bold;">VOLTAR</button>
     </div>
 </div>
 
 <div class="header">
-    <div class="v-tag">ISAQUE PRUSSAK • PRO v25.0</div>
+    <div class="v-tag">ISAQUE • PRO v27.0</div>
 </div>
 
 <div class="scanner-container">
@@ -78,32 +74,26 @@
         <div class="btn-switch-cam" onclick="ciclarCamera()">🔄</div>
         <div id="reader"></div>
     </div>
-
     <div class="main-panel">
-        <div class="display-prod">
-            <b id="p-nome">AGUARDANDO LEITURA...</b>
-        </div>
-
+        <div class="display-prod"><b id="p-nome">AGUARDANDO...</b></div>
         <div class="input-group">
             <input type="text" id="barcode-res" placeholder="CÓDIGO OU NOME" oninput="buscaHibrida(this.value)" autocomplete="off">
             <div id="suggestions-box" class="suggestions" style="display:none"></div>
         </div>
-
         <input type="number" id="qtd" value="1" step="any" inputmode="decimal" onfocus="this.select()">
-        <button class="btn-main" onclick="adicionarItem()">REGISTRAR ITEM</button>
+        <button class="btn-main" onclick="adicionarItem()">REGISTRAR</button>
     </div>
-
     <div id="lista-corpo" style="margin-top:25px;"></div>
 </div>
 
 <div class="dashboard">
     <div class="stats">
-        <div class="stat-box"><small>Itens Únicos</small><b id="st-skus">0</b></div>
-        <div class="stat-box"><small>Total Peças</small><b id="st-total">0</b></div>
+        <div class="stat-box"><small>Itens</small><b id="st-skus">0</b></div>
+        <div class="stat-box"><small>Peças</small><b id="st-total">0</b></div>
     </div>
-    <button class="btn-export" onclick="exportarBinario()">💾 GERAR INVENT.TXT</button>
+    <button class="btn-export" onclick="exportarBinario()">💾 EXPORTAR INVENT.TXT</button>
     <div class="footer-tools">
-        <button class="btn-tool" onclick="abrirModalRecuperacao()">🩹 BACKUPS</button>
+        <button class="btn-tool" onclick="abrirModalRecuperacao()">🩹 HISTÓRICO</button>
         <button class="btn-tool" onclick="location.reload()">🔄 RECARREGAR</button>
         <button class="btn-tool" onclick="limparLista()" style="color:var(--danger)">🗑️ LIMPAR</button>
     </div>
@@ -125,26 +115,97 @@
                 code: l.substring(0, 13).trim().padStart(13, '0'),
                 nome: l.substring(13).slice(0, -10).trim()
             }));
-        } catch (e) { console.error("Erro no carregamento do catálogo."); }
+        } catch (e) {}
     }
 
+    function abrirModalRecuperacao() {
+        const listaUI = document.getElementById('lista-backups');
+        listaUI.innerHTML = "";
+        
+        let backupsTemporarios = [];
+
+        // 1. Coletar todos os backups válidos
+        for (let i = 0; i < localStorage.length; i++) {
+            const chave = localStorage.key(i);
+            if (chave.toLowerCase().includes('coleta')) {
+                try {
+                    const dados = JSON.parse(localStorage.getItem(chave));
+                    if (Array.isArray(dados) && dados.length > 0) {
+                        backupsTemporarios.push({
+                            nome: chave,
+                            conteudo: JSON.stringify(dados),
+                            itens: dados
+                        });
+                    }
+                } catch(e) {}
+            }
+        }
+
+        // 2. Renderizar e comparar entre eles
+        backupsTemporarios.forEach((item, index) => {
+            // Verifica se o conteúdo deste backup existe em qualquer outro backup da lista (exceto ele mesmo)
+            const temDuplicataNoHistorico = backupsTemporarios.some((outros, idx) => 
+                idx !== index && outros.conteudo === item.conteudo
+            );
+
+            const div = document.createElement('div');
+            div.className = "backup-item";
+            div.innerHTML = `
+                <div>
+                    <b style="color:var(--primary); font-size:12px;">${item.nome}</b><br>
+                    <small style="color:#888;">${item.itens.length} itens registrados</small>
+                </div>
+                <div class="dup-icon ${temDuplicataNoHistorico ? 'dup-active' : ''}">📂</div>y
+            `;
+            div.onclick = () => {
+                if(confirm("Carregar backup '" + item.nome + "'?")) {
+                    inventario = item.itens;
+                    atualizarTela();
+                    document.getElementById('modal-backups').style.display = 'none';
+                }
+            };
+            listaUI.appendChild(div);
+        });
+
+        if(backupsTemporarios.length === 0) listaUI.innerHTML = "<p style='text-align:center; color:#444;'>Vazio.</p>";
+        document.getElementById('modal-backups').style.display = 'flex';
+    }
+
+    /* --- Funções Base Mantidas --- */
+    function adicionarItem() {
+        const input = document.getElementById('barcode-res');
+        let code = input.value.trim();
+        const q = parseFloat(document.getElementById('qtd').value.replace(',','.'));
+        if(!code || isNaN(q)) return;
+        if(/^\d+$/.test(code)) code = code.padStart(13, '0');
+        const idx = inventario.findIndex(i => i.code === code);
+        if(idx !== -1) inventario[idx].qtd = parseFloat((inventario[idx].qtd + q).toFixed(3));
+        else inventario.push({ code, nome: produtoAtivo ? produtoAtivo.nome : "AVULSO", qtd: q });
+        atualizarTela();
+        input.value = ""; document.getElementById('qtd').value = "1";
+    }
+    function atualizarTela() {
+        localStorage.setItem('coleta_isaque_v15', JSON.stringify(inventario));
+        let soma = 0;
+        document.getElementById('lista-corpo').innerHTML = [...inventario].reverse().map(i => {
+            soma += i.qtd;
+            return `<div class="item-card">
+                <div><small style="color:#555; font-size:9px;">${i.nome}</small><br><b>${i.code}</b></div>
+                <div style="text-align:right"><b style="color:var(--primary);">${i.qtd}</b><br><button class="btn-edit" onclick="editarItem('${i.code}')">EDITAR</button></div>
+            </div>`;
+        }).join('');
+        document.getElementById('st-skus').innerText = inventario.length;
+        document.getElementById('st-total').innerText = soma.toFixed(2);
+    }
     function buscaHibrida(val) {
         let v = val.trim().toUpperCase();
         const box = document.getElementById('suggestions-box');
         if(v.length < 2) { box.style.display = 'none'; return; }
-        
         const isNum = /^\d+$/.test(v);
         let vBusca = isNum ? v.padStart(13, '0') : v;
         const match = catalogoMemo.find(i => i.code === vBusca);
-        
-        if(match) {
-            document.getElementById('p-nome').innerText = match.nome;
-            produtoAtivo = match;
-        } else {
-            document.getElementById('p-nome').innerText = isNum ? "PRODUTO NOVO" : "PESQUISANDO...";
-            produtoAtivo = { code: isNum ? vBusca : "", nome: "AVULSO" };
-        }
-
+        if(match) { document.getElementById('p-nome').innerText = match.nome; produtoAtivo = match; }
+        else { document.getElementById('p-nome').innerText = isNum ? "NOVO" : "BUSCANDO..."; produtoAtivo = { code: isNum ? vBusca : "", nome: "AVULSO" }; }
         if(!isNum) {
             const res = catalogoMemo.filter(i => i.nome.includes(v)).slice(0, 15);
             if(res.length > 0) {
@@ -153,131 +214,20 @@
             } else box.style.display = 'none';
         } else box.style.display = 'none';
     }
-
-    function selecionarSugestao(code, nome) {
-        produtoAtivo = { code, nome };
-        document.getElementById('barcode-res').value = code;
-        document.getElementById('p-nome').innerText = nome;
-        document.getElementById('suggestions-box').style.display = 'none';
-        document.getElementById('qtd').focus();
+    function selecionarSugestao(code, nome) { produtoAtivo = { code, nome }; document.getElementById('barcode-res').value = code; document.getElementById('p-nome').innerText = nome; document.getElementById('suggestions-box').style.display = 'none'; document.getElementById('qtd').focus(); }
+    function editarItem(code) { const idx = inventario.findIndex(i => i.code === code); const n = prompt("Qtd:", inventario[idx].qtd); if(n !== null) { const num = parseFloat(n.replace(',','.')); if(!isNaN(num)) { inventario[idx].qtd = num; atualizarTela(); } } }
+    function exportarBinario() {
+        let c = ""; inventario.forEach(i => { c += "Inventario " + i.code.padStart(13,'0') + " " + i.qtd + "\r\n"; });
+        const blob = new Blob([c], { type: 'text/plain' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'invent.txt'; a.click();
     }
-
-    function adicionarItem() {
-        const input = document.getElementById('barcode-res');
-        let code = input.value.trim();
-        const q = parseFloat(document.getElementById('qtd').value.replace(',','.'));
-        if(!code || isNaN(q)) return;
-        if(/^\d+$/.test(code)) code = code.padStart(13, '0');
-
-        const idx = inventario.findIndex(i => i.code === code);
-        if(idx !== -1) inventario[idx].qtd = parseFloat((inventario[idx].qtd + q).toFixed(3));
-        else inventario.push({ code, nome: produtoAtivo ? produtoAtivo.nome : "AVULSO", qtd: q });
-        
-        atualizarTela();
-        input.value = ""; document.getElementById('qtd').value = "1";
-        document.getElementById('p-nome').innerText = "✓ REGISTRADO COM SUCESSO";
-    }
-
-    function atualizarTela() {
-        localStorage.setItem('coleta_isaque_v15', JSON.stringify(inventario));
-        let totalPecas = 0;
-        document.getElementById('lista-corpo').innerHTML = [...inventario].reverse().map(i => {
-            totalPecas += i.qtd;
-            return `
-            <div class="item-card">
-                <div><small style="color:#555; font-size:9px; font-weight:bold;">${i.nome}</small><br><b>${i.code}</b></div>
-                <div style="text-align:right">
-                    <b style="color:var(--primary); font-size:17px;">${i.qtd}</b><br>
-                    <button class="btn-edit" onclick="editarItem('${i.code}')">EDITAR</button>
-                </div>
-            </div>`;
-        }).join('');
-        document.getElementById('st-skus').innerText = inventario.length;
-        document.getElementById('st-total').innerText = totalPecas.toFixed(2);
-    }
-
-    function editarItem(code) {
-        const idx = inventario.findIndex(i => i.code === code);
-        const n = prompt("Ajustar Quantidade de " + inventario[idx].code + ":", inventario[idx].qtd);
-        if(n !== null) { 
-            const num = parseFloat(n.replace(',','.'));
-            if(!isNaN(num)) { inventario[idx].qtd = num; atualizarTela(); }
-        }
-    }
-
-    function ciclarCamera() {
-        if (camerasDisponiveis.length < 2) return;
-        cameraIndiceAtual = (cameraIndiceAtual + 1) % camerasDisponiveis.length;
-        iniciarScanner(camerasDisponiveis[cameraIndiceAtual].id);
-    }
-
+    function ciclarCamera() { if (camerasDisponiveis.length < 2) return; cameraIndiceAtual = (cameraIndiceAtual + 1) % camerasDisponiveis.length; iniciarScanner(camerasDisponiveis[cameraIndiceAtual].id); }
     function iniciarScanner(id) {
         if(html5QrCode) { html5QrCode.stop().then(() => start(id)).catch(() => start(id)); } else { start(id); }
-        function start(camId) {
-            html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start(camId, { fps: 20, qrbox: 250 }, (t) => {
-                document.getElementById('barcode-res').value = t;
-                buscaHibrida(t);
-                document.getElementById('qtd').focus();
-            }).catch(() => {});
-        }
+        function start(camId) { html5QrCode = new Html5Qrcode("reader"); html5QrCode.start(camId, { fps: 20, qrbox: 250 }, (t) => { document.getElementById('barcode-res').value = t; buscaHibrida(t); document.getElementById('qtd').focus(); }).catch(() => {}); }
     }
-
-    function exportarBinario() {
-        if(inventario.length === 0) return alert("Lista vazia!");
-        let conteudo = "";
-        inventario.forEach(i => { 
-            conteudo += "Inventario " + i.code.padStart(13,'0') + " " + i.qtd + "\r\n"; 
-        });
-        const blob = new Blob([conteudo], { type: 'text/plain' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'invent.txt';
-        a.click();
-    }
-
-    function abrirModalRecuperacao() {
-        const lista = document.getElementById('lista-backups');
-        lista.innerHTML = "";
-        let achou = 0;
-        for (let i = 0; i < localStorage.length; i++) {
-            const chave = localStorage.key(i);
-            if (chave.toLowerCase().includes('coleta')) {
-                try {
-                    const dados = JSON.parse(localStorage.getItem(chave));
-                    if (Array.isArray(dados) && dados.length > 0) {
-                        achou++;
-                        const d = document.createElement('div');
-                        d.style.cssText = "padding:15px; border-bottom:1px solid #222; cursor:pointer; background:rgba(255,255,255,0.02); margin-bottom:8px; border-radius:12px;";
-                        d.innerHTML = `<b style="color:var(--primary); font-size:12px;">${chave}</b><br><small style="color:#888;">${dados.length} produtos salvos</small>`;
-                        d.onclick = () => {
-                            if(confirm("Carregar backup de " + chave + "?")) {
-                                inventario = dados;
-                                atualizarTela();
-                                document.getElementById('modal-backups').style.display = 'none';
-                            }
-                        };
-                        lista.appendChild(d);
-                    }
-                } catch(e) {}
-            }
-        }
-        if(achou === 0) lista.innerHTML = "<p style='text-align:center; color:#444;'>Nenhum histórico encontrado.</p>";
-        document.getElementById('modal-backups').style.display = 'flex';
-    }
-
-    function limparLista() { if(confirm("Deseja realmente apagar toda a lista atual?")) { inventario = []; atualizarTela(); } }
-
-    window.onload = () => {
-        carregarCatalogo();
-        atualizarTela();
-        Html5Qrcode.getCameras().then(devices => {
-            if (devices && devices.length) {
-                camerasDisponiveis = devices;
-                iniciarScanner(devices[0].id);
-            }
-        }).catch(() => { document.getElementById('p-nome').innerText = "ERRO AO ACESSAR CÂMERA"; });
-    };
+    function limparLista() { if(confirm("Limpar tudo?")) { inventario = []; atualizarTela(); } }
+    window.onload = () => { carregarCatalogo(); atualizarTela(); Html5Qrcode.getCameras().then(devices => { if (devices && devices.length) { camerasDisponiveis = devices; iniciarScanner(devices[0].id); } }); };
 </script>
 </body>
 </html>
