@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Coletor Pro v16.10 - Isaque Prussak Silveira</title>
+    <title>Coletor Pro v16.11 - Isaque Prussak</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root { --bg: #000; --card: #111; --primary: #fff; --accent: #3b82f6; --border: #222; --success: #10b981; --danger: #ef4444; }
@@ -13,8 +13,6 @@
         .container { padding: 12px; max-width: 500px; margin: auto; }
         .scanner-card { background: #000; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); aspect-ratio: 1/1; position: relative; }
         #reader { width: 100%; height: 100%; }
-        .camera-controls { position: absolute; bottom: 10px; right: 10px; z-index: 10; }
-        .btn-cam { background: rgba(0,0,0,0.7); color: #fff; border: 1px solid #fff; padding: 8px 12px; border-radius: 8px; font-size: 10px; cursor: pointer; }
         .panel { background: var(--card); border-radius: 24px; padding: 20px; margin-top: -40px; position: relative; z-index: 100; border: 1px solid var(--border); }
         .product-name-display { color: var(--accent); font-weight: 800; font-size: 14px; margin-bottom: 12px; text-align: center; min-height: 20px; text-transform: uppercase; border: 1px dashed #333; padding: 8px; border-radius: 8px; background: #050505; }
         input { width: 100%; padding: 12px; background: #000; border: 1px solid var(--border); border-radius: 10px; color: #fff; font-weight: bold; font-size: 16px; outline: none; box-sizing: border-box; margin-bottom: 10px; }
@@ -37,16 +35,11 @@
     </div>
 </div>
 
-<div class="header" id="header-info">ISAQUE PRUSSAK SILVEIRA - v16.10</div>
+<div class="header">ISAQUE PRUSSAK SILVEIRA - v16.11</div>
 <div class="stats-bar" id="stats-info">ITENS NA LISTA: 0</div>
 
 <div class="container">
-    <div class="scanner-card">
-        <div id="reader"></div>
-        <div class="camera-controls">
-            <button class="btn-cam" onclick="alternarCamera()">🔄 CÂMARA</button>
-        </div>
-    </div>
+    <div class="scanner-card"><div id="reader"></div></div>
     <div class="panel">
         <div id="prod-nome" class="product-name-display">PRONTO</div>
         <div style="position: relative;">
@@ -60,13 +53,13 @@
 </div>
 
 <div class="footer">
-    <button class="btn-export" onclick="exportarBinario()">💾 GERAR INVENT.TXT (PROGRESS)</button>
+    <button class="btn-export" onclick="exportarBinario()">💾 GERAR INVENT.TXT (13 DÍGITOS)</button>
     <div style="display: flex; gap: 5px;">
         <button class="btn-mini" onclick="window.location.reload()">🔄 RECARREGAR</button>
         <button class="btn-mini" style="color:var(--accent); border-color:var(--accent);" onclick="abrirModalRecuperacao()">🩹 RECUPERAR</button>
         <button class="btn-mini" style="color:var(--danger); border-color:var(--danger);" onclick="limparLista()">🗑️ LIMPAR</button>
     </div>
-    <div style="text-align: center; font-size: 9px; color: #444; margin-top: 8px;">COLETOR v16.10 - COMPATÍVEL WINDOWS 2012</div>
+    <div style="text-align: center; font-size: 9px; color: #444; margin-top: 8px;">COMPATÍVEL COM PROGRESS/WINDOWS 2012</div>
 </div>
 
 <script>
@@ -74,8 +67,6 @@
     let catalogoMemo = [];
     let produtoAtivo = null;
     let html5QrCode;
-    let camerasDisponiveis = [];
-    let currentCameraId;
 
     async function carregarCatalogo() {
         try {
@@ -86,48 +77,23 @@
                 code: linha.substring(0, 13).trim().padStart(13, '0'),
                 nome: linha.substring(13).slice(0, -10).trim()
             }));
-            document.getElementById('header-info').innerText = "✅ CATÁLOGO CARREGADO - v16.10";
-        } catch (e) { document.getElementById('header-info').innerText = "⚠️ ERRO NO PRODUTO.TXT"; }
-    }
-
-    Html5Qrcode.getCameras().then(devices => {
-        camerasDisponiveis = devices;
-        if (devices.length > 0) {
-            currentCameraId = devices[devices.length - 1].id;
-            iniciarScanner(currentCameraId);
-        }
-    });
-
-    function iniciarScanner(id) {
-        if (html5QrCode) { html5QrCode.stop().then(() => start(id)); } 
-        else { html5QrCode = new Html5Qrcode("reader"); start(id); }
-    }
-
-    function start(id) {
-        html5QrCode.start(id, { fps: 20, qrbox: 250 }, (text) => {
-            document.getElementById('barcode-res').value = text;
-            buscaHibrida(text);
-            document.getElementById('qtd').focus();
-        });
-    }
-
-    function alternarCamera() {
-        const index = camerasDisponiveis.findIndex(c => c.id === currentCameraId);
-        currentCameraId = camerasDisponiveis[(index + 1) % camerasDisponiveis.length].id;
-        iniciarScanner(currentCameraId);
+        } catch (e) { console.log("Erro catalogo"); }
     }
 
     function buscaHibrida(val) {
-        const v = val.trim().toUpperCase();
+        let v = val.trim().toUpperCase();
         const box = document.getElementById('suggestions-box');
         const displayNome = document.getElementById('prod-nome');
-        if(v.length < 2) { box.style.display = 'none'; displayNome.innerText = "PRONTO"; return; }
+        if(v.length < 2) { box.style.display = 'none'; return; }
         
         const isNumerico = /^\d+$/.test(v);
-        const match = catalogoMemo.find(i => i.code === v || i.code === v.padStart(13, '0'));
+        // AJUSTE: Se for número, preenche com zeros para buscar no catálogo
+        if(isNumerico) { v = v.padStart(13, '0'); }
+
+        const match = catalogoMemo.find(i => i.code === v);
         
         if(match) { displayNome.innerText = match.nome; produtoAtivo = match; } 
-        else { displayNome.innerText = "ITEM NÃO CADASTRADO"; produtoAtivo = { code: v.padStart(13, '0'), nome: "AVULSO" }; }
+        else { displayNome.innerText = isNumerico ? "ITEM NÃO CADASTRADO" : "BUSCANDO NOME..."; produtoAtivo = { code: isNumerico ? v : "", nome: "AVULSO" }; }
 
         if (!isNumerico) {
             const resultados = catalogoMemo.filter(i => i.nome.includes(v)).slice(0, 15);
@@ -148,9 +114,12 @@
 
     function adicionarItem() {
         const input = document.getElementById('barcode-res');
-        const code = input.value.trim();
+        let code = input.value.trim();
         const qtd = parseFloat(document.getElementById('qtd').value.replace(',', '.'));
         if(!code || isNaN(qtd)) return;
+
+        // OBRIGATÓRIO: Garante 13 dígitos antes de salvar
+        if(/^\d+$/.test(code)) { code = code.padStart(13, '0'); }
 
         const idx = inventario.findIndex(i => i.code === code);
         if(idx !== -1) inventario[idx].qtd = parseFloat((inventario[idx].qtd + qtd).toFixed(3));
@@ -158,44 +127,36 @@
         
         atualizarTela();
         input.value = ""; document.getElementById('qtd').value = "1";
-        document.getElementById('prod-nome').innerText = "✓ ITEM ADICIONADO";
-    }
-
-    function editarItem(code) {
-        const idx = inventario.findIndex(i => i.code === code);
-        const novaQtd = prompt(`Nova quantidade para ${inventario[idx].nome}:`, inventario[idx].qtd);
-        if (novaQtd !== null) {
-            const num = parseFloat(novaQtd.replace(',', '.'));
-            if(!isNaN(num)) { inventario[idx].qtd = num; atualizarTela(); }
-        }
+        document.getElementById('prod-nome').innerText = "✓ REGISTRADO";
     }
 
     function atualizarTela() {
         localStorage.setItem('coleta_isaque_v15', JSON.stringify(inventario));
         document.getElementById('stats-info').innerText = "ITENS NA LISTA: " + inventario.length;
         document.getElementById('lista-corpo').innerHTML = [...inventario].reverse().map(i => `
-            <div style="background:#111; padding:12px; margin-top:8px; border:1px solid #222; border-radius:12px;">
-                <div style="font-size:10px; color:#666; font-weight:bold;">${i.nome}</div>
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-family:monospace;">${i.code}</span>
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <b style="color:var(--accent); font-size:16px;">${i.qtd}</b>
-                        <button class="btn-edit" onclick="editarItem('${i.code}')">EDITAR</button>
-                    </div>
-                </div>
+            <div style="background:#111; padding:12px; margin-top:8px; border:1px solid #222; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+                <div><small style="color:#666; display:block;">${i.nome}</small><b>${i.code}</b></div>
+                <div style="display:flex; align-items:center; gap:10px;"><b style="color:var(--accent);">${i.qtd}</b>
+                <button class="btn-edit" onclick="editarItem('${i.code}')">EDIT</button></div>
             </div>`).join('');
     }
 
+    function editarItem(code) {
+        const idx = inventario.findIndex(i => i.code === code);
+        const novaQtd = prompt(`Quantidade:`, inventario[idx].qtd);
+        if (novaQtd !== null) {
+            const num = parseFloat(novaQtd.replace(',', '.'));
+            if(!isNaN(num)) { inventario[idx].qtd = num; atualizarTela(); }
+        }
+    }
+
     function exportarBinario() {
-        if(inventario.length === 0) return alert("Lista vazia!");
-        
-        // Padrão Progress: "Inventario" + EAN + Quantidade + CRLF
+        if(inventario.length === 0) return;
         let conteudo = "";
         inventario.forEach(i => {
-            conteudo += "Inventario " + i.code.trim() + " " + i.qtd + "\r\n";
+            // AJUSTE FINAL: Garante o formato exato que o Progress exige
+            conteudo += "Inventario " + i.code.trim().padStart(13, '0') + " " + i.qtd + "\r\n";
         });
-
-        // Força a criação de um Blob de texto puro para evitar conflitos no Progress/Windows 2012
         const blob = new Blob([conteudo], { type: 'text/plain' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
@@ -210,16 +171,24 @@
             const dados = JSON.parse(localStorage.getItem(chave));
             if(dados && dados.length > 0) {
                 const div = document.createElement('div');
-                div.style.cssText = "background:#1a1a1a; padding:12px; margin-top:8px; border-radius:10px; cursor:pointer; border:1px solid #333;";
-                div.innerHTML = `<strong>${chave}</strong><br><small>${dados.length} itens</small>`;
-                div.onclick = () => { if(confirm("Restaurar este backup?")) { inventario = dados; atualizarTela(); document.getElementById('modal-recuperar').style.display='none'; } };
+                div.style.cssText = "background:#1a1a1a; padding:10px; margin-top:5px; border-radius:8px; cursor:pointer;";
+                div.innerHTML = `<strong>${chave}</strong> (${dados.length} itens)`;
+                div.onclick = () => { inventario = dados; atualizarTela(); document.getElementById('modal-recuperar').style.display='none'; };
                 lista.appendChild(div);
             }
         });
         document.getElementById('modal-recuperar').style.display = 'flex';
     }
 
-    function limparLista() { if(confirm("Deseja apagar a lista atual?")) { inventario = []; atualizarTela(); } }
+    function limparLista() { if(confirm("Apagar lista?")) { inventario = []; atualizarTela(); } }
+
+    const scanner = new Html5Qrcode("reader");
+    scanner.start({ facingMode: "environment" }, { fps: 20, qrbox: 250 }, (text) => {
+        document.getElementById('barcode-res').value = text;
+        buscaHibrida(text);
+        document.getElementById('qtd').focus();
+    });
+
     window.onload = carregarCatalogo;
     atualizarTela();
 </script>
