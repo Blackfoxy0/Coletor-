@@ -3,60 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Coletor Pro v11.1</title>
+    <title>Coletor Pro v11.2</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root { --primary: #0f172a; --accent: #2563eb; --success: #16a34a; --danger: #dc2626; --bg: #f8fafc; }
         body { font-family: sans-serif; margin: 0; background: var(--bg); padding-bottom: 160px; }
         
-        /* Cabeçalho Fixo */
         .header { background: var(--primary); color: white; padding: 15px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
         .container { padding: 12px; max-width: 500px; margin: auto; }
         
-        /* Scanner */
         .scanner-card { background: #000; border-radius: 20px; overflow: hidden; position: relative; aspect-ratio: 1/1; border: 2px solid #fff; }
         #reader { width: 100%; height: 100%; }
         .cam-btn { position: absolute; top: 10px; right: 10px; z-index: 50; background: var(--accent); color: white; border: none; padding: 8px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; }
 
-        /* Painel de Controle */
         .panel { background: white; border-radius: 20px; padding: 20px; margin-top: -30px; position: relative; z-index: 100; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); }
         .stats { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 12px; font-weight: bold; color: #475569; background: #f1f5f9; padding: 10px; border-radius: 10px; }
         
         .row { display: flex; gap: 10px; margin-bottom: 15px; }
         label { font-size: 11px; font-weight: bold; color: #94a3b8; display: block; margin-bottom: 4px; }
-        input { width: 100%; padding: 12px; border: 2px solid #f1f5f9; border-radius: 10px; font-size: 16px; box-sizing: border-box; font-weight: bold; outline: none; transition: 0.3s; }
+        input { width: 100%; padding: 12px; border: 2px solid #f1f5f9; border-radius: 10px; font-size: 16px; box-sizing: border-box; font-weight: bold; outline: none; }
         input:focus { border-color: var(--accent); background: #fff; }
         
-        .btn-add { width: 100%; background: var(--accent); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 6px rgba(37,99,235,0.2); }
+        .btn-add { width: 100%; background: var(--accent); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; font-size: 16px; }
 
-        /* BARRA DE PESQUISA (DEVE APARECER AGORA) */
         .search-container { margin-top: 20px; padding-top: 15px; border-top: 1px solid #f1f5f9; }
         .search-input { border: 2px solid #e2e8f0; background: #fdfdfd; font-size: 14px; }
-        .search-input:focus { border-color: var(--success); }
 
-        /* Lista Infinita */
         .list-section { background: white; border-radius: 20px; margin-top: 15px; padding: 15px; }
-        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f8fafc; animation: fadeIn 0.3s ease; }
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f8fafc; }
         .item-info { font-family: monospace; font-size: 14px; font-weight: bold; color: #1e293b; }
         .item-actions { display: flex; gap: 8px; align-items: center; }
         .qty-val { font-weight: 800; color: var(--accent); font-size: 15px; margin-right: 5px; }
         
-        .btn-edit { background: #e0e7ff; color: #4338ca; border: none; padding: 6px 12px; border-radius: 6px; font-size: 10px; font-weight: bold; }
-        .btn-del { background: #fee2e2; color: #b91c1c; border: none; padding: 6px 10px; border-radius: 6px; font-size: 10px; font-weight: bold; }
+        .btn-edit { background: #e0e7ff; color: #4338ca; border: none; padding: 8px 16px; border-radius: 8px; font-size: 11px; font-weight: bold; }
 
-        /* Rodapé */
         .footer { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 12px; border-top: 1px solid #e2e8f0; z-index: 2000; }
         .footer-row { display: flex; gap: 8px; margin-bottom: 8px; }
         .btn-export { flex: 2; background: var(--success); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: bold; }
         .btn-import { flex: 1; background: #64748b; color: white; border: none; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 11px; }
         .btn-clear { width: 100%; background: none; color: var(--danger); border: none; font-size: 11px; font-weight: bold; cursor: pointer; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<div class="header">COLETOR V11.1 - ATUALIZADO</div>
+<div class="header">COLETOR V11.2 - PESQUISA ATIVA</div>
 
 <div class="container">
     <div class="scanner-card">
@@ -82,8 +72,8 @@
         <button class="btn-add" onclick="adicionarItem()">REGISTRAR PRODUTO</button>
 
         <div class="search-container">
-            <label>🔎 PESQUISAR NA LISTA (CONFERÊNCIA)</label>
-            <input type="text" id="search-input" class="search-input" placeholder="Digite o código para filtrar..." oninput="atualizarTela()">
+            <label>🔎 PESQUISAR NA LISTA</label>
+            <input type="text" id="search-input" class="search-input" placeholder="Digite para filtrar..." oninput="atualizarTela()">
         </div>
     </div>
 
@@ -95,7 +85,7 @@
 <div class="footer">
     <div class="footer-row">
         <button class="btn-import" onclick="document.getElementById('fileIn').click()">📥 IMPORTAR</button>
-        <button class="btn-export" onclick="exportarTXT()">💾 EXPORTAR INVENT.TXT</button>
+        <button class="btn-export" onclick="exportarTXT()">💾 EXPORTAR TXT</button>
     </div>
     <button class="btn-clear" onclick="limparDados()">⚠️ APAGAR TODA A LISTA</button>
     <input type="file" id="fileIn" style="display:none" accept=".txt" onchange="importarArquivo(event)">
@@ -107,7 +97,6 @@
     let cameraIdx = 0;
     let scanner;
 
-    // Inicialização da Câmera
     Html5Qrcode.getCameras().then(devices => {
         if (devices.length > 0) {
             cameras = devices;
@@ -158,20 +147,13 @@
 
     function editarItem(code) {
         const idx = inventario.findIndex(i => i.code === code);
-        const novaQtd = prompt("Nova quantidade para " + code + ":", inventario[idx].qtd);
+        const novaQtd = prompt("Alterar quantidade para " + code + ":", inventario[idx].qtd);
         if (novaQtd !== null) {
             const valor = parseFloat(novaQtd.replace(',', '.'));
             if (!isNaN(valor)) {
                 inventario[idx].qtd = parseFloat(valor.toFixed(3));
                 atualizarTela();
             }
-        }
-    }
-
-    function excluirItem(code) {
-        if(confirm("Excluir item " + code + "?")) {
-            inventario = inventario.filter(i => i.code !== code);
-            atualizarTela();
         }
     }
 
@@ -191,11 +173,10 @@
                 <div class="item-info">${i.code}</div>
                 <div class="item-actions">
                     <span class="qty-val">${i.qtd}</span>
-                    <button class="btn-edit" onclick="editarItem('${i.code}')">EDIT</button>
-                    <button class="btn-del" onclick="excluirItem('${i.code}')">X</button>
+                    <button class="btn-edit" onclick="editarItem('${i.code}')">EDITAR</button>
                 </div>
             </div>
-        `).join('') || '<p style="text-align:center; color:#94a3b8; font-size:12px;">Lista vazia ou sem resultados.</p>';
+        `).join('') || '<p style="text-align:center; color:#94a3b8; font-size:12px;">Nenhum registro.</p>';
     }
 
     function exportarTXT() {
@@ -230,7 +211,7 @@
     }
 
     function limparDados() {
-        if(confirm("Deseja zerar o inventário?")) { inventario = []; atualizarTela(); }
+        if(confirm("Zerar inventário completo?")) { inventario = []; atualizarTela(); }
     }
 
     atualizarTela();
