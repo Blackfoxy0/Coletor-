@@ -3,71 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Coletor Pro v36.0 - Luxury Motion</title>
+    <title>Coletor Pro v37.0 - Final Platinum</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     <style>
         :root { 
             --bg: #050505; --card: #111115; --primary: #3b82f6; --accent: #60a5fa; 
             --success: #10b981; --danger: #ef4444; --border: rgba(255, 255, 255, 0.08); 
-            --text: #fff; --whatsapp: #25d366; 
+            --text: #fff; --whatsapp: #25d366;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        html, body { height: 100%; margin: 0; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow: hidden; }
+        
+        /* ESTRUTURA E ROLAGEM */
+        html, body { 
+            margin: 0; padding: 0; background: var(--bg); color: var(--text); 
+            font-family: 'Inter', sans-serif; min-height: 100vh; 
+            overflow-x: hidden; overflow-y: auto; /* ROLAGEM MANUAL ATIVA */
+        }
 
-        /* KEYFRAMES */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideIn { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(0.98); } 100% { transform: scale(1); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-15px); } to { opacity: 1; transform: translateX(0); } }
 
-        /* MENU INICIAL */
+        /* TELA DE MENU INICIAL */
         #menu-inicial { 
             position: fixed; inset: 0; background: var(--bg); z-index: 9999; 
             display: flex; align-items: center; justify-content: center; padding: 20px;
-            animation: fadeIn 0.5s ease-out;
+            animation: fadeIn 0.5s ease;
         }
         .menu-card { 
-            background: var(--card); border: 1px solid var(--border); padding: 40px 30px; 
+            background: var(--card); border: 1px solid var(--border); padding: 35px; 
             border-radius: 35px; width: 100%; max-width: 420px; text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
         }
         .menu-btn { 
             width: 100%; padding: 22px; border-radius: 20px; border: none; 
             font-weight: 900; font-size: 15px; color: white; margin-bottom: 15px; 
-            transition: var(--transition); cursor: pointer;
+            cursor: pointer; transition: var(--transition);
         }
-        .menu-btn:active { transform: scale(0.95); opacity: 0.8; }
+        .menu-btn:active { transform: scale(0.96); opacity: 0.9; }
 
-        /* APP LAYOUT */
-        #app-container { display: none; height: 100vh; flex-direction: column; animation: fadeIn 0.4s ease; }
-        .header { 
-            flex-shrink: 0; padding: 15px 20px; border-bottom: 1px solid var(--border); 
-            background: rgba(5,5,5,0.85); backdrop-filter: blur(15px); 
-            display: flex; justify-content: space-between; align-items: center; z-index: 4000; 
-        }
+        /* APP CONTAINER */
+        #app-container { display: none; flex-direction: column; min-height: 100vh; animation: fadeIn 0.4s ease; }
         
-        .scroll-area { flex-grow: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 220px; scroll-behavior: smooth; }
+        .header { 
+            position: sticky; top: 0; padding: 15px 20px; border-bottom: 1px solid var(--border); 
+            background: rgba(5,5,5,0.9); backdrop-filter: blur(15px); 
+            display: flex; justify-content: space-between; align-items: center; z-index: 5000; 
+        }
 
-        /* SMART CAM ANIMATION */
+        /* SMART CAM */
         .scanner-frame { 
             position: relative; border-radius: 28px; overflow: hidden; 
             border: 1px solid var(--border); background: #000; margin: 12px; 
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.1); 
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
         #reader { width: 100%; aspect-ratio: 16/10; transition: var(--transition); }
-        .cam-minimized { aspect-ratio: 100/1 !important; opacity: 0; transform: scale(0.95); }
-        .cam-hidden { display: none !important; }
-
-        /* INPUT PANEL */
+        .cam-minimized { aspect-ratio: 100/1 !important; opacity: 0; transform: scale(0.98); }
+        
+        /* PAINEL DE DIGITAÇÃO */
         .main-panel { 
             background: var(--card); border-radius: 28px; padding: 20px; 
-            margin: 0 12px 12px; border: 1px solid var(--border); position: relative;
+            margin: 0 12px 15px; border: 1px solid var(--border); position: relative;
         }
         .display-prod { 
-            background: rgba(255,255,255,0.03); padding: 14px; border-radius: 16px; 
-            margin-bottom: 15px; text-align: center; border: 1px solid var(--border); min-height: 50px;
+            background: rgba(255,255,255,0.03); padding: 12px; border-radius: 15px; 
+            margin-bottom: 15px; text-align: center; border: 1px solid var(--border);
         }
         
         input { 
@@ -75,99 +77,110 @@
             border: 2px solid transparent; border-radius: 18px; color: #fff; 
             font-size: 16px; font-weight: 600; margin-bottom: 12px; transition: var(--transition);
         }
-        input:focus { border-color: var(--primary); background: rgba(255,255,255,0.07); transform: translateY(-2px); }
+        input:focus { border-color: var(--primary); background: rgba(255,255,255,0.08); }
 
-        /* ABA DA BATATA */
+        /* ABA DA BATATA (SUGESTÕES) */
         .suggestions { 
             background: #1a1a22; border: 1px solid var(--primary); border-radius: 20px; 
-            position: absolute; width: calc(100% - 40px); z-index: 5000; 
-            max-height: 250px; overflow-y: auto; top: 135px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6); animation: fadeIn 0.2s ease;
+            position: absolute; width: calc(100% - 40px); z-index: 6000; 
+            max-height: 250px; overflow-y: auto; top: 130px; 
+            box-shadow: 0 25px 50px #000; animation: fadeIn 0.2s ease;
         }
         .sug-item { padding: 16px; border-bottom: 1px solid var(--border); transition: 0.2s; }
         .sug-item:active { background: var(--primary); }
 
-        /* LISTA DE ITENS */
+        /* HISTÓRICO DE ITENS */
+        #lista-corpo { padding: 0 15px 260px 15px; }
         .item-card { 
             background: var(--card); border: 1px solid var(--border); padding: 16px; 
-            border-radius: 22px; margin-bottom: 10px; display: flex; 
+            border-radius: 22px; margin-bottom: 12px; display: flex; 
             justify-content: space-between; align-items: center; 
-            border-left: 6px solid var(--primary); animation: slideIn 0.3s ease-out;
-            transition: var(--transition);
+            border-left: 6px solid var(--primary); animation: slideIn 0.3s ease;
         }
-        
-        /* DASHBOARD FIXED */
+        .btn-del { 
+            background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid var(--danger);
+            padding: 8px 12px; border-radius: 12px; font-size: 11px; font-weight: 900; margin-left: 10px;
+        }
+
+        /* DASHBOARD FIXO */
         .dashboard { 
             position: fixed; bottom: 0; left: 0; right: 0; 
-            background: rgba(10, 10, 15, 0.96); backdrop-filter: blur(25px); 
-            padding: 22px; border-top: 1px solid var(--border); z-index: 4000;
+            background: rgba(10, 10, 15, 0.98); backdrop-filter: blur(25px); 
+            padding: 22px; border-top: 1px solid var(--border); z-index: 5000;
         }
+        .stats-row { display: flex; justify-content: space-around; margin-bottom: 15px; font-size: 12px; font-weight: 900; }
         .btn-act { 
             flex: 1; border: none; padding: 18px; border-radius: 18px; 
-            color: white; font-weight: 900; transition: var(--transition); cursor: pointer;
+            color: white; font-weight: 900; transition: var(--transition);
         }
-        .btn-act:active { transform: scale(0.96); }
 
-        /* SCROLLBAR CUSTOM */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        #modal-backups { 
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); 
+            z-index: 10000; align-items: center; justify-content: center; padding: 20px;
+        }
     </style>
 </head>
 <body>
 
+<div id="modal-backups" onclick="this.style.display='none'">
+    <div class="menu-card" onclick="event.stopPropagation()">
+        <h3 style="color:var(--primary); margin-bottom:20px;">Restaurar Coleta</h3>
+        <div id="lista-backups" style="max-height: 350px; overflow-y: auto;"></div>
+        <button class="menu-btn" style="background:#333; margin-top:20px;" onclick="document.getElementById('modal-backups').style.display='none'">VOLTAR</button>
+    </div>
+</div>
+
 <div id="menu-inicial">
     <div class="menu-card">
         <h1 style="font-weight:900; letter-spacing:-1px; margin-bottom:5px;">PRUSSAK PRO</h1>
-        <p style="color:#666; font-size:11px; margin-bottom:35px; font-weight:600;">v36.0 • EXCLUSIVE DESIGN</p>
-        <button class="menu-btn" style="background:var(--primary); box-shadow: 0 10px 20px -5px rgba(59,130,246,0.4);" onclick="escolherModo('INVENTARIO')">MODO INVENTÁRIO</button>
-        <button class="menu-btn" style="background:#1a1a1f; border:1px solid var(--border)" onclick="escolherModo('TROCA')">MODO TROCA / QUEBRA</button>
-        <button class="menu-btn" style="background:none; color:var(--primary); font-size:12px; font-weight:700;" onclick="abrirBackup()">RESTAURAR SESSÃO ANTERIOR</button>
+        <p style="color:#666; font-size:11px; margin-bottom:35px; font-weight:900;">V37.0 • PROGRESS PLATINUM</p>
+        <button class="menu-btn" style="background:var(--primary); box-shadow: 0 10px 20px rgba(59,130,246,0.3);" onclick="mudarModo('INVENTARIO')">MODO INVENTÁRIO</button>
+        <button class="menu-btn" style="background:#1a1a20; border:1px solid var(--border)" onclick="mudarModo('TROCA')">MODO TROCA / QUEBRA</button>
+        <button class="menu-btn" style="background:none; color:var(--primary); font-size:11px;" onclick="abrirBackup()">🩹 RESTAURAR BACKUPS ANTERIORES</button>
     </div>
 </div>
 
 <div id="app-container">
     <div class="header">
         <button onclick="voltarParaMenu()" style="background:none; border:none; color:#888; font-weight:900; font-size:11px; letter-spacing:1px;">⬅ MENU</button>
-        <div id="cam-status" onclick="toggleHardwareCam()" style="color:var(--success); font-weight:900; font-size:11px; letter-spacing:1px;">CAM: ATIVA</div>
+        <div id="cam-status" onclick="toggleHardwareCam()" style="color:var(--success); font-weight:900; font-size:11px; letter-spacing:1px;">CÂMERA ATIVA</div>
     </div>
 
-    <div class="scroll-area" id="main-scroll">
-        <div class="scanner-frame" id="frame-cam">
-            <div id="reader"></div>
-            <button onclick="ciclarCamera()" style="position:absolute; bottom:15px; right:15px; background:rgba(0,0,0,0.6); color:white; border:1px solid rgba(255,255,255,0.2); width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(5px);">🔄</button>
-        </div>
-        
-        <div class="main-panel">
-            <div class="display-prod"><b id="p-nome" style="font-size:12px; color:var(--accent); letter-spacing:0.5px;">PRONTO PARA COLETAR</b></div>
-            <input type="text" id="barcode-res" placeholder="Código ou Nome (Batata)" 
-                   onfocus="toggleCamView(true)" 
-                   onblur="setTimeout(()=>toggleCamView(false), 300)"
-                   oninput="limparInput(this); buscaHibrida(this.value)">
-            <div id="suggestions-box" class="suggestions" style="display:none"></div>
-            <input type="text" id="qtd" value="1.000" inputmode="decimal" onfocus="this.select()">
-            <button class="btn-act" style="background:var(--primary); width:100%; box-shadow: 0 8px 15px rgba(59,130,246,0.3);" onclick="adicionarItem()">REGISTRAR NO PROGRESS</button>
-        </div>
-
-        <div id="lista-corpo" style="padding: 0 12px;"></div>
+    <div class="scanner-frame" id="frame-cam">
+        <div id="reader"></div>
+        <button onclick="ciclarCamera()" style="position:absolute; bottom:15px; right:15px; background:rgba(0,0,0,0.6); color:white; border:1px solid rgba(255,255,255,0.2); width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(5px);">🔄</button>
     </div>
+    
+    <div class="main-panel">
+        <div class="display-prod"><b id="p-nome" style="font-size:12px; color:var(--accent); letter-spacing:0.5px;">PRONTO</b></div>
+        <input type="text" id="barcode-res" placeholder="Código ou Nome (Batata)" 
+               onfocus="toggleCamView(true)" 
+               onblur="setTimeout(()=>toggleCamView(false), 300)"
+               oninput="limparInput(this); buscaHibrida(this.value)" autocomplete="off">
+        <div id="suggestions-box" class="suggestions" style="display:none"></div>
+        <input type="text" id="qtd" value="1.000" inputmode="decimal" onfocus="this.select()">
+        <button class="menu-btn" style="background:var(--primary); margin:0;" onclick="adicionarItem()">REGISTRAR NO PROGRESS</button>
+    </div>
+
+    <div id="lista-corpo"></div>
 
     <div class="dashboard">
-        <div style="display:flex; justify-content:space-around; font-size:12px; font-weight:900; margin-bottom:15px; opacity:0.8;">
+        <div class="stats-row">
             <span>MODO: <b id="txt-modo" style="color:var(--primary)">-</b></span>
             <span>SKUS: <b id="st-skus">0</b></span>
             <span>TOTAL: <b id="st-total">0.000</b></span>
         </div>
-        <div class="btn-group">
+        <div style="display:flex; gap:10px;">
             <button class="btn-act" style="background:var(--success)" onclick="exportarTxt()">💾 TXT</button>
             <button class="btn-act" style="background:var(--whatsapp)" onclick="compartilharZap()">🟢 WHATSAPP</button>
         </div>
-        <center><button onclick="limparTudo()" style="background:none; border:none; color:#444; font-size:10px; font-weight:900; margin-top:15px; letter-spacing:1px; text-transform:uppercase;">Limpar Coleta</button></center>
+        <center><button onclick="limparTudo()" style="background:none; border:none; color:var(--danger); font-size:10px; font-weight:900; margin-top:15px; letter-spacing:1px; text-transform:uppercase;">Apagar Coleta Atual</button></center>
     </div>
 </div>
 
 <script>
     let modoGlobal = 'INVENTARIO';
-    let inventario = JSON.parse(localStorage.getItem('coleta_v36_data')) || [];
+    let inventario = JSON.parse(localStorage.getItem('coleta_v37_data')) || [];
     let catalogoMemo = [];
     let produtoAtivo = null;
     let html5QrCode = null;
@@ -175,7 +188,7 @@
     let camIdx = 0;
     let camHabilitada = true;
 
-    function escolherModo(modo) {
+    function mudarModo(modo) {
         modoGlobal = modo;
         document.getElementById('menu-inicial').style.display = 'none';
         document.getElementById('app-container').style.display = 'flex';
@@ -185,41 +198,25 @@
     }
 
     function voltarParaMenu() {
-        if(html5QrCode) {
-            html5QrCode.stop().then(() => {
-                document.getElementById('menu-inicial').style.display = 'flex';
-                document.getElementById('app-container').style.display = 'none';
-            });
-        } else {
-            document.getElementById('menu-inicial').style.display = 'flex';
-            document.getElementById('app-container').style.display = 'none';
-        }
+        if(html5QrCode) html5QrCode.stop().then(() => fecharTudo()); else fecharTudo();
+    }
+    function fecharTudo() {
+        document.getElementById('menu-inicial').style.display = 'flex';
+        document.getElementById('app-container').style.display = 'none';
     }
 
     function toggleHardwareCam() {
         camHabilitada = !camHabilitada;
-        const btn = document.getElementById('cam-status');
-        const frame = document.getElementById('frame-cam');
-        if(camHabilitada) {
-            btn.innerText = "CAM: ATIVA"; btn.style.color = "var(--success)";
-            frame.classList.remove('cam-hidden'); iniciarHardware();
-        } else {
-            btn.innerText = "CAM: INATIVA"; btn.style.color = "var(--danger)";
-            frame.classList.add('cam-hidden'); if(html5QrCode) html5QrCode.stop();
-        }
+        document.getElementById('cam-status').innerText = camHabilitada ? "CÂMERA ATIVA" : "CÂMERA INATIVA";
+        document.getElementById('cam-status').style.color = camHabilitada ? "var(--success)" : "var(--danger)";
+        document.getElementById('frame-cam').style.display = camHabilitada ? "block" : "none";
+        if(camHabilitada) iniciarHardware(); else if(html5QrCode) html5QrCode.stop();
     }
 
     function toggleCamView(min) {
         if(!camHabilitada) return;
         const r = document.getElementById('reader');
-        const frame = document.getElementById('frame-cam');
-        if(min) {
-            r.classList.add('cam-minimized');
-            frame.style.margin = "0 12px";
-        } else {
-            r.classList.remove('cam-minimized');
-            frame.style.margin = "12px";
-        }
+        if(min) r.classList.add('cam-minimized'); else r.classList.remove('cam-minimized');
     }
 
     function iniciarHardware() {
@@ -235,7 +232,7 @@
         if(html5QrCode) html5QrCode.stop().then(() => doStart(id)); else doStart(id);
         function doStart(camId) {
             html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start(camId, { fps: 30, qrbox: {width: 250, height: 160} }, (t) => {
+            html5QrCode.start(camId, { fps: 30, qrbox: 250 }, (t) => {
                 let code = t.replace(/[^0-9]/g, "");
                 document.getElementById('barcode-res').value = code;
                 buscaHibrida(code);
@@ -268,12 +265,12 @@
         if(/^\d+$/.test(v)) {
             let vBusca = v.padStart(13, '0');
             const match = catalogoMemo.find(i => i.code === vBusca);
-            produtoAtivo = match ? match : { code: vBusca, nome: "PRODUTO MANUAL" };
+            produtoAtivo = match ? match : { code: vBusca, nome: "PRODUTO AVULSO" };
             document.getElementById('p-nome').innerText = produtoAtivo.nome;
             box.style.display = 'none';
         } else {
-            const res = catalogoMemo.filter(i => i.nome.includes(v)).slice(0, 10);
-            box.innerHTML = res.map(i => `<div class="sug-item" onmousedown="selecionarProd('${i.code}','${i.nome}')"><b>${i.nome}</b><small style="color:var(--primary)">${i.code}</small></div>`).join('');
+            const res = catalogoMemo.filter(i => i.nome.includes(v)).slice(0, 12);
+            box.innerHTML = res.map(i => `<div class="sug-item" onmousedown="selecionarProd('${i.code}','${i.nome}')"><b>${i.nome}</b><br><small style="color:var(--primary)">${i.code}</small></div>`).join('');
             box.style.display = res.length > 0 ? 'block' : 'none';
         }
     }
@@ -289,73 +286,84 @@
     function limparInput(el) { el.value = el.value.replace(/[^a-zA-Z0-9 ]/g, ""); }
 
     function adicionarItem() {
-        let codeInput = document.getElementById('barcode-res').value.trim();
+        let codeIn = document.getElementById('barcode-res').value.trim();
         let q = parseFloat(document.getElementById('qtd').value.replace(',','.'));
-        if(!codeInput || isNaN(q)) return;
+        if(!codeIn || isNaN(q)) return;
         
-        let code = /^\d+$/.test(codeInput) ? codeInput.padStart(13, '0') : codeInput;
+        let code = /^\d+$/.test(codeIn) ? codeIn.padStart(13, '0') : codeIn;
         const idx = inventario.findIndex(i => i.code === code);
         
-        if(idx !== -1) {
-            inventario[idx].qtd = (parseFloat(inventario[idx].qtd) + q).toFixed(3);
-        } else {
-            inventario.push({ code, nome: produtoAtivo ? produtoAtivo.nome : "MANUAL", qtd: q.toFixed(3) });
-        }
+        if(idx !== -1) inventario[idx].qtd = (parseFloat(inventario[idx].qtd) + q).toFixed(3);
+        else inventario.push({ code, nome: produtoAtivo ? produtoAtivo.nome : "MANUAL", qtd: q.toFixed(3) });
         
-        localStorage.setItem('coleta_v36_data', JSON.stringify(inventario));
+        localStorage.setItem('coleta_v37_data', JSON.stringify(inventario));
         atualizarTela();
         document.getElementById('barcode-res').value = "";
         document.getElementById('qtd').value = "1.000";
         document.getElementById('barcode-res').focus();
+        document.getElementById('p-nome').innerText = "REGISTRADO";
+    }
+
+    function removerItem(idx) {
+        inventario.splice(idx, 1);
+        localStorage.setItem('coleta_v37_data', JSON.stringify(inventario));
+        atualizarTela();
     }
 
     function atualizarTela() {
         let soma = 0;
-        document.getElementById('lista-corpo').innerHTML = [...inventario].reverse().map(i => {
+        document.getElementById('lista-corpo').innerHTML = inventario.map((i, index) => {
             soma += parseFloat(i.qtd);
-            return `<div class="item-card"><div><small style="color:#666; font-size:10px; font-weight:600;">${i.nome}</small><br><b style="letter-spacing:1px;">${i.code}</b></div><b style="color:var(--primary); font-size:16px;">${i.qtd}</b></div>`;
-        }).join('');
+            return `<div class="item-card">
+                <div><small style="color:#666; font-size:10px;">${i.nome}</small><br><b>${i.code}</b></div>
+                <div style="display:flex; align-items:center;">
+                    <b style="color:var(--primary); font-size:16px;">${i.qtd}</b>
+                    <button class="btn-del" onclick="removerItem(${index})">APAGAR</button>
+                </div>
+            </div>`;
+        }).reverse().join('');
         document.getElementById('st-skus').innerText = inventario.length;
         document.getElementById('st-total').innerText = soma.toFixed(3);
     }
 
-    function formatarFinal() {
+    function formatarProgress() {
         return inventario.map(i => {
-            let prefixo = (modoGlobal === 'INVENTARIO') ? 'Inventario ' : '';
-            return `${prefixo}${i.code.padStart(13,'0')} ${parseFloat(i.qtd).toFixed(3)}`;
+            let pref = (modoGlobal === 'INVENTARIO') ? 'Inventario ' : '';
+            return `${pref}${i.code.padStart(13,'0')} ${parseFloat(i.qtd).toFixed(3)}`;
         }).join("\r\n");
     }
 
     function exportarTxt() {
         if(inventario.length === 0) return;
-        const blob = new Blob([formatarFinal()], { type: 'text/plain' });
+        const blob = new Blob([formatarProgress()], { type: 'text/plain' });
         const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
         a.download = 'invent.txt'; a.click();
     }
 
     async function compartilharZap() {
         if(inventario.length === 0) return;
-        const file = new File([formatarFinal()], 'invent.txt', { type: 'text/plain' });
+        const file = new File([formatarProgress()], 'invent.txt', { type: 'text/plain' });
         if(navigator.share) await navigator.share({ files: [file], title: 'Coleta Progress' });
     }
 
-    function limparTudo() { 
-        if(confirm("Deseja apagar toda a lista de coleta?")) { 
-            inventario = []; 
-            localStorage.removeItem('coleta_v36_data'); 
-            atualizarTela(); 
-        } 
+    function abrirBackup() {
+        const lista = document.getElementById('lista-backups');
+        lista.innerHTML = "";
+        for (let i = 0; i < localStorage.length; i++){
+            let key = localStorage.key(i);
+            if(key.includes('coleta')){
+                let data = JSON.parse(localStorage.getItem(key));
+                let div = document.createElement('div');
+                div.className = "sug-item";
+                div.innerHTML = `<b>Sessão: ${key}</b><br><small>${data.length} itens salvos</small>`;
+                div.onclick = () => { inventario = data; mudarModo('INVENTARIO'); document.getElementById('modal-backups').style.display='none'; };
+                lista.appendChild(div);
+            }
+        }
+        document.getElementById('modal-backups').style.display = 'flex';
     }
 
-    function abrirBackup() {
-        if(confirm("Deseja tentar restaurar a última sessão salva?")) {
-            const data = localStorage.getItem('coleta_v36_data');
-            if(data) {
-                inventario = JSON.parse(data);
-                escolherModo('INVENTARIO');
-            } else { alert("Nenhum backup encontrado."); }
-        }
-    }
+    function limparTudo() { if(confirm("Deseja limpar toda a lista?")) { inventario = []; localStorage.removeItem('coleta_v37_data'); atualizarTela(); } }
 
     window.onload = carregarCatalogo;
 </script>
