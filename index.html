@@ -3,40 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Coletor Pro v11 - Busca Ativa</title>
+    <title>Coletor Pro v11.1</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root { --primary: #0f172a; --accent: #2563eb; --success: #16a34a; --danger: #dc2626; --bg: #f8fafc; }
-        body { font-family: -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--primary); padding-bottom: 160px; }
+        body { font-family: sans-serif; margin: 0; background: var(--bg); padding-bottom: 160px; }
         
-        .header { background: var(--primary); color: white; padding: 15px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 1000; }
+        /* Cabeçalho Fixo */
+        .header { background: var(--primary); color: white; padding: 15px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
         .container { padding: 12px; max-width: 500px; margin: auto; }
         
         /* Scanner */
-        .scanner-card { background: #000; border-radius: 20px; overflow: hidden; position: relative; aspect-ratio: 1/1; border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .scanner-card { background: #000; border-radius: 20px; overflow: hidden; position: relative; aspect-ratio: 1/1; border: 2px solid #fff; }
         #reader { width: 100%; height: 100%; }
         .cam-btn { position: absolute; top: 10px; right: 10px; z-index: 50; background: var(--accent); color: white; border: none; padding: 8px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; }
 
-        /* Painel */
-        .panel { background: white; border-radius: 20px; padding: 20px; margin-top: -30px; position: relative; z-index: 100; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); }
-        .stats { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 12px; font-weight: bold; color: #64748b; background: #f1f5f9; padding: 10px; border-radius: 10px; }
+        /* Painel de Controle */
+        .panel { background: white; border-radius: 20px; padding: 20px; margin-top: -30px; position: relative; z-index: 100; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); }
+        .stats { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 12px; font-weight: bold; color: #475569; background: #f1f5f9; padding: 10px; border-radius: 10px; }
+        
         .row { display: flex; gap: 10px; margin-bottom: 15px; }
         label { font-size: 11px; font-weight: bold; color: #94a3b8; display: block; margin-bottom: 4px; }
-        input { width: 100%; padding: 12px; border: 2px solid #f1f5f9; border-radius: 10px; font-size: 16px; box-sizing: border-box; font-weight: bold; outline: none; }
-        .btn-add { width: 100%; background: var(--accent); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; font-size: 16px; }
+        input { width: 100%; padding: 12px; border: 2px solid #f1f5f9; border-radius: 10px; font-size: 16px; box-sizing: border-box; font-weight: bold; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--accent); background: #fff; }
+        
+        .btn-add { width: 100%; background: var(--accent); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 6px rgba(37,99,235,0.2); }
 
-        /* BUSCA */
-        .search-box { margin-top: 20px; position: relative; }
-        .search-input { background: #fff; border: 2px solid var(--accent); padding-left: 35px; border-radius: 10px; font-size: 14px; }
-        .search-icon { position: absolute; left: 12px; top: 38px; color: var(--accent); font-weight: bold; }
+        /* BARRA DE PESQUISA (DEVE APARECER AGORA) */
+        .search-container { margin-top: 20px; padding-top: 15px; border-top: 1px solid #f1f5f9; }
+        .search-input { border: 2px solid #e2e8f0; background: #fdfdfd; font-size: 14px; }
+        .search-input:focus { border-color: var(--success); }
 
-        /* Lista */
-        .list-section { background: white; border-radius: 20px; margin-top: 10px; padding: 15px; min-height: 100px; }
-        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f8fafc; }
-        .item-info { font-family: monospace; font-size: 14px; font-weight: bold; }
-        .item-actions { display: flex; gap: 6px; align-items: center; }
-        .qty-val { font-weight: 800; color: var(--accent); margin-right: 5px; }
-        .btn-edit { background: #e0e7ff; color: #4338ca; border: none; padding: 6px 10px; border-radius: 6px; font-size: 10px; font-weight: bold; }
+        /* Lista Infinita */
+        .list-section { background: white; border-radius: 20px; margin-top: 15px; padding: 15px; }
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f8fafc; animation: fadeIn 0.3s ease; }
+        .item-info { font-family: monospace; font-size: 14px; font-weight: bold; color: #1e293b; }
+        .item-actions { display: flex; gap: 8px; align-items: center; }
+        .qty-val { font-weight: 800; color: var(--accent); font-size: 15px; margin-right: 5px; }
+        
+        .btn-edit { background: #e0e7ff; color: #4338ca; border: none; padding: 6px 12px; border-radius: 6px; font-size: 10px; font-weight: bold; }
         .btn-del { background: #fee2e2; color: #b91c1c; border: none; padding: 6px 10px; border-radius: 6px; font-size: 10px; font-weight: bold; }
 
         /* Rodapé */
@@ -44,12 +49,14 @@
         .footer-row { display: flex; gap: 8px; margin-bottom: 8px; }
         .btn-export { flex: 2; background: var(--success); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: bold; }
         .btn-import { flex: 1; background: #64748b; color: white; border: none; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 11px; }
-        .btn-clear { width: 100%; background: none; color: var(--danger); border: none; font-size: 11px; font-weight: bold; }
+        .btn-clear { width: 100%; background: none; color: var(--danger); border: none; font-size: 11px; font-weight: bold; cursor: pointer; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<div class="header">COLETOR PRO V11</div>
+<div class="header">COLETOR V11.1 - ATUALIZADO</div>
 
 <div class="container">
     <div class="scanner-card">
@@ -65,7 +72,7 @@
         <div class="row">
             <div style="flex: 2;">
                 <label>CÓDIGO (EAN-13)</label>
-                <input type="text" id="barcode-res" placeholder="Bipar ou digitar...">
+                <input type="text" id="barcode-res" placeholder="Bipar...">
             </div>
             <div style="flex: 1;">
                 <label>QTD / KG</label>
@@ -74,9 +81,8 @@
         </div>
         <button class="btn-add" onclick="adicionarItem()">REGISTRAR PRODUTO</button>
 
-        <div class="search-box">
-            <label>PESQUISAR NA LISTA</label>
-            <span class="search-icon">🔍</span>
+        <div class="search-container">
+            <label>🔎 PESQUISAR NA LISTA (CONFERÊNCIA)</label>
             <input type="text" id="search-input" class="search-input" placeholder="Digite o código para filtrar..." oninput="atualizarTela()">
         </div>
     </div>
@@ -91,7 +97,7 @@
         <button class="btn-import" onclick="document.getElementById('fileIn').click()">📥 IMPORTAR</button>
         <button class="btn-export" onclick="exportarTXT()">💾 EXPORTAR INVENT.TXT</button>
     </div>
-    <button class="btn-clear" onclick="limparDados()">APAGAR LISTA COMPLETA</button>
+    <button class="btn-clear" onclick="limparDados()">⚠️ APAGAR TODA A LISTA</button>
     <input type="file" id="fileIn" style="display:none" accept=".txt" onchange="importarArquivo(event)">
 </div>
 
@@ -101,6 +107,7 @@
     let cameraIdx = 0;
     let scanner;
 
+    // Inicialização da Câmera
     Html5Qrcode.getCameras().then(devices => {
         if (devices.length > 0) {
             cameras = devices;
@@ -143,7 +150,7 @@
             inventario.push({ code, qtd: qtd });
         }
 
-        document.getElementById('search-input').value = ""; // Limpa busca ao adicionar
+        document.getElementById('search-input').value = ""; 
         atualizarTela();
         document.getElementById('barcode-res').value = "";
         document.getElementById('qtd').value = "1";
@@ -151,7 +158,7 @@
 
     function editarItem(code) {
         const idx = inventario.findIndex(i => i.code === code);
-        const novaQtd = prompt("Alterar quantidade para " + code + ":", inventario[idx].qtd);
+        const novaQtd = prompt("Nova quantidade para " + code + ":", inventario[idx].qtd);
         if (novaQtd !== null) {
             const valor = parseFloat(novaQtd.replace(',', '.'));
             if (!isNaN(valor)) {
@@ -162,7 +169,7 @@
     }
 
     function excluirItem(code) {
-        if(confirm("Remover o item " + code + "?")) {
+        if(confirm("Excluir item " + code + "?")) {
             inventario = inventario.filter(i => i.code !== code);
             atualizarTela();
         }
@@ -171,16 +178,15 @@
     function atualizarTela() {
         localStorage.setItem('coleta', JSON.stringify(inventario));
         const lista = document.getElementById('lista-corpo');
-        const termoBusca = document.getElementById('search-input').value.toLowerCase();
+        const busca = document.getElementById('search-input').value.toLowerCase();
         
         const totalSum = inventario.reduce((acc, curr) => acc + parseFloat(curr.qtd), 0);
-        document.getElementById('stat-count').innerText = `ITENS ÚNICOS: ${inventario.length}`;
+        document.getElementById('stat-count').innerText = `ITENS: ${inventario.length}`;
         document.getElementById('stat-sum').innerText = `TOTAL: ${totalSum.toFixed(3)}`;
 
-        // Filtra a lista com base na pesquisa
-        const itensFiltrados = inventario.filter(i => i.code.toLowerCase().includes(termoBusca));
+        const filtrados = inventario.filter(i => i.code.includes(busca));
 
-        lista.innerHTML = [...itensFiltrados].reverse().map(i => `
+        lista.innerHTML = [...filtrados].reverse().map(i => `
             <div class="list-item">
                 <div class="item-info">${i.code}</div>
                 <div class="item-actions">
@@ -189,16 +195,16 @@
                     <button class="btn-del" onclick="excluirItem('${i.code}')">X</button>
                 </div>
             </div>
-        `).join('') || '<p style="text-align:center; font-size:12px; color:#94a3b8">Nenhum item correspondente.</p>';
+        `).join('') || '<p style="text-align:center; color:#94a3b8; font-size:12px;">Lista vazia ou sem resultados.</p>';
     }
 
     function exportarTXT() {
-        if(inventario.length === 0) return alert("Lista vazia.");
+        if(inventario.length === 0) return;
         let txt = inventario.map(i => i.code + " " + i.qtd).join("\r\n");
         const blob = new Blob([txt], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url; a.download = 'invent.txt';
+        a.href = URL.createObjectURL(blob);
+        a.download = 'invent.txt';
         a.click();
     }
 
@@ -219,13 +225,12 @@
                 }
             });
             atualizarTela();
-            alert("Importado!");
         };
         reader.readAsText(file);
     }
 
     function limparDados() {
-        if(confirm("Deseja apagar TUDO?")) { inventario = []; atualizarTela(); }
+        if(confirm("Deseja zerar o inventário?")) { inventario = []; atualizarTela(); }
     }
 
     atualizarTela();
