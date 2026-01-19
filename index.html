@@ -3,111 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Coletor Pro v14.7 - Estável</title>
+    <title>Coletor Pro v14.8 - Multi-Backup</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root { --bg: #000; --card: #111; --primary: #fff; --accent: #3b82f6; --border: #222; --text-muted: #888; --success: #10b981; --danger: #ef4444; }
-        body { font-family: sans-serif; margin: 0; background: var(--bg); color: var(--primary); padding-bottom: 260px; overflow-x: hidden; transition: border 0.3s; }
+        body { font-family: sans-serif; margin: 0; background: var(--bg); color: var(--primary); padding-bottom: 260px; overflow-x: hidden; }
         .header { padding: 15px; text-align: center; font-weight: bold; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 1000; font-size: 13px; }
-        .stats-bar { background: #1a1a1a; padding: 6px; text-align: center; font-size: 11px; color: var(--success); border-bottom: 1px solid var(--border); font-weight: bold; }
+        .stats-bar { background: #1a1a1a; padding: 6px; text-align: center; font-size: 11px; color: var(--success); border-bottom: 1px solid var(--border); }
         .container { padding: 12px; max-width: 500px; margin: auto; }
         .scanner-card { background: #000; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); aspect-ratio: 1/1; position: relative; }
         #reader { width: 100%; height: 100%; }
         
+        /* Modal de Recuperação */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; justify-content: center; align-items: center; }
+        .modal-content { background: #111; border: 1px solid #333; padding: 20px; border-radius: 20px; width: 90%; max-width: 400px; }
+        .backup-item { background: #1a1a1a; padding: 12px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #333; cursor: pointer; }
+        .backup-item:active { background: #333; }
+
         .camera-controls { position: absolute; bottom: 10px; right: 10px; z-index: 10; }
-        .btn-cam { background: rgba(0,0,0,0.7); color: #fff; border: 1px solid #fff; padding: 8px 12px; border-radius: 8px; font-size: 10px; cursor: pointer; backdrop-filter: blur(4px); }
+        .btn-cam { background: rgba(0,0,0,0.7); color: #fff; border: 1px solid #fff; padding: 8px 12px; border-radius: 8px; font-size: 10px; }
 
         .panel { background: var(--card); border-radius: 24px; padding: 20px; margin-top: -40px; position: relative; z-index: 100; border: 1px solid var(--border); }
         .product-name-display { color: var(--accent); font-weight: 800; font-size: 14px; margin-bottom: 12px; text-align: center; min-height: 20px; text-transform: uppercase; border: 1px dashed #333; padding: 8px; border-radius: 8px; background: #050505; }
         
-        .suggestions { background: #1a1a1a; border-radius: 10px; margin-top: 5px; max-height: 180px; overflow-y: auto; border: 1px solid #333; display: none; position: absolute; width: 100%; z-index: 500; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
-        .suggestion-item { padding: 14px; border-bottom: 1px solid #222; font-size: 13px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .suggestion-item:active { background: #333; }
+        .suggestions { background: #1a1a1a; border-radius: 10px; margin-top: 5px; max-height: 180px; overflow-y: auto; border: 1px solid #333; display: none; position: absolute; width: 100%; z-index: 500; }
+        .suggestion-item { padding: 14px; border-bottom: 1px solid #222; font-size: 13px; cursor: pointer; display: flex; justify-content: space-between; }
 
-        .row { display: flex; gap: 10px; margin-bottom: 12px; }
-        label { font-size: 10px; color: var(--text-muted); font-weight: bold; display: block; margin-bottom: 4px; text-transform: uppercase; }
-        input { width: 100%; padding: 12px; background: #000; border: 1px solid var(--border); border-radius: 10px; color: #fff; font-weight: bold; font-size: 16px; outline: none; box-sizing: border-box; }
-        
-        .btn-add { width: 100%; background: var(--accent); color: #fff; border: none; padding: 16px; border-radius: 14px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 5px; }
-        .btn-add:active { background: #2563eb; }
+        input { width: 100%; padding: 12px; background: #000; border: 1px solid var(--border); border-radius: 10px; color: #fff; font-weight: bold; font-size: 16px; box-sizing: border-box; }
+        .btn-add { width: 100%; background: var(--accent); color: #fff; border: none; padding: 16px; border-radius: 14px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; }
 
         .list-item { background: var(--card); padding: 12px; border-radius: 12px; margin-top: 8px; border: 1px solid var(--border); }
-        .qty-badge { color: var(--success); font-weight: 900; font-size: 18px; }
-        
         .footer { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.95); padding: 15px; border-top: 1px solid var(--border); z-index: 2000; }
-        .btn-export { background: var(--success); color: #fff; border: none; padding: 15px; border-radius: 12px; font-weight: bold; width: 100%; margin-bottom: 10px; font-size: 14px; }
-        .btn-mini { background: none; border: 1px solid #333; color: #777; padding: 8px; border-radius: 8px; font-size: 9px; flex: 1; text-transform: uppercase; font-weight: bold; }
+        .btn-export { background: var(--success); color: #fff; border: none; padding: 15px; border-radius: 12px; font-weight: bold; width: 100%; margin-bottom: 10px; }
+        .btn-mini { background: none; border: 1px solid #333; color: #777; padding: 8px; border-radius: 8px; font-size: 9px; flex: 1; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="header" id="header-info">SINCRONIZANDO...</div>
-<div class="stats-bar" id="stats-info">ITENS NA LISTA: 0</div>
+<div id="modal-recuperar" class="modal">
+    <div class="modal-content">
+        <h3 style="margin-top:0; font-size:16px;">Restaurar Cópia</h3>
+        <p style="font-size:11px; color:#888;">Escolha um ponto de restauração encontrado na memória deste celular:</p>
+        <div id="lista-backups"></div>
+        <button onclick="fecharModal()" style="width:100%; background:none; border:none; color:#ef4444; margin-top:10px; font-weight:bold;">CANCELAR</button>
+    </div>
+</div>
+
+<div class="header" id="header-info">CARREGANDO...</div>
+<div class="stats-bar" id="stats-info">ITENS: 0</div>
 
 <div class="container">
     <div class="scanner-card">
         <div id="reader"></div>
         <div class="camera-controls">
-            <button class="btn-cam" onclick="alternarCamera()">🔄 INVERTER CÂMERA</button>
+            <button class="btn-cam" onclick="alternarCamera()">🔄 TROCAR CÂMERA</button>
         </div>
     </div>
     
     <div class="panel">
-        <div id="prod-nome" class="product-name-display">AGUARDANDO BUSCA</div>
-        
+        <div id="prod-nome" class="product-name-display">BUSQUE UM ITEM</div>
         <div style="position: relative; margin-bottom: 12px;">
-            <label>NOME OU CÓDIGO</label>
-            <input type="text" id="barcode-res" placeholder="Ex: BATATA" oninput="buscaHibrida(this.value)" autocomplete="off">
+            <input type="text" id="barcode-res" placeholder="NOME OU CÓDIGO" oninput="buscaHibrida(this.value)" autocomplete="off">
             <div id="suggestions-box" class="suggestions"></div>
         </div>
-
-        <div class="row">
-            <div style="flex: 1;">
-                <label>QTD / PESO</label>
-                <input type="number" id="qtd" value="1" step="any" inputmode="decimal" onfocus="this.select()">
-            </div>
-        </div>
-        
-        <button class="btn-add" onclick="adicionarItem()">REGISTRAR ITEM</button>
+        <input type="number" id="qtd" value="1" step="any" inputmode="decimal" onfocus="this.select()">
+        <button class="btn-add" onclick="adicionarItem()">REGISTRAR</button>
     </div>
     <div id="lista-corpo"></div>
 </div>
 
 <div class="footer">
-    <button class="btn-export" onclick="exportarTXT()">💾 EXPORTAR ARQUIVO (COLETA.TXT)</button>
+    <button class="btn-export" onclick="exportarTXT()">💾 EXPORTAR ARQUIVO TXT</button>
     <div style="display: flex; gap: 5px;">
-        <button class="btn-mini" onclick="window.location.reload()">🔄 RECARREGAR</button>
-        <button class="btn-mini" onclick="recuperarDados()" style="color: #3b82f6; border-color: #3b82f6;">🩹 RECUPERAR</button>
+        <button class="btn-mini" onclick="window.location.reload()">🔄 ATUALIZAR</button>
+        <button class="btn-mini" onclick="abrirModalRecuperacao()" style="color: #3b82f6; border-color: #3b82f6;">🩹 RECUPERAR</button>
         <button class="btn-mini" onclick="limparLista()" style="color: #ef4444; border-color: #ef4444;">🗑️ LIMPAR</button>
     </div>
 </div>
 
 <script>
-    let inventario = JSON.parse(localStorage.getItem('coleta_v14_7')) || [];
+    let inventario = JSON.parse(localStorage.getItem('coleta_v14_8')) || [];
     let catalogoMemo = [];
     let produtoAtivo = null;
     let html5QrCode;
     let currentCameraId;
     let camerasDisponiveis = [];
 
-    // --- CARREGAR PRODUTO.TXT ---
+    // --- CARREGAR CATÁLOGO ---
     async function carregarCatalogo() {
-        const info = document.getElementById('header-info');
         try {
             const response = await fetch('PRODUTO.TXT', { cache: "no-store" });
-            if (!response.ok) throw new Error();
             const texto = await response.text();
             const linhas = texto.split(/\r?\n/).filter(l => l.trim().length > 13);
-            
             catalogoMemo = linhas.map(linha => {
                 const code = linha.substring(0, 13).trim().padStart(13, '0');
-                // LÓGICA: Pega do caractere 13 até o final, cortando os 10 últimos (preço)
                 let nome = linha.substring(13).slice(0, -10).trim();
                 return { code, nome };
             });
-            info.innerText = "✅ CATÁLOGO: " + catalogoMemo.length + " ITENS";
+            document.getElementById('header-info').innerText = "✅ CATÁLOGO: " + catalogoMemo.length + " ITENS";
         } catch (e) {
-            info.innerText = "❌ ERRO AO LER PRODUTO.TXT";
+            document.getElementById('header-info').innerText = "❌ ERRO NO PRODUTO.TXT";
         }
     }
 
@@ -115,7 +110,7 @@
     Html5Qrcode.getCameras().then(devices => {
         camerasDisponiveis = devices;
         if (devices.length > 0) {
-            currentCameraId = devices[devices.length - 1].id; // Traseira por padrão
+            currentCameraId = devices[devices.length - 1].id;
             iniciarCamera(currentCameraId);
         }
     });
@@ -133,8 +128,7 @@
         html5QrCode.start(id, { fps: 20, qrbox: 250 }, (text) => {
             document.getElementById('barcode-res').value = text;
             buscaHibrida(text);
-            if(navigator.vibrate) navigator.vibrate(80);
-        }).catch(err => console.error(err));
+        });
     }
 
     function alternarCamera() {
@@ -149,24 +143,20 @@
         const v = val.trim().toUpperCase();
         const box = document.getElementById('suggestions-box');
         if(v.length < 2) { box.style.display = 'none'; return; }
-        
-        const full = v.padStart(13, '0');
         const resultados = catalogoMemo.filter(i => 
-            i.code === full || i.code.replace(/^0+/, '').includes(v) || i.nome.includes(v)
+            i.code.includes(v) || i.nome.includes(v)
         ).slice(0, 15);
-
         if (resultados.length > 0) {
             box.innerHTML = resultados.map(item => `
                 <div class="suggestion-item" onclick="selecionarSugestao('${item.code}', '${item.nome}')">
                     <span>${item.nome}</span>
-                    <span style="color:#666; font-size:10px;">${item.code.replace(/^0+/, '')}</span>
+                    <span style="color:#666; font-size:10px;">${item.code}</span>
                 </div>
             `).join('');
             box.style.display = 'block';
         } else {
             box.style.display = 'none';
-            produtoAtivo = { code: full, nome: "ITEM AVULSO" };
-            document.getElementById('prod-nome').innerText = "ITEM AVULSO";
+            produtoAtivo = { code: v.padStart(13, '0'), nome: "ITEM AVULSO" };
         }
     }
 
@@ -178,18 +168,62 @@
         document.getElementById('qtd').focus();
     }
 
+    // --- GESTÃO DE BACKUP E RECUPERAÇÃO ---
+    function salvarComBackup() {
+        const data = JSON.stringify(inventario);
+        localStorage.setItem('coleta_v14_8', data);
+        // Cria um ponto de restauração a cada 10 registros
+        if(inventario.length % 10 === 0 && inventario.length > 0) {
+            const timestamp = new Date().toLocaleTimeString();
+            localStorage.setItem('backup_' + inventario.length + '_itens', data);
+        }
+    }
+
+    function abrirModalRecuperacao() {
+        const modal = document.getElementById('modal-recuperar');
+        const lista = document.getElementById('lista-backups');
+        lista.innerHTML = "";
+        
+        // Versões de segurança e pontos de itens
+        const chavesPossiveis = Object.keys(localStorage).filter(k => k.includes('coleta') || k.includes('backup'));
+        
+        if(chavesPossiveis.length === 0) {
+            lista.innerHTML = "<p style='color:#666; font-size:12px;'>Nenhum backup encontrado.</p>";
+        }
+
+        chavesPossiveis.forEach(chave => {
+            const dados = JSON.parse(localStorage.getItem(chave));
+            if(Array.isArray(dados) && dados.length > 0) {
+                const item = document.createElement('div');
+                item.className = 'backup-item';
+                item.innerHTML = `<strong>${chave.replace('coleta_','')}</strong><br><span style="font-size:10px; color:#888;">Contém ${dados.length} itens coletados</span>`;
+                item.onclick = () => restaurar(chave);
+                lista.appendChild(item);
+            }
+        });
+        modal.style.display = 'flex';
+    }
+
+    function restaurar(chave) {
+        if(confirm("Deseja substituir a lista atual por esta?")) {
+            inventario = JSON.parse(localStorage.getItem(chave));
+            atualizarTela();
+            fecharModal();
+        }
+    }
+
+    function fecharModal() { document.getElementById('modal-recuperar').style.display = 'none'; }
+
     // --- REGISTRO ---
     function adicionarItem() {
         const input = document.getElementById('barcode-res');
         const qtd = parseFloat(document.getElementById('qtd').value.replace(',', '.'));
         if(!input.value || isNaN(qtd)) return;
-        
         if(!produtoAtivo) {
             const v = input.value.trim().toUpperCase();
             const manual = catalogoMemo.find(i => i.code === v.padStart(13, '0') || i.nome === v);
             produtoAtivo = manual || { code: v.padStart(13, '0'), nome: "ITEM AVULSO" };
         }
-
         const idx = inventario.findIndex(i => i.code === produtoAtivo.code);
         if(idx !== -1) inventario[idx].qtd = parseFloat((inventario[idx].qtd + qtd).toFixed(3));
         else inventario.push({ code: produtoAtivo.code, nome: produtoAtivo.nome, qtd });
@@ -197,31 +231,10 @@
         atualizarTela();
         input.value = ""; document.getElementById('qtd').value = "1";
         produtoAtivo = null; document.getElementById('prod-nome').innerText = "✓ REGISTRADO";
-        document.getElementById('suggestions-box').style.display = 'none';
-    }
-
-    // --- MEMÓRIA E RECUPERAÇÃO ---
-    function recuperarDados() {
-        const versoes = ['coleta_v14_7', 'coleta_v14_5', 'coleta_gh_v14', 'coleta_v13_1'];
-        for(let v of versoes) {
-            let backup = localStorage.getItem(v);
-            if(backup && backup !== "[]") {
-                if(confirm("Lista antiga encontrada ("+v+"). Restaurar?")) {
-                    inventario = JSON.parse(backup);
-                    atualizarTela();
-                    return;
-                }
-            }
-        }
-        alert("Nenhum dado recuperável.");
-    }
-
-    function limparLista() {
-        if(confirm("Apagar toda a coleta?")) { inventario = []; atualizarTela(); }
     }
 
     function atualizarTela() {
-        localStorage.setItem('coleta_v14_7', JSON.stringify(inventario));
+        salvarComBackup();
         document.getElementById('stats-info').innerText = "ITENS NA LISTA: " + inventario.length;
         const lista = document.getElementById('lista-corpo');
         lista.innerHTML = [...inventario].reverse().map(i => `
@@ -235,20 +248,15 @@
         `).join('');
     }
 
+    function limparLista() {
+        if(confirm("Apagar tudo?")) { inventario = []; atualizarTela(); }
+    }
+
     function exportarTXT() {
-        if(inventario.length === 0) return alert("Lista vazia!");
         let txt = inventario.map(i => i.code + " " + i.qtd).join("\r\n");
         const blob = new Blob([txt], { type: 'text/plain' });
         const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'coleta.txt'; a.click();
-    }
-
-    // Monitor de bateria
-    if (navigator.getBattery) {
-        navigator.getBattery().then(bat => {
-            if(bat.level < 0.2) document.body.style.border = "4px solid red";
-        });
+        a.href = URL.createObjectURL(blob); a.download = 'coleta.txt'; a.click();
     }
 
     window.onload = carregarCatalogo;
