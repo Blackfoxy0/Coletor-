@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Coletor Pro v8</title>
+    <title>Coletor Pro v9</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root { --primary: #1e293b; --accent: #2563eb; --success: #16a34a; --danger: #dc2626; --bg: #f8fafc; }
-        body { font-family: sans-serif; margin: 0; background: var(--bg); color: var(--primary); padding-bottom: 120px; }
-        .header { background: var(--primary); color: white; padding: 15px; text-align: center; font-weight: bold; }
+        body { font-family: sans-serif; margin: 0; background: var(--bg); color: var(--primary); padding-bottom: 140px; }
+        .header { background: var(--primary); color: white; padding: 15px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 1000; }
         .container { padding: 12px; max-width: 500px; margin: auto; }
         
         /* Scanner */
@@ -22,24 +22,29 @@
         .row { display: flex; gap: 10px; margin-bottom: 15px; }
         label { font-size: 11px; font-weight: bold; color: #94a3b8; display: block; margin-bottom: 4px; }
         input { width: 100%; padding: 12px; border: 2px solid #f1f5f9; border-radius: 10px; font-size: 16px; box-sizing: border-box; font-weight: bold; }
-        input:focus { border-color: var(--accent); outline: none; }
         .btn-add { width: 100%; background: var(--accent); color: white; border: none; padding: 15px; border-radius: 10px; font-weight: bold; font-size: 16px; }
 
-        /* Lista */
+        /* Lista Infinita e Edição */
         .list-section { background: white; border-radius: 20px; margin-top: 15px; padding: 15px; }
-        .list-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-family: monospace; }
+        .list-header { font-size: 12px; font-weight: bold; color: #64748b; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; }
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+        .item-info { font-family: monospace; font-size: 14px; font-weight: bold; }
+        .item-actions { display: flex; gap: 8px; align-items: center; }
+        
+        .btn-edit { background: #f1f5f9; color: var(--accent); border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; }
+        .btn-del { background: #fff1f1; color: var(--danger); border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; }
 
         /* Rodapé */
-        .footer { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 12px; border-top: 1px solid #e2e8f0; z-index: 200; }
+        .footer { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 12px; border-top: 1px solid #e2e8f0; z-index: 2000; }
         .footer-row { display: flex; gap: 8px; margin-bottom: 8px; }
         .btn-export { flex: 2; background: var(--success); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; }
         .btn-import { flex: 1; background: #64748b; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 11px; }
-        .btn-clear { width: 100%; background: none; color: var(--danger); border: none; font-size: 11px; font-weight: bold; }
+        .btn-clear { width: 100%; background: none; color: var(--danger); border: none; font-size: 11px; font-weight: bold; padding: 5px; }
     </style>
 </head>
 <body>
 
-<div class="header">COLETOR PRO v8</div>
+<div class="header">COLETOR INVENTÁRIO PRO v9</div>
 
 <div class="container">
     <div class="scanner-card">
@@ -55,18 +60,21 @@
         <div class="row">
             <div style="flex: 2;">
                 <label>CÓDIGO (13 DGT)</label>
-                <input type="text" id="barcode-res" placeholder="Bip...">
+                <input type="text" id="barcode-res" placeholder="Aguardando...">
             </div>
             <div style="flex: 1;">
                 <label>QTD / KG</label>
                 <input type="number" id="qtd" value="1" step="any" inputmode="decimal" onfocus="this.select()">
             </div>
         </div>
-        <button class="btn-add" onclick="adicionarItem()">REGISTRAR</button>
+        <button class="btn-add" onclick="adicionarItem()">REGISTRAR PRODUTO</button>
     </div>
 
     <div class="list-section">
-        <label>ÚLTIMOS REGISTROS</label>
+        <div class="list-header">
+            <span>PRODUTO (EAN)</span>
+            <span>QTD / AÇÕES</span>
+        </div>
         <div id="lista-corpo"></div>
     </div>
 </div>
@@ -76,7 +84,7 @@
         <button class="btn-import" onclick="document.getElementById('fileIn').click()">IMPORTAR</button>
         <button class="btn-export" onclick="exportarTXT()">EXPORTAR TXT</button>
     </div>
-    <button class="btn-clear" onclick="limparDados()">LIMPAR TUDO</button>
+    <button class="btn-clear" onclick="limparDados()">APAGAR TODA A LISTA</button>
     <input type="file" id="fileIn" style="display:none" accept=".txt" onchange="importarArquivo(event)">
 </div>
 
@@ -135,24 +143,48 @@
         document.getElementById('qtd').value = "1";
     }
 
+    function editarItem(code) {
+        const idx = inventario.findIndex(i => i.code === code);
+        const novaQtd = prompt("Editar quantidade para o código " + code + ":", inventario[idx].qtd);
+        if (novaQtd !== null) {
+            const valor = parseFloat(novaQtd.replace(',', '.'));
+            if (!isNaN(valor)) {
+                inventario[idx].qtd = parseFloat(valor.toFixed(3));
+                atualizarTela();
+            }
+        }
+    }
+
+    function excluirItem(code) {
+        if(confirm("Excluir o código " + code + "?")) {
+            inventario = inventario.filter(i => i.code !== code);
+            atualizarTela();
+        }
+    }
+
     function atualizarTela() {
         localStorage.setItem('coleta', JSON.stringify(inventario));
         const lista = document.getElementById('lista-corpo');
         const totalSum = inventario.reduce((acc, curr) => acc + parseFloat(curr.qtd), 0);
         
-        document.getElementById('stat-count').innerText = `ITENS: ${inventario.length}`;
-        document.getElementById('stat-sum').innerText = `TOTAL: ${totalSum.toFixed(3)}`;
+        document.getElementById('stat-count').innerText = `ITENS ÚNICOS: ${inventario.length}`;
+        document.getElementById('stat-sum').innerText = `TOTAL PEÇAS/KG: ${totalSum.toFixed(3)}`;
 
-        lista.innerHTML = [...inventario].reverse().slice(0, 10).map(i => `
+        // Mostra TODOS os itens sem limite
+        lista.innerHTML = [...inventario].reverse().map(i => `
             <div class="list-item">
-                <span>${i.code}</span>
-                <span style="font-weight:bold; color:var(--accent)">${i.qtd}</span>
+                <div class="item-info">${i.code}</div>
+                <div class="item-actions">
+                    <span style="font-weight:bold; color:var(--accent); margin-right:10px;">${i.qtd}</span>
+                    <button class="btn-edit" onclick="editarItem('${i.code}')">EDITAR</button>
+                    <button class="btn-del" onclick="excluirItem('${i.code}')">X</button>
+                </div>
             </div>
-        `).join('') || '<p style="font-size:11px; color:#94a3b8">Nenhum registro.</p>';
+        `).join('') || '<p style="text-align:center; font-size:12px; color:#94a3b8">Sua lista está vazia.</p>';
     }
 
     function exportarTXT() {
-        if(inventario.length === 0) return;
+        if(inventario.length === 0) return alert("Adicione itens antes de exportar.");
         let txt = inventario.map(i => i.code + " " + i.qtd).join("\r\n");
         const blob = new Blob([txt], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
@@ -178,14 +210,23 @@
                 }
             });
             atualizarTela();
-            alert("Importado!");
+            alert("Sincronizado com sucesso!");
         };
         reader.readAsText(file);
     }
 
     function limparDados() {
-        if(confirm("Zerar tudo?")) { inventario = []; atualizarTela(); }
+        if(confirm("CUIDADO: Isso apagará TODOS os itens da memória. Deseja continuar?")) { 
+            inventario = []; 
+            atualizarTela(); 
+        }
     }
+
+    // Gerencia visibilidade da câmera para não travar
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden && scanner) scanner.stop();
+        else if (cameras.length > 0) iniciarScanner(cameras[cameraIdx].id);
+    });
 
     atualizarTela();
 </script>
