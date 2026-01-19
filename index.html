@@ -3,296 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Coletor Pro v33.2 - Auditoria Total</title>
+    <title>Coletor Pro v34.1 - Ultimate</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #050505; --card: #121216; --primary: #3b82f6; --accent: #60a5fa; --success: #10b981; --danger: #ef4444; --border: rgba(255, 255, 255, 0.1); --text: #fff; --whatsapp: #25d366; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: calc(180px + env(safe-area-inset-bottom)); overflow-x: hidden; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); overflow: hidden; }
         
-        /* HEADER COM SWITCH DE MODO */
-        .header { padding: 10px 20px; text-align: center; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 4000; display: flex; justify-content: space-between; align-items: center; }
-        .v-tag { font-size: 9px; letter-spacing: 1px; font-weight: 900; color: var(--primary); text-transform: uppercase; }
-        
-        .mode-switch { background: #1a1a22; border-radius: 20px; padding: 6px 14px; font-size: 10px; font-weight: 900; border: 1px solid var(--border); cursor: pointer; transition: 0.3s; }
-        .mode-on { color: var(--success); border-color: var(--success); box-shadow: 0 0 10px rgba(16, 185, 129, 0.2); }
-        .mode-off { color: var(--danger); border-color: var(--danger); }
+        /* MENU DE ENTRADA */
+        #menu-inicial { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .menu-card { background: var(--card); border: 1px solid var(--border); padding: 30px; border-radius: 32px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 30px 60px rgba(0,0,0,0.8); }
+        .menu-btn { width: 100%; padding: 22px; border-radius: 20px; border: none; font-weight: 900; font-size: 15px; cursor: pointer; margin-bottom: 12px; color: white; transition: 0.2s; }
+        .btn-inv { background: var(--primary); }
+        .btn-quebra { background: #222; border: 1px solid var(--border); }
+        .menu-btn:active { transform: scale(0.96); opacity: 0.8; }
 
-        .scanner-container { padding: 8px; max-width: 500px; margin: auto; }
-        .scanner-frame { position: relative; border-radius: 24px; overflow: hidden; border: 1px solid var(--border); background: #000; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        /* INTERFACE PRINCIPAL */
+        #app-container { display: none; height: 100vh; display: flex; flex-direction: column; }
+        .header { padding: 12px 20px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: flex; justify-content: space-between; align-items: center; }
+        .v-tag { font-size: 9px; letter-spacing: 1px; font-weight: 900; color: var(--primary); }
         
-        /* RECURSO SMART CAM: DINAMISMO VISUAL */
-        #reader { width: 100%; aspect-ratio: 16/10; transition: all 0.4s ease; }
-        .cam-hidden { display: none !important; }
+        .cam-master { background: #1a1a22; border-radius: 20px; padding: 6px 14px; font-size: 10px; font-weight: 900; border: 1px solid var(--border); cursor: pointer; }
+        .cam-on { color: var(--success); border-color: var(--success); }
+        .cam-off { color: var(--danger); border-color: var(--danger); }
+
+        /* ÁREA DE ESCANEAMENTO */
+        .scanner-container { padding: 8px; max-width: 500px; margin: 0 auto; width: 100%; }
+        .scanner-frame { position: relative; border-radius: 24px; overflow: hidden; border: 1px solid var(--border); background: #000; transition: 0.4s ease; }
+        #reader { width: 100%; aspect-ratio: 16/10; transition: 0.4s; }
         .cam-minimized { aspect-ratio: 100/1 !important; opacity: 0; pointer-events: none; }
+        .cam-hidden { display: none !important; }
 
-        .btn-switch-cam { position: absolute; top: 10px; right: 10px; z-index: 1100; width: 44px; height: 44px; border-radius: 50%; background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.3); color: #fff; display: flex; align-items: center; justify-content: center; }
-
-        .main-panel { background: var(--card); border-radius: 24px; padding: 15px; margin-top: 10px; border: 1px solid var(--border); position: relative; z-index: 2000; }
-        .display-prod { background: rgba(0,0,0,0.4); padding: 12px; border-radius: 12px; margin-bottom: 10px; text-align: center; border: 1px solid var(--border); min-height: 45px; display: flex; align-items: center; justify-content: center; }
-        .display-prod b { font-size: 12px; color: var(--accent); text-transform: uppercase; }
+        /* PAINEL DE DADOS */
+        .main-panel { background: var(--card); border-radius: 24px; padding: 15px; margin: 10px 8px; border: 1px solid var(--border); position: relative; }
+        .display-prod { background: rgba(0,0,0,0.4); padding: 10px; border-radius: 12px; margin-bottom: 10px; text-align: center; border: 1px solid var(--border); min-height: 40px; display: flex; align-items: center; justify-content: center; }
+        .display-prod b { font-size: 11px; color: var(--accent); text-transform: uppercase; }
         
-        input { width: 100%; padding: 14px; background: rgba(255,255,255,0.05); border: 2px solid transparent; border-radius: 14px; color: #fff; font-size: 16px; font-weight: 600; margin-bottom: 10px; outline: none; transition: 0.2s; }
+        input { width: 100%; padding: 14px; background: rgba(255,255,255,0.05); border: 2px solid transparent; border-radius: 14px; color: #fff; font-size: 16px; font-weight: 600; margin-bottom: 10px; transition: 0.2s; }
         input:focus { border-color: var(--primary); background: rgba(255,255,255,0.08); }
 
-        /* ABA DA BATATA: SUGESTÕES */
-        .suggestions { background: #1a1a22; border: 1px solid var(--primary); border-radius: 16px; position: absolute; width: calc(100% - 30px); z-index: 5000; max-height: 250px; overflow-y: auto; top: 125px; box-shadow: 0 20px 50px rgba(0,0,0,1); }
-        .sug-item { padding: 16px; border-bottom: 1px solid var(--border); cursor: pointer; }
-        .sug-item:active { background: var(--primary); }
-        .sug-item b { display: block; color: #fff; font-size: 13px; margin-bottom: 3px; }
-        .sug-item small { color: var(--accent); font-weight: bold; }
+        .suggestions { background: #1a1a22; border: 1px solid var(--primary); border-radius: 16px; position: absolute; width: calc(100% - 30px); z-index: 5000; max-height: 200px; overflow-y: auto; top: 115px; box-shadow: 0 20px 50px #000; }
+        .sug-item { padding: 14px; border-bottom: 1px solid var(--border); }
+        .sug-item b { display: block; font-size: 12px; color: #fff; }
 
-        .btn-main { width: 100%; background: var(--primary); color: white; border: none; padding: 16px; border-radius: 16px; font-weight: 900; font-size: 15px; cursor: pointer; }
-        .item-card { background: var(--card); border: 1px solid var(--border); padding: 12px 18px; border-radius: 20px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-main { width: 100%; background: var(--primary); color: white; border: none; padding: 16px; border-radius: 16px; font-weight: 900; font-size: 14px; cursor: pointer; }
+
+        /* LISTA E DASHBOARD */
+        #lista-corpo { flex-grow: 1; overflow-y: auto; padding: 10px; margin-bottom: 160px; }
+        .item-card { background: var(--card); border: 1px solid var(--border); padding: 12px; border-radius: 18px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
         
-        .dashboard { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 10, 15, 0.95); backdrop-filter: blur(25px); padding: 15px 15px calc(15px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); z-index: 3000; }
-        .stats { display: flex; gap: 8px; margin-bottom: 10px; }
-        .stat-box { flex: 1; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 14px; text-align: center; border: 1px solid var(--border); }
+        .dashboard { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 10, 15, 0.96); backdrop-filter: blur(20px); padding: 15px 15px calc(15px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); z-index: 4000; }
+        .stats-row { display: flex; justify-content: space-around; margin-bottom: 12px; font-size: 12px; }
         .btn-group { display: flex; gap: 8px; }
-        .btn-export, .btn-share { flex: 1; border: none; padding: 14px; border-radius: 14px; font-weight: 900; color: white; cursor: pointer; }
-        .btn-export { background: var(--success); }
-        .btn-share { background: var(--whatsapp); }
-
-        #modal-backups { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 6000; padding: 20px; align-items: center; justify-content: center; }
-        .modal-content { background: var(--card); padding: 25px; border-radius: 32px; border: 1px solid var(--border); width: 100%; max-width: 450px; display: flex; flex-direction: column; }
+        .btn-exp { flex: 1; background: var(--success); border: none; padding: 14px; border-radius: 14px; color: white; font-weight: 900; }
+        .btn-zap { flex: 1; background: var(--whatsapp); border: none; padding: 14px; border-radius: 14px; color: white; font-weight: 900; }
     </style>
 </head>
 <body>
 
-<div id="modal-backups" onclick="this.style.display='none'">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <h3 style="margin:0; color:var(--primary);">Restaurar Sessão</h3>
-        <div id="lista-backups" style="overflow-y: auto; flex-grow: 1; margin-top:15px;"></div>
-        <button onclick="document.getElementById('modal-backups').style.display='none'" style="width:100%; margin-top:20px; padding:18px; border-radius:18px; background:#222; color:#fff; border:none; font-weight:bold;">VOLTAR</button>
+<div id="menu-inicial">
+    <div class="menu-card">
+        <h2 style="margin:0 0 10px 0; font-weight: 900;">COLETOR PRO</h2>
+        <p style="color: #666; font-size: 12px; margin-bottom: 25px;">Selecione o destino da coleta:</p>
+        <button class="menu-btn btn-inv" onclick="abrirApp('INVENTARIO')">MODO INVENTÁRIO<br><small style="font-weight: 400; font-size: 9px; opacity: 0.7;">Prefixo: Inventario [código]</small></button>
+        <button class="menu-btn btn-quebra" onclick="abrirApp('TROCA')">TROCA / QUEBRA<br><small style="font-weight: 400; font-size: 9px; opacity: 0.7;">Sem prefixo: [código]</small></button>
     </div>
 </div>
 
-<div class="header">
-    <div class="v-tag">ISAQUE PRUSSAK • v33.2</div>
-    <div id="cam-master-toggle" class="mode-switch mode-on" onclick="toggleCameraHardware()">
-        CÂMERA: <span id="cam-status-text">LIGADA</span>
+<div id="app-container" style="display:none;">
+    <div class="header">
+        <div class="v-tag">ISAQUE • v34.1</div>
+        <div id="cam-status" class="cam-master cam-on" onclick="toggleHardwareCam()">CÂMERA: LIGADA</div>
     </div>
-</div>
 
-<div class="scanner-container">
-    <div class="scanner-frame" id="frame-cam">
-        <div class="btn-switch-cam" id="cam-toggle" onclick="ciclarCamera()" style="display:none;">🔄</div>
-        <div id="reader"></div>
+    <div class="scanner-container">
+        <div class="scanner-frame" id="frame-cam">
+            <div id="reader"></div>
+        </div>
+        
+        <div class="main-panel">
+            <div class="display-prod"><b id="p-nome">PRONTO PARA INICIAR</b></div>
+            <input type="text" id="barcode-res" placeholder="CÓDIGO OU NOME" 
+                   onfocus="toggleCamView(true)" 
+                   onblur="setTimeout(()=>toggleCamView(false), 300)"
+                   oninput="limparInput(this); buscaHibrida(this.value)" autocomplete="off">
+            <div id="suggestions-box" class="suggestions" style="display:none"></div>
+            <input type="text" id="qtd" value="1.000" inputmode="decimal" oninput="limparQtd(this)" onfocus="this.select()">
+            <button class="btn-main" onclick="adicionarItem()">REGISTRAR ITEM</button>
+        </div>
     </div>
-    
-    <div class="main-panel">
-        <div class="display-prod"><b id="p-nome">AGUARDANDO COLETAR</b></div>
-        <input type="text" id="barcode-res" placeholder="NOME OU CÓDIGO" 
-               onfocus="toggleCamView(true)" 
-               onblur="setTimeout(()=>toggleCamView(false), 300)"
-               oninput="limparInput(this); buscaHibrida(this.value)" autocomplete="off">
-        <div id="suggestions-box" class="suggestions" style="display:none"></div>
-        <input type="text" id="qtd" value="1.000" inputmode="decimal" oninput="limparQtd(this)" onfocus="this.select()">
-        <button class="btn-main" onclick="adicionarItem()">REGISTRAR NO PROGRESS</button>
-    </div>
-    <div id="lista-corpo" style="margin-top:20px;"></div>
-</div>
 
-<div class="dashboard">
-    <div class="stats">
-        <div class="stat-box"><small>Itens</small><br><b id="st-skus">0</b></div>
-        <div class="stat-box"><small>Total</small><br><b id="st-total">0</b></div>
-    </div>
-    <div class="btn-group">
-        <button class="btn-export" onclick="exportarBinario()">💾 TXT</button>
-        <button class="btn-share" onclick="compartilharZap()">🟢 WHATSAPP</button>
-    </div>
-    <div class="footer-tools" style="display:flex; justify-content:space-between; margin-top:10px;">
-        <button onclick="abrirModalRecuperacao()" style="background:none; border:none; color:#666; font-size:10px; font-weight:bold;">🩹 RECUPERAR</button>
-        <button onclick="location.reload()" style="background:none; border:none; color:#666; font-size:10px; font-weight:bold;">🔄 RECARREGAR</button>
-        <button onclick="limparLista()" style="background:none; border:none; color:var(--danger); font-size:10px; font-weight:bold;">🗑️ LIMPAR</button>
+    <div id="lista-corpo"></div>
+
+    <div class="dashboard">
+        <div class="stats-row">
+            <span>MODO: <b id="txt-modo" style="color:var(--primary)">-</b></span>
+            <span>ITENS: <b id="st-skus">0</b></span>
+            <span>TOTAL: <b id="st-total">0.000</b></span>
+        </div>
+        <div class="btn-group">
+            <button class="btn-exp" onclick="exportarTxt()">💾 BAIXAR TXT</button>
+            <button class="btn-zap" onclick="compartilharZap()">🟢 WHATSAPP</button>
+        </div>
+        <button onclick="location.reload()" style="width:100%; background:none; border:none; color:#444; font-size:10px; margin-top:10px; font-weight:900;">VOLTAR AO MENU</button>
     </div>
 </div>
 
 <script>
-    let inventario = JSON.parse(localStorage.getItem('coleta_isaque_v15')) || [];
+    let modoGlobal = 'INVENTARIO';
+    let inventario = [];
     let catalogoMemo = [];
     let produtoAtivo = null;
     let html5QrCode = null;
-    let camerasTraseiras = [];
-    let cameraIndiceAtual = 0;
-    let scannerAtivo = false;
     let camHabilitada = true;
 
-    // RECURSO v33.1/2: GESTÃO DE HARDWARE
-    function toggleCameraHardware() {
-        camHabilitada = !camHabilitada;
-        const btn = document.getElementById('cam-master-toggle');
-        const frame = document.getElementById('frame-cam');
-        const statusTxt = document.getElementById('cam-status-text');
+    function abrirApp(modo) {
+        modoGlobal = modo;
+        document.getElementById('menu-inicial').style.display = 'none';
+        document.getElementById('app-container').style.display = 'flex';
+        document.getElementById('txt-modo').innerText = modo;
+        atualizarTela();
+        iniciarHardware();
+    }
 
+    function toggleHardwareCam() {
+        camHabilitada = !camHabilitada;
+        const btn = document.getElementById('cam-status');
+        const frame = document.getElementById('frame-cam');
         if(camHabilitada) {
-            btn.className = "mode-switch mode-on";
-            statusTxt.innerText = "LIGADA";
-            frame.classList.remove('cam-hidden');
-            if(camerasTraseiras.length > 0) iniciarScanner(camerasTraseiras[cameraIndiceAtual].id);
+            btn.className = "cam-master cam-on"; btn.innerText = "CÂMERA: LIGADA";
+            frame.classList.remove('cam-hidden'); iniciarHardware();
         } else {
-            btn.className = "mode-switch mode-off";
-            statusTxt.innerText = "DESLIGADA";
-            frame.classList.add('cam-hidden');
-            if(html5QrCode && scannerAtivo) html5QrCode.stop().then(()=>scannerAtivo=false);
+            btn.className = "cam-master cam-off"; btn.innerText = "CÂMERA: DESLIGADA";
+            frame.classList.add('cam-hidden'); if(html5QrCode) html5QrCode.stop();
         }
     }
 
-    // RECURSO SMART CAM: MINIMIZAÇÃO
     function toggleCamView(min) {
         if(!camHabilitada) return;
-        const reader = document.getElementById('reader');
-        if(min) reader.classList.add('cam-minimized');
-        else reader.classList.remove('cam-minimized');
+        const r = document.getElementById('reader');
+        if(min) r.classList.add('cam-minimized');
+        else r.classList.remove('cam-minimized');
     }
 
-    // RECURSO SEGURANÇA: FILTRO PROGRESS
     function limparInput(el) { el.value = el.value.replace(/[^a-zA-Z0-9 ]/g, ""); }
     function limparQtd(el) { el.value = el.value.replace(/[^0-9.]/g, ""); }
 
     async function carregarCatalogo() {
         try {
-            const r = await fetch('PRODUTO.TXT', { cache: "no-store" });
+            const r = await fetch('PRODUTO.TXT', {cache: "no-store"});
             const t = await r.text();
-            catalogoMemo = t.split(/\r?\n/).filter(l => l.trim().length > 13).map(l => ({
+            catalogoMemo = t.split(/\r?\n/).filter(l => l.length > 13).map(l => ({
                 code: l.substring(0, 13).trim().padStart(13, '0'),
                 nome: l.substring(13).slice(0, -10).trim()
             }));
-        } catch (e) { }
+        } catch(e) { console.log("Catálogo não encontrado"); }
+    }
+
+    function iniciarHardware() {
+        if(!camHabilitada) return;
+        Html5Qrcode.getCameras().then(devices => {
+            const back = devices.find(d => d.label.toLowerCase().includes('back') || d.label.toLowerCase().includes('traseira')) || devices[0];
+            html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start(back.id, { fps: 20, qrbox: 250 }, (t) => {
+                let code = t.replace(/[^0-9]/g, "");
+                document.getElementById('barcode-res').value = code;
+                buscaHibrida(code);
+                document.getElementById('qtd').focus();
+            });
+        });
+    }
+
+    function buscaHibrida(val) {
+        let v = val.trim().toUpperCase();
+        const box = document.getElementById('suggestions-box');
+        if(v.length < 2) { box.style.display = 'none'; return; }
+        if(/^\d+$/.test(v)) {
+            let vBusca = v.padStart(13, '0');
+            const match = catalogoMemo.find(i => i.code === vBusca);
+            produtoAtivo = match ? match : { code: vBusca, nome: "PRODUTO AVULSO" };
+            document.getElementById('p-nome').innerText = produtoAtivo.nome;
+            box.style.display = 'none';
+        } else {
+            const res = catalogoMemo.filter(i => i.nome.includes(v)).slice(0, 10);
+            box.innerHTML = res.map(i => `<div class="sug-item" onmousedown="selecionar('${i.code}','${i.nome}')"><b>${i.nome}</b><small style="font-size:10px; color:var(--primary)">${i.code}</small></div>`).join('');
+            box.style.display = res.length > 0 ? 'block' : 'none';
+        }
+    }
+
+    function selecionar(c, n) {
+        produtoAtivo = { code: c, nome: n };
+        document.getElementById('barcode-res').value = c;
+        document.getElementById('p-nome').innerText = n;
+        document.getElementById('suggestions-box').style.display = 'none';
+        setTimeout(() => document.getElementById('qtd').focus(), 150);
+    }
+
+    function adicionarItem() {
+        let code = document.getElementById('barcode-res').value.trim();
+        let qVal = document.getElementById('qtd').value.replace(',','.');
+        let q = parseFloat(qVal);
+        if(!code || isNaN(q)) return;
+        if(/^\d+$/.test(code)) code = code.padStart(13, '0');
+        
+        const idx = inventario.findIndex(i => i.code === code);
+        if(idx !== -1) inventario[idx].qtd = (parseFloat(inventario[idx].qtd) + q).toFixed(3);
+        else inventario.push({ code, nome: produtoAtivo ? produtoAtivo.nome : "AVULSO", qtd: q.toFixed(3) });
+        
+        atualizarTela();
+        document.getElementById('barcode-res').value = "";
+        document.getElementById('qtd').value = "1.000";
+        document.getElementById('barcode-res').focus();
+        document.getElementById('p-nome').innerText = "REGISTRADO COM SUCESSO";
     }
 
     function atualizarTela() {
-        localStorage.setItem('coleta_isaque_v15', JSON.stringify(inventario));
         let soma = 0;
         document.getElementById('lista-corpo').innerHTML = [...inventario].reverse().map(i => {
             soma += parseFloat(i.qtd);
-            return `<div class="item-card"><div><small style="color:#666; font-size:9px;">${i.nome}</small><br><b>${i.code}</b></div>
-                <div style="text-align:right"><b style="color:var(--primary); font-size:16px;">${i.qtd}</b><br><button onclick="editarItem('${i.code}')" style="border:none; background:none; color:var(--primary); font-size:10px; font-weight:bold;">EDITAR</button></div></div>`;
+            return `<div class="item-card"><div><small style="font-size:9px; color:#777;">${i.nome}</small><br><b>${i.code}</b></div><b>${i.qtd}</b></div>`;
         }).join('');
         document.getElementById('st-skus').innerText = inventario.length;
         document.getElementById('st-total').innerText = soma.toFixed(3);
     }
 
-    // RECURSO IPHONE: CONSTRAINTS DE FOCO
-    function iniciarScanner(id) {
-        if(!camHabilitada) return;
-        if(html5QrCode) { html5QrCode.stop().then(() => start(id)).catch(() => start(id)); } else { start(id); }
-        function start(camId) {
-            html5QrCode = new Html5Qrcode("reader");
-            const config = { fps: 25, qrbox: { width: 250, height: 150 }, videoConstraints: { focusMode: "continuous", facingMode: "environment" } };
-            html5QrCode.start(camId, config, (t) => {
-                let sanitized = t.replace(/[^0-9]/g, "");
-                document.getElementById('barcode-res').value = sanitized;
-                buscaHibrida(sanitized);
-                document.getElementById('qtd').focus();
-            }).then(() => scannerAtivo = true);
-        }
+    function formatarFinal() {
+        return inventario.map(i => {
+            let prefixo = modoGlobal === 'INVENTARIO' ? 'Inventario ' : '';
+            return `${prefixo}${i.code} ${i.qtd}`;
+        }).join("\r\n");
     }
 
-    // RECURSO AUTO-PAUSE: GESTÃO DE BATERIA
-    document.addEventListener("visibilitychange", () => {
-        if (document.hidden) { if (html5QrCode && scannerAtivo) html5QrCode.stop().then(() => scannerAtivo = false); }
-        else { if (camHabilitada && camerasTraseiras.length > 0 && !scannerAtivo) iniciarScanner(camerasTraseiras[cameraIndiceAtual].id); }
-    });
-
-    // RECURSO ABA DA BATATA: BUSCA POR NOME
-    function buscaHibrida(val) {
-        let v = val.trim().toUpperCase();
-        const box = document.getElementById('suggestions-box');
-        if(v.length < 2) { box.style.display = 'none'; return; }
-        const isNum = /^\d+$/.test(v);
-        if(isNum) {
-            let vBusca = v.padStart(13, '0');
-            const match = catalogoMemo.find(i => i.code === vBusca);
-            if(match) { document.getElementById('p-nome').innerText = match.nome; produtoAtivo = match; }
-            else { document.getElementById('p-nome').innerText = "AVULSO"; produtoAtivo = { code: vBusca, nome: "AVULSO" }; }
-            box.style.display = 'none';
-        } else {
-            const resultados = catalogoMemo.filter(i => i.nome.includes(v)).slice(0, 15);
-            if(resultados.length > 0) {
-                box.innerHTML = resultados.map(i => `<div class="sug-item" onmousedown="selecionarSugestao('${i.code}', '${i.nome}')"><b>${i.nome}</b><small>${i.code}</small></div>`).join('');
-                box.style.display = 'block';
-            } else { box.style.display = 'none'; }
-        }
-    }
-
-    function selecionarSugestao(code, nome) {
-        produtoAtivo = { code, nome };
-        document.getElementById('barcode-res').value = code;
-        document.getElementById('p-nome').innerText = nome;
-        document.getElementById('suggestions-box').style.display = 'none';
-        setTimeout(() => { document.getElementById('qtd').focus(); if(camHabilitada) toggleCamView(false); }, 150);
-    }
-
-    function adicionarItem() {
-        const input = document.getElementById('barcode-res');
-        let code = input.value.trim();
-        let qVal = document.getElementById('qtd').value.replace(',','.');
-        const q = parseFloat(qVal);
-        if(!code || isNaN(q)) return;
-        if(/^\d+$/.test(code)) code = code.padStart(13, '0');
-        const idx = inventario.findIndex(i => i.code === code);
-        if(idx !== -1) inventario[idx].qtd = (parseFloat(inventario[idx].qtd) + q).toFixed(3);
-        else inventario.push({ code, nome: produtoAtivo ? produtoAtivo.nome : "AVULSO", qtd: q.toFixed(3) });
-        atualizarTela(); input.value = ""; document.getElementById('qtd').value = "1.000"; input.focus();
-        document.getElementById('p-nome').innerText = "PRONTO PARA COLETAR";
-    }
-
-    // RECURSO PROGRESS SERVER 2012: FORMATAÇÃO RÍGIDA
-    function gerarLinhasProgress() {
-        return inventario.map(i => `Inventario ${i.code.padStart(13,'0')} ${parseFloat(i.qtd).toFixed(3)}`).join("\r\n");
-    }
-
-    function exportarBinario() {
+    function exportarTxt() {
         if(inventario.length === 0) return;
-        const blob = new Blob([gerarLinhasProgress()], { type: 'text/plain' });
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'invent_progress.txt'; a.click();
+        const blob = new Blob([formatarFinal()], { type: 'text/plain' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'invent.txt';
+        a.click();
     }
 
     async function compartilharZap() {
         if(inventario.length === 0) return;
-        const file = new File([gerarLinhasProgress()], `invent_progress.txt`, { type: 'text/plain' });
-        if (navigator.share) try { await navigator.share({ files: [file], title: 'Coleta Progress' }); } catch (e) {}
+        const file = new File([formatarFinal()], 'invent.txt', { type: 'text/plain' });
+        if(navigator.share) await navigator.share({ files: [file], title: 'Coleta Progress' });
     }
 
-    function abrirModalRecuperacao() {
-        const modal = document.getElementById('modal-backups');
-        const listaUI = document.getElementById('lista-backups');
-        listaUI.innerHTML = "";
-        for (let i = 0; i < localStorage.length; i++) {
-            const chave = localStorage.key(i);
-            if (chave.includes('coleta')) {
-                const dados = JSON.parse(localStorage.getItem(chave));
-                const div = document.createElement('div');
-                div.className = "sug-item";
-                div.innerHTML = `<b>Backup Anterior</b><small>${dados.length} Linhas</small>`;
-                div.onclick = () => { if(confirm("Restaurar?")) { inventario = dados; atualizarTela(); modal.style.display='none'; }};
-                listaUI.appendChild(div);
-            }
-        }
-        modal.style.display = 'flex';
-    }
-
-    function ciclarCamera() {
-        if (!camHabilitada || camerasTraseiras.length < 2) return;
-        cameraIndiceAtual = (cameraIndiceAtual + 1) % camerasTraseiras.length;
-        iniciarScanner(camerasTraseiras[cameraIndiceAtual].id);
-    }
-
-    function limparLista() { if(confirm("Apagar tudo?")) { inventario = []; atualizarTela(); } }
-    function editarItem(code) { const idx = inventario.findIndex(i => i.code === code); const n = prompt("Qtd:", inventario[idx].qtd); if(n) { inventario[idx].qtd = parseFloat(n.replace(',','.')).toFixed(3); atualizarTela(); } }
-
-    window.onload = () => {
-        carregarCatalogo(); atualizarTela();
-        Html5Qrcode.getCameras().then(devices => {
-            camerasTraseiras = devices.filter(d => d.label.toLowerCase().includes('back') || d.label.toLowerCase().includes('traseira') || d.label.toLowerCase().includes('0'));
-            if (camerasTraseiras.length === 0) camerasTraseiras = devices;
-            if (camerasTraseiras.length > 1) document.getElementById('cam-toggle').style.display = 'flex';
-            iniciarScanner(camerasTraseiras[0].id);
-        });
-    };
+    window.onload = carregarCatalogo;
 </script>
 </body>
 </html>
