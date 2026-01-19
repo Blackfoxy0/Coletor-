@@ -3,25 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Coletor Pro v14.8 - Multi-Backup</title>
+    <title>Coletor Pro v14.9 - Full</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root { --bg: #000; --card: #111; --primary: #fff; --accent: #3b82f6; --border: #222; --text-muted: #888; --success: #10b981; --danger: #ef4444; }
         body { font-family: sans-serif; margin: 0; background: var(--bg); color: var(--primary); padding-bottom: 260px; overflow-x: hidden; }
         .header { padding: 15px; text-align: center; font-weight: bold; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 1000; font-size: 13px; }
-        .stats-bar { background: #1a1a1a; padding: 6px; text-align: center; font-size: 11px; color: var(--success); border-bottom: 1px solid var(--border); }
+        .stats-bar { background: #1a1a1a; padding: 6px; text-align: center; font-size: 11px; color: var(--success); border-bottom: 1px solid var(--border); font-weight: bold; }
         .container { padding: 12px; max-width: 500px; margin: auto; }
         .scanner-card { background: #000; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); aspect-ratio: 1/1; position: relative; }
         #reader { width: 100%; height: 100%; }
         
         /* Modal de Recuperação */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; justify-content: center; align-items: center; }
-        .modal-content { background: #111; border: 1px solid #333; padding: 20px; border-radius: 20px; width: 90%; max-width: 400px; }
-        .backup-item { background: #1a1a1a; padding: 12px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #333; cursor: pointer; }
-        .backup-item:active { background: #333; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 3000; justify-content: center; align-items: center; }
+        .modal-content { background: #111; border: 1px solid #333; padding: 20px; border-radius: 20px; width: 85%; max-width: 400px; max-height: 70vh; overflow-y: auto; }
+        .backup-item { background: #1a1a1a; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #333; }
 
         .camera-controls { position: absolute; bottom: 10px; right: 10px; z-index: 10; }
-        .btn-cam { background: rgba(0,0,0,0.7); color: #fff; border: 1px solid #fff; padding: 8px 12px; border-radius: 8px; font-size: 10px; }
+        .btn-cam { background: rgba(0,0,0,0.7); color: #fff; border: 1px solid #fff; padding: 8px 12px; border-radius: 8px; font-size: 10px; cursor: pointer; }
 
         .panel { background: var(--card); border-radius: 24px; padding: 20px; margin-top: -40px; position: relative; z-index: 100; border: 1px solid var(--border); }
         .product-name-display { color: var(--accent); font-weight: 800; font-size: 14px; margin-bottom: 12px; text-align: center; min-height: 20px; text-transform: uppercase; border: 1px dashed #333; padding: 8px; border-radius: 8px; background: #050505; }
@@ -29,60 +28,62 @@
         .suggestions { background: #1a1a1a; border-radius: 10px; margin-top: 5px; max-height: 180px; overflow-y: auto; border: 1px solid #333; display: none; position: absolute; width: 100%; z-index: 500; }
         .suggestion-item { padding: 14px; border-bottom: 1px solid #222; font-size: 13px; cursor: pointer; display: flex; justify-content: space-between; }
 
-        input { width: 100%; padding: 12px; background: #000; border: 1px solid var(--border); border-radius: 10px; color: #fff; font-weight: bold; font-size: 16px; box-sizing: border-box; }
+        input { width: 100%; padding: 12px; background: #000; border: 1px solid var(--border); border-radius: 10px; color: #fff; font-weight: bold; font-size: 16px; outline: none; box-sizing: border-box; }
         .btn-add { width: 100%; background: var(--accent); color: #fff; border: none; padding: 16px; border-radius: 14px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; }
 
         .list-item { background: var(--card); padding: 12px; border-radius: 12px; margin-top: 8px; border: 1px solid var(--border); }
+        .btn-edit-item { background: #1a1a1a; color: var(--accent); border: 1px solid var(--accent); padding: 6px 10px; border-radius: 6px; font-size: 10px; font-weight: bold; }
+        
         .footer { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.95); padding: 15px; border-top: 1px solid var(--border); z-index: 2000; }
-        .btn-export { background: var(--success); color: #fff; border: none; padding: 15px; border-radius: 12px; font-weight: bold; width: 100%; margin-bottom: 10px; }
-        .btn-mini { background: none; border: 1px solid #333; color: #777; padding: 8px; border-radius: 8px; font-size: 9px; flex: 1; font-weight: bold; }
+        .btn-export { background: var(--success); color: #fff; border: none; padding: 15px; border-radius: 12px; font-weight: bold; width: 100%; margin-bottom: 10px; font-size: 14px; }
+        .btn-mini { background: none; border: 1px solid #333; color: #777; padding: 8px; border-radius: 8px; font-size: 9px; flex: 1; font-weight: bold; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
 <div id="modal-recuperar" class="modal">
     <div class="modal-content">
-        <h3 style="margin-top:0; font-size:16px;">Restaurar Cópia</h3>
-        <p style="font-size:11px; color:#888;">Escolha um ponto de restauração encontrado na memória deste celular:</p>
+        <h3 style="margin-top:0; font-size:16px; color:var(--accent);">Restaurar Backup</h3>
+        <p style="font-size:11px; color:#888; margin-bottom:15px;">Selecione uma lista salva na memória deste aparelho:</p>
         <div id="lista-backups"></div>
-        <button onclick="fecharModal()" style="width:100%; background:none; border:none; color:#ef4444; margin-top:10px; font-weight:bold;">CANCELAR</button>
+        <button onclick="fecharModal()" style="width:100%; background:none; border:1px solid #444; color:#fff; padding:10px; border-radius:10px; margin-top:15px; font-size:12px;">FECHAR</button>
     </div>
 </div>
 
 <div class="header" id="header-info">CARREGANDO...</div>
-<div class="stats-bar" id="stats-info">ITENS: 0</div>
+<div class="stats-bar" id="stats-info">ITENS COLETADOS: 0</div>
 
 <div class="container">
     <div class="scanner-card">
         <div id="reader"></div>
         <div class="camera-controls">
-            <button class="btn-cam" onclick="alternarCamera()">🔄 TROCAR CÂMERA</button>
+            <button class="btn-cam" onclick="alternarCamera()">🔄 ALTERNAR CÂMERA</button>
         </div>
     </div>
     
     <div class="panel">
-        <div id="prod-nome" class="product-name-display">BUSQUE UM ITEM</div>
+        <div id="prod-nome" class="product-name-display">PRONTO PARA PESQUISA</div>
         <div style="position: relative; margin-bottom: 12px;">
             <input type="text" id="barcode-res" placeholder="NOME OU CÓDIGO" oninput="buscaHibrida(this.value)" autocomplete="off">
             <div id="suggestions-box" class="suggestions"></div>
         </div>
         <input type="number" id="qtd" value="1" step="any" inputmode="decimal" onfocus="this.select()">
-        <button class="btn-add" onclick="adicionarItem()">REGISTRAR</button>
+        <button class="btn-add" onclick="adicionarItem()">REGISTRAR AGORA</button>
     </div>
     <div id="lista-corpo"></div>
 </div>
 
 <div class="footer">
-    <button class="btn-export" onclick="exportarTXT()">💾 EXPORTAR ARQUIVO TXT</button>
+    <button class="btn-export" onclick="exportarTXT()">💾 EXPORTAR COLETA.TXT</button>
     <div style="display: flex; gap: 5px;">
         <button class="btn-mini" onclick="window.location.reload()">🔄 ATUALIZAR</button>
-        <button class="btn-mini" onclick="abrirModalRecuperacao()" style="color: #3b82f6; border-color: #3b82f6;">🩹 RECUPERAR</button>
-        <button class="btn-mini" onclick="limparLista()" style="color: #ef4444; border-color: #ef4444;">🗑️ LIMPAR</button>
+        <button class="btn-mini" onclick="abrirModalRecuperacao()" style="color:var(--accent); border-color:var(--accent);">🩹 RECUPERAR</button>
+        <button class="btn-mini" onclick="limparLista()" style="color:var(--danger); border-color:var(--danger);">🗑️ LIMPAR</button>
     </div>
 </div>
 
 <script>
-    let inventario = JSON.parse(localStorage.getItem('coleta_v14_8')) || [];
+    let inventario = JSON.parse(localStorage.getItem('coleta_v14_9')) || [];
     let catalogoMemo = [];
     let produtoAtivo = null;
     let html5QrCode;
@@ -97,6 +98,7 @@
             const linhas = texto.split(/\r?\n/).filter(l => l.trim().length > 13);
             catalogoMemo = linhas.map(linha => {
                 const code = linha.substring(0, 13).trim().padStart(13, '0');
+                // LÓGICA DE CORTE: Corta os 10 últimos caracteres (zeros + preço)
                 let nome = linha.substring(13).slice(0, -10).trim();
                 return { code, nome };
             });
@@ -106,46 +108,49 @@
         }
     }
 
-    // --- CÂMERA ---
+    // --- CONTROLO DE CÂMERA ---
     Html5Qrcode.getCameras().then(devices => {
         camerasDisponiveis = devices;
         if (devices.length > 0) {
             currentCameraId = devices[devices.length - 1].id;
-            iniciarCamera(currentCameraId);
+            iniciarScanner(currentCameraId);
         }
     });
 
-    function iniciarCamera(id) {
+    function iniciarScanner(id) {
         if (html5QrCode) {
-            html5QrCode.stop().then(() => startScanner(id));
+            html5QrCode.stop().then(() => start(id));
         } else {
             html5QrCode = new Html5Qrcode("reader");
-            startScanner(id);
+            start(id);
         }
     }
 
-    function startScanner(id) {
+    function start(id) {
         html5QrCode.start(id, { fps: 20, qrbox: 250 }, (text) => {
             document.getElementById('barcode-res').value = text;
             buscaHibrida(text);
-        });
+            if(navigator.vibrate) navigator.vibrate(70);
+        }).catch(err => console.error(err));
     }
 
     function alternarCamera() {
         const index = camerasDisponiveis.findIndex(c => c.id === currentCameraId);
         const nextIndex = (index + 1) % camerasDisponiveis.length;
         currentCameraId = camerasDisponiveis[nextIndex].id;
-        iniciarCamera(currentCameraId);
+        iniciarScanner(currentCameraId);
     }
 
-    // --- BUSCA ---
+    // --- PESQUISA ---
     function buscaHibrida(val) {
         const v = val.trim().toUpperCase();
         const box = document.getElementById('suggestions-box');
         if(v.length < 2) { box.style.display = 'none'; return; }
+        
         const resultados = catalogoMemo.filter(i => 
             i.code.includes(v) || i.nome.includes(v)
         ).slice(0, 15);
+
         if (resultados.length > 0) {
             box.innerHTML = resultados.map(item => `
                 <div class="suggestion-item" onclick="selecionarSugestao('${item.code}', '${item.nome}')">
@@ -168,91 +173,95 @@
         document.getElementById('qtd').focus();
     }
 
-    // --- GESTÃO DE BACKUP E RECUPERAÇÃO ---
-    function salvarComBackup() {
-        const data = JSON.stringify(inventario);
-        localStorage.setItem('coleta_v14_8', data);
-        // Cria um ponto de restauração a cada 10 registros
-        if(inventario.length % 10 === 0 && inventario.length > 0) {
-            const timestamp = new Date().toLocaleTimeString();
-            localStorage.setItem('backup_' + inventario.length + '_itens', data);
-        }
-    }
-
-    function abrirModalRecuperacao() {
-        const modal = document.getElementById('modal-recuperar');
-        const lista = document.getElementById('lista-backups');
-        lista.innerHTML = "";
-        
-        // Versões de segurança e pontos de itens
-        const chavesPossiveis = Object.keys(localStorage).filter(k => k.includes('coleta') || k.includes('backup'));
-        
-        if(chavesPossiveis.length === 0) {
-            lista.innerHTML = "<p style='color:#666; font-size:12px;'>Nenhum backup encontrado.</p>";
-        }
-
-        chavesPossiveis.forEach(chave => {
-            const dados = JSON.parse(localStorage.getItem(chave));
-            if(Array.isArray(dados) && dados.length > 0) {
-                const item = document.createElement('div');
-                item.className = 'backup-item';
-                item.innerHTML = `<strong>${chave.replace('coleta_','')}</strong><br><span style="font-size:10px; color:#888;">Contém ${dados.length} itens coletados</span>`;
-                item.onclick = () => restaurar(chave);
-                lista.appendChild(item);
-            }
-        });
-        modal.style.display = 'flex';
-    }
-
-    function restaurar(chave) {
-        if(confirm("Deseja substituir a lista atual por esta?")) {
-            inventario = JSON.parse(localStorage.getItem(chave));
-            atualizarTela();
-            fecharModal();
-        }
-    }
-
-    function fecharModal() { document.getElementById('modal-recuperar').style.display = 'none'; }
-
-    // --- REGISTRO ---
+    // --- GESTÃO DE DADOS ---
     function adicionarItem() {
         const input = document.getElementById('barcode-res');
-        const qtd = parseFloat(document.getElementById('qtd').value.replace(',', '.'));
+        const qtdInput = document.getElementById('qtd');
+        const qtd = parseFloat(qtdInput.value.replace(',', '.'));
+        
         if(!input.value || isNaN(qtd)) return;
+
         if(!produtoAtivo) {
             const v = input.value.trim().toUpperCase();
             const manual = catalogoMemo.find(i => i.code === v.padStart(13, '0') || i.nome === v);
             produtoAtivo = manual || { code: v.padStart(13, '0'), nome: "ITEM AVULSO" };
         }
+
         const idx = inventario.findIndex(i => i.code === produtoAtivo.code);
         if(idx !== -1) inventario[idx].qtd = parseFloat((inventario[idx].qtd + qtd).toFixed(3));
         else inventario.push({ code: produtoAtivo.code, nome: produtoAtivo.nome, qtd });
         
         atualizarTela();
-        input.value = ""; document.getElementById('qtd').value = "1";
+        input.value = ""; qtdInput.value = "1";
         produtoAtivo = null; document.getElementById('prod-nome').innerText = "✓ REGISTRADO";
+        document.getElementById('suggestions-box').style.display = 'none';
+    }
+
+    function editarItem(code) {
+        const idx = inventario.findIndex(i => i.code === code);
+        const novaQtd = prompt("Alterar quantidade para " + inventario[idx].nome + ":", inventario[idx].qtd);
+        if (novaQtd !== null) {
+            const num = parseFloat(novaQtd.replace(',', '.'));
+            if(!isNaN(num)) {
+                inventario[idx].qtd = num;
+                atualizarTela();
+            }
+        }
     }
 
     function atualizarTela() {
-        salvarComBackup();
-        document.getElementById('stats-info').innerText = "ITENS NA LISTA: " + inventario.length;
+        // Guarda na chave principal e cria backup a cada 10 itens
+        localStorage.setItem('coleta_v14_9', JSON.stringify(inventario));
+        if(inventario.length > 0 && inventario.length % 10 === 0) {
+            localStorage.setItem('backup_' + inventario.length + '_itens', JSON.stringify(inventario));
+        }
+
+        document.getElementById('stats-info').innerText = "ITENS COLETADOS: " + inventario.length;
         const lista = document.getElementById('lista-corpo');
         lista.innerHTML = [...inventario].reverse().map(i => `
             <div class="list-item">
-                <div style="font-size:11px; color:#888; font-weight:bold;">${i.nome}</div>
+                <div style="font-size:11px; color:#888; font-weight:bold; margin-bottom:5px;">${i.nome}</div>
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span style="font-family:monospace; color:#555; font-size:12px;">${i.code}</span>
-                    <span class="qty-badge">${i.qtd}</span>
+                    <div style="display:flex; align-items:center; gap:15px;">
+                        <span class="qty-badge">${i.qtd}</span>
+                        <button class="btn-edit-item" onclick="editarItem('${i.code}')">EDITAR</button>
+                    </div>
                 </div>
             </div>
         `).join('');
     }
 
-    function limparLista() {
-        if(confirm("Apagar tudo?")) { inventario = []; atualizarTela(); }
+    // --- RECUPERAÇÃO ---
+    function abrirModalRecuperacao() {
+        const lista = document.getElementById('lista-backups');
+        lista.innerHTML = "";
+        const chaves = Object.keys(localStorage).filter(k => k.includes('coleta') || k.includes('backup'));
+        
+        if(chaves.length === 0) lista.innerHTML = "<p style='color:#666; font-size:12px;'>Nenhum backup encontrado.</p>";
+
+        chaves.forEach(chave => {
+            const dados = JSON.parse(localStorage.getItem(chave));
+            if(Array.isArray(dados) && dados.length > 0) {
+                const div = document.createElement('div');
+                div.className = 'backup-item';
+                div.innerHTML = `<strong>${chave}</strong><br><span style="font-size:10px; color:var(--success);">${dados.length} produtos salvos</span>`;
+                div.onclick = () => {
+                    if(confirm("Restaurar esta lista?")) {
+                        inventario = dados; atualizarTela(); fecharModal();
+                    }
+                };
+                lista.appendChild(div);
+            }
+        });
+        document.getElementById('modal-recuperar').style.display = 'flex';
     }
 
+    function fecharModal() { document.getElementById('modal-recuperar').style.display = 'none'; }
+    function limparLista() { if(confirm("Apagar toda a coleta atual?")) { inventario = []; atualizarTela(); } }
+
     function exportarTXT() {
+        if(inventario.length === 0) return alert("Nada para exportar!");
         let txt = inventario.map(i => i.code + " " + i.qtd).join("\r\n");
         const blob = new Blob([txt], { type: 'text/plain' });
         const a = document.createElement('a');
