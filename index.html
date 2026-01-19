@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Coletor Pro v34.1 - Ultimate</title>
+    <title>Coletor Pro v34.2 - Master Control</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     <style>
@@ -14,47 +14,47 @@
         /* MENU DE ENTRADA */
         #menu-inicial { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .menu-card { background: var(--card); border: 1px solid var(--border); padding: 30px; border-radius: 32px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 30px 60px rgba(0,0,0,0.8); }
-        .menu-btn { width: 100%; padding: 22px; border-radius: 20px; border: none; font-weight: 900; font-size: 15px; cursor: pointer; margin-bottom: 12px; color: white; transition: 0.2s; }
+        .menu-btn { width: 100%; padding: 22px; border-radius: 20px; border: none; font-weight: 900; font-size: 15px; cursor: pointer; margin-bottom: 12px; color: white; transition: 0.2s; text-align: center; }
         .btn-inv { background: var(--primary); }
         .btn-quebra { background: #222; border: 1px solid var(--border); }
         .menu-btn:active { transform: scale(0.96); opacity: 0.8; }
 
         /* INTERFACE PRINCIPAL */
         #app-container { display: none; height: 100vh; display: flex; flex-direction: column; }
-        .header { padding: 12px 20px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: flex; justify-content: space-between; align-items: center; }
-        .v-tag { font-size: 9px; letter-spacing: 1px; font-weight: 900; color: var(--primary); }
+        .header { padding: 10px 15px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: flex; justify-content: space-between; align-items: center; }
         
-        .cam-master { background: #1a1a22; border-radius: 20px; padding: 6px 14px; font-size: 10px; font-weight: 900; border: 1px solid var(--border); cursor: pointer; }
+        /* BOTÃO VOLTAR */
+        .btn-back { background: rgba(255,255,255,0.1); color: #fff; border: none; padding: 8px 12px; border-radius: 12px; font-size: 10px; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .btn-back:active { background: var(--danger); }
+
+        .cam-master { background: #1a1a22; border-radius: 15px; padding: 6px 12px; font-size: 10px; font-weight: 900; border: 1px solid var(--border); }
         .cam-on { color: var(--success); border-color: var(--success); }
         .cam-off { color: var(--danger); border-color: var(--danger); }
 
-        /* ÁREA DE ESCANEAMENTO */
+        /* ÁREA TÉCNICA */
         .scanner-container { padding: 8px; max-width: 500px; margin: 0 auto; width: 100%; }
         .scanner-frame { position: relative; border-radius: 24px; overflow: hidden; border: 1px solid var(--border); background: #000; transition: 0.4s ease; }
         #reader { width: 100%; aspect-ratio: 16/10; transition: 0.4s; }
         .cam-minimized { aspect-ratio: 100/1 !important; opacity: 0; pointer-events: none; }
         .cam-hidden { display: none !important; }
 
-        /* PAINEL DE DADOS */
-        .main-panel { background: var(--card); border-radius: 24px; padding: 15px; margin: 10px 8px; border: 1px solid var(--border); position: relative; }
+        .main-panel { background: var(--card); border-radius: 24px; padding: 15px; margin: 8px; border: 1px solid var(--border); position: relative; }
         .display-prod { background: rgba(0,0,0,0.4); padding: 10px; border-radius: 12px; margin-bottom: 10px; text-align: center; border: 1px solid var(--border); min-height: 40px; display: flex; align-items: center; justify-content: center; }
         .display-prod b { font-size: 11px; color: var(--accent); text-transform: uppercase; }
         
-        input { width: 100%; padding: 14px; background: rgba(255,255,255,0.05); border: 2px solid transparent; border-radius: 14px; color: #fff; font-size: 16px; font-weight: 600; margin-bottom: 10px; transition: 0.2s; }
+        input { width: 100%; padding: 14px; background: rgba(255,255,255,0.05); border: 2px solid transparent; border-radius: 14px; color: #fff; font-size: 16px; font-weight: 600; margin-bottom: 10px; }
         input:focus { border-color: var(--primary); background: rgba(255,255,255,0.08); }
 
         .suggestions { background: #1a1a22; border: 1px solid var(--primary); border-radius: 16px; position: absolute; width: calc(100% - 30px); z-index: 5000; max-height: 200px; overflow-y: auto; top: 115px; box-shadow: 0 20px 50px #000; }
         .sug-item { padding: 14px; border-bottom: 1px solid var(--border); }
-        .sug-item b { display: block; font-size: 12px; color: #fff; }
 
-        .btn-main { width: 100%; background: var(--primary); color: white; border: none; padding: 16px; border-radius: 16px; font-weight: 900; font-size: 14px; cursor: pointer; }
+        .btn-main { width: 100%; background: var(--primary); color: white; border: none; padding: 16px; border-radius: 16px; font-weight: 900; font-size: 14px; }
 
-        /* LISTA E DASHBOARD */
-        #lista-corpo { flex-grow: 1; overflow-y: auto; padding: 10px; margin-bottom: 160px; }
+        #lista-corpo { flex-grow: 1; overflow-y: auto; padding: 10px; margin-bottom: 165px; }
         .item-card { background: var(--card); border: 1px solid var(--border); padding: 12px; border-radius: 18px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
         
         .dashboard { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 10, 15, 0.96); backdrop-filter: blur(20px); padding: 15px 15px calc(15px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); z-index: 4000; }
-        .stats-row { display: flex; justify-content: space-around; margin-bottom: 12px; font-size: 12px; }
+        .stats-row { display: flex; justify-content: space-around; margin-bottom: 12px; font-size: 11px; }
         .btn-group { display: flex; gap: 8px; }
         .btn-exp { flex: 1; background: var(--success); border: none; padding: 14px; border-radius: 14px; color: white; font-weight: 900; }
         .btn-zap { flex: 1; background: var(--whatsapp); border: none; padding: 14px; border-radius: 14px; color: white; font-weight: 900; }
@@ -65,16 +65,17 @@
 <div id="menu-inicial">
     <div class="menu-card">
         <h2 style="margin:0 0 10px 0; font-weight: 900;">COLETOR PRO</h2>
-        <p style="color: #666; font-size: 12px; margin-bottom: 25px;">Selecione o destino da coleta:</p>
-        <button class="menu-btn btn-inv" onclick="abrirApp('INVENTARIO')">MODO INVENTÁRIO<br><small style="font-weight: 400; font-size: 9px; opacity: 0.7;">Prefixo: Inventario [código]</small></button>
-        <button class="menu-btn btn-quebra" onclick="abrirApp('TROCA')">TROCA / QUEBRA<br><small style="font-weight: 400; font-size: 9px; opacity: 0.7;">Sem prefixo: [código]</small></button>
+        <p style="color: #666; font-size: 12px; margin-bottom: 25px;">Escolha a finalidade da coleta:</p>
+        <button class="menu-btn btn-inv" onclick="mudarModo('INVENTARIO')">MODO INVENTÁRIO<br><small style="font-weight: 400; font-size: 9px; opacity: 0.7;">Prefixo: Inventario [código]</small></button>
+        <button class="menu-btn btn-quebra" onclick="mudarModo('TROCA')">TROCA / QUEBRA<br><small style="font-weight: 400; font-size: 9px; opacity: 0.7;">Sem prefixo: [código]</small></button>
+        <p style="font-size: 10px; color: #444; margin-top: 20px;">v34.2 • PROGRESS 2012 READY</p>
     </div>
 </div>
 
-<div id="app-container" style="display:none;">
+<div id="app-container">
     <div class="header">
-        <div class="v-tag">ISAQUE • v34.1</div>
-        <div id="cam-status" class="cam-master cam-on" onclick="toggleHardwareCam()">CÂMERA: LIGADA</div>
+        <button class="btn-back" onclick="voltarAoMenu()">⬅ MENU</button>
+        <div id="cam-status" class="cam-master cam-on" onclick="toggleHardwareCam()">CAM: ON</div>
     </div>
 
     <div class="scanner-container">
@@ -83,14 +84,14 @@
         </div>
         
         <div class="main-panel">
-            <div class="display-prod"><b id="p-nome">PRONTO PARA INICIAR</b></div>
+            <div class="display-prod"><b id="p-nome">PRONTO PARA COLETAR</b></div>
             <input type="text" id="barcode-res" placeholder="CÓDIGO OU NOME" 
                    onfocus="toggleCamView(true)" 
                    onblur="setTimeout(()=>toggleCamView(false), 300)"
                    oninput="limparInput(this); buscaHibrida(this.value)" autocomplete="off">
             <div id="suggestions-box" class="suggestions" style="display:none"></div>
             <input type="text" id="qtd" value="1.000" inputmode="decimal" oninput="limparQtd(this)" onfocus="this.select()">
-            <button class="btn-main" onclick="adicionarItem()">REGISTRAR ITEM</button>
+            <button class="btn-main" onclick="adicionarItem()">REGISTRAR</button>
         </div>
     </div>
 
@@ -98,27 +99,30 @@
 
     <div class="dashboard">
         <div class="stats-row">
-            <span>MODO: <b id="txt-modo" style="color:var(--primary)">-</b></span>
-            <span>ITENS: <b id="st-skus">0</b></span>
+            <span>MODO ATIVO: <b id="txt-modo" style="color:var(--primary)">-</b></span>
+            <span>SKUS: <b id="st-skus">0</b></span>
             <span>TOTAL: <b id="st-total">0.000</b></span>
         </div>
         <div class="btn-group">
-            <button class="btn-exp" onclick="exportarTxt()">💾 BAIXAR TXT</button>
+            <button class="btn-exp" onclick="exportarTxt()">💾 BAIXAR .TXT</button>
             <button class="btn-zap" onclick="compartilharZap()">🟢 WHATSAPP</button>
         </div>
-        <button onclick="location.reload()" style="width:100%; background:none; border:none; color:#444; font-size:10px; margin-top:10px; font-weight:900;">VOLTAR AO MENU</button>
+        <div style="text-align: center; margin-top: 8px;">
+            <button onclick="limparListaCompleta()" style="background:none; border:none; color:var(--danger); font-size:10px; font-weight:bold; letter-spacing:1px;">LIMPAR TUDO</button>
+        </div>
     </div>
 </div>
 
 <script>
     let modoGlobal = 'INVENTARIO';
-    let inventario = [];
+    let inventario = JSON.parse(localStorage.getItem('coleta_v34_data')) || [];
     let catalogoMemo = [];
     let produtoAtivo = null;
     let html5QrCode = null;
     let camHabilitada = true;
 
-    function abrirApp(modo) {
+    // NOVO RECURSO: TROCA DE MODO DINÂMICA
+    function mudarModo(modo) {
         modoGlobal = modo;
         document.getElementById('menu-inicial').style.display = 'none';
         document.getElementById('app-container').style.display = 'flex';
@@ -127,15 +131,26 @@
         iniciarHardware();
     }
 
+    function voltarAoMenu() {
+        if(html5QrCode) html5QrCode.stop().then(() => {
+            document.getElementById('menu-inicial').style.display = 'flex';
+            document.getElementById('app-container').style.display = 'none';
+        });
+        else {
+            document.getElementById('menu-inicial').style.display = 'flex';
+            document.getElementById('app-container').style.display = 'none';
+        }
+    }
+
     function toggleHardwareCam() {
         camHabilitada = !camHabilitada;
         const btn = document.getElementById('cam-status');
         const frame = document.getElementById('frame-cam');
         if(camHabilitada) {
-            btn.className = "cam-master cam-on"; btn.innerText = "CÂMERA: LIGADA";
+            btn.className = "cam-master cam-on"; btn.innerText = "CAM: ON";
             frame.classList.remove('cam-hidden'); iniciarHardware();
         } else {
-            btn.className = "cam-master cam-off"; btn.innerText = "CÂMERA: DESLIGADA";
+            btn.className = "cam-master cam-off"; btn.innerText = "CAM: OFF";
             frame.classList.add('cam-hidden'); if(html5QrCode) html5QrCode.stop();
         }
     }
@@ -158,7 +173,7 @@
                 code: l.substring(0, 13).trim().padStart(13, '0'),
                 nome: l.substring(13).slice(0, -10).trim()
             }));
-        } catch(e) { console.log("Catálogo não encontrado"); }
+        } catch(e) {}
     }
 
     function iniciarHardware() {
@@ -187,7 +202,7 @@
             box.style.display = 'none';
         } else {
             const res = catalogoMemo.filter(i => i.nome.includes(v)).slice(0, 10);
-            box.innerHTML = res.map(i => `<div class="sug-item" onmousedown="selecionar('${i.code}','${i.nome}')"><b>${i.nome}</b><small style="font-size:10px; color:var(--primary)">${i.code}</small></div>`).join('');
+            box.innerHTML = res.map(i => `<div class="sug-item" onmousedown="selecionar('${i.code}','${i.nome}')"><b>${i.nome}</b><small style="color:var(--primary)">${i.code}</small></div>`).join('');
             box.style.display = res.length > 0 ? 'block' : 'none';
         }
     }
@@ -211,18 +226,19 @@
         if(idx !== -1) inventario[idx].qtd = (parseFloat(inventario[idx].qtd) + q).toFixed(3);
         else inventario.push({ code, nome: produtoAtivo ? produtoAtivo.nome : "AVULSO", qtd: q.toFixed(3) });
         
+        localStorage.setItem('coleta_v34_data', JSON.stringify(inventario));
         atualizarTela();
         document.getElementById('barcode-res').value = "";
         document.getElementById('qtd').value = "1.000";
         document.getElementById('barcode-res').focus();
-        document.getElementById('p-nome').innerText = "REGISTRADO COM SUCESSO";
+        document.getElementById('p-nome').innerText = "REGISTRADO";
     }
 
     function atualizarTela() {
         let soma = 0;
         document.getElementById('lista-corpo').innerHTML = [...inventario].reverse().map(i => {
             soma += parseFloat(i.qtd);
-            return `<div class="item-card"><div><small style="font-size:9px; color:#777;">${i.nome}</small><br><b>${i.code}</b></div><b>${i.qtd}</b></div>`;
+            return `<div class="item-card"><div><small style="font-size:9px; color:#666;">${i.nome}</small><br><b>${i.code}</b></div><b>${i.qtd}</b></div>`;
         }).join('');
         document.getElementById('st-skus').innerText = inventario.length;
         document.getElementById('st-total').innerText = soma.toFixed(3);
@@ -231,23 +247,29 @@
     function formatarFinal() {
         return inventario.map(i => {
             let prefixo = modoGlobal === 'INVENTARIO' ? 'Inventario ' : '';
-            return `${prefixo}${i.code} ${i.qtd}`;
+            return `${prefixo}${i.code} ${parseFloat(i.qtd).toFixed(3)}`;
         }).join("\r\n");
     }
 
     function exportarTxt() {
         if(inventario.length === 0) return;
         const blob = new Blob([formatarFinal()], { type: 'text/plain' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'invent.txt';
-        a.click();
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+        a.download = 'invent.txt'; a.click();
     }
 
     async function compartilharZap() {
         if(inventario.length === 0) return;
         const file = new File([formatarFinal()], 'invent.txt', { type: 'text/plain' });
         if(navigator.share) await navigator.share({ files: [file], title: 'Coleta Progress' });
+    }
+
+    function limparListaCompleta() {
+        if(confirm("Deseja apagar toda a coleta atual?")) {
+            inventario = [];
+            localStorage.removeItem('coleta_v34_data');
+            atualizarTela();
+        }
     }
 
     window.onload = carregarCatalogo;
