@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Coletor Pro v32.5</title>
+    <title>Coletor Pro v32.6 - Progress 2012</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     <style>
@@ -41,13 +41,13 @@
 
 <div id="modal-backups" onclick="this.style.display='none'">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <h3 style="margin:0; color:var(--primary);">Histórico de Backups</h3>
+        <h3 style="margin:0; color:var(--primary);">Backups Disponíveis</h3>
         <div id="lista-backups" style="overflow-y: auto; flex-grow: 1; margin-top:15px;"></div>
-        <button onclick="document.getElementById('modal-backups').style.display='none'" style="width:100%; margin-top:20px; padding:18px; border-radius:18px; background:#222; color:#fff; border:none; font-weight:bold;">FECHAR</button>
+        <button onclick="document.getElementById('modal-backups').style.display='none'" style="width:100%; margin-top:20px; padding:18px; border-radius:18px; background:#222; color:#fff; border:none; font-weight:bold;">VOLTAR</button>
     </div>
 </div>
 
-<div class="header"><div class="v-tag">ISAQUE PRUSSAK • PRO v32.5</div></div>
+<div class="header"><div class="v-tag">ISAQUE PRUSSAK • PROGRESS COMPAT v32.6</div></div>
 
 <div class="scanner-container">
     <div class="scanner-frame">
@@ -59,8 +59,8 @@
         <div class="display-prod"><b id="p-nome">PRONTO PARA COLETAR</b></div>
         <input type="text" id="barcode-res" placeholder="CÓDIGO OU NOME" oninput="limparInput(this); buscaHibrida(this.value)" autocomplete="off">
         <div id="suggestions-box" class="suggestions" style="display:none"></div>
-        <input type="text" id="qtd" value="1" inputmode="decimal" oninput="limparQtd(this)" onfocus="this.select()">
-        <button class="btn-main" onclick="adicionarItem()">REGISTRAR PRODUTO</button>
+        <input type="text" id="qtd" value="1.000" inputmode="decimal" oninput="limparQtd(this)" onfocus="this.select()">
+        <button class="btn-main" onclick="adicionarItem()">REGISTRAR NO PROGRESS</button>
     </div>
     
     <div id="lista-corpo" style="margin-top:20px;"></div>
@@ -68,11 +68,11 @@
 
 <div class="dashboard">
     <div class="stats">
-        <div class="stat-box"><small>Itens</small><br><b id="st-skus">0</b></div>
-        <div class="stat-box"><small>Peças</small><br><b id="st-total">0</b></div>
+        <div class="stat-box"><small>Linhas</small><br><b id="st-skus">0</b></div>
+        <div class="stat-box"><small>Total Peças</small><br><b id="st-total">0</b></div>
     </div>
     <div class="btn-group">
-        <button class="btn-export" onclick="exportarBinario()">💾 BAIXAR</button>
+        <button class="btn-export" onclick="exportarBinario()">💾 EXPORTAR TXT</button>
         <button class="btn-share" onclick="compartilharZap()">🟢 WHATSAPP</button>
     </div>
     <div class="footer-tools" style="display:flex; justify-content:space-between; margin-top:10px;">
@@ -91,19 +91,8 @@
     let cameraIndiceAtual = 0;
     let scannerAtivo = false;
 
-    // NOVAS FUNÇÕES DE FILTRO
-    function limparInput(el) {
-        // Remove tudo que não for Letra, Número ou Espaço
-        el.value = el.value.replace(/[^a-zA-Z0-9 ]/g, "");
-    }
-
-    function limparQtd(el) {
-        // Permite apenas números e um ponto decimal
-        el.value = el.value.replace(/[^0-9.]/g, "");
-        if ((el.value.match(/\./g) || []).length > 1) {
-            el.value = el.value.replace(/\.+$/, "");
-        }
-    }
+    function limparInput(el) { el.value = el.value.replace(/[^a-zA-Z0-9 ]/g, ""); }
+    function limparQtd(el) { el.value = el.value.replace(/[^0-9.]/g, ""); }
 
     async function carregarCatalogo() {
         try {
@@ -125,7 +114,16 @@
                 <div style="text-align:right"><b style="color:var(--primary); font-size:16px;">${i.qtd}</b><br><button onclick="editarItem('${i.code}')" style="border:none; background:none; color:var(--primary); font-size:10px; font-weight:bold;">EDITAR</button></div></div>`;
         }).join('');
         document.getElementById('st-skus').innerText = inventario.length;
-        document.getElementById('st-total').innerText = soma.toFixed(2);
+        document.getElementById('st-total').innerText = soma.toFixed(3);
+    }
+
+    // FORMATAÇÃO RIGOROSA PROGRESS SERVER
+    function formatarParaProgress() {
+        return inventario.map(i => {
+            const code = i.code.toString().padStart(13, '0');
+            const qtd = parseFloat(i.qtd).toFixed(3); // Garante 1.000 em vez de 1
+            return `Inventario ${code} ${qtd}`;
+        }).join("\r\n");
     }
 
     function iniciarScanner(id) {
@@ -133,7 +131,7 @@
         function start(camId) {
             html5QrCode = new Html5Qrcode("reader");
             html5QrCode.start(camId, { fps: 20, qrbox: { width: 220, height: 150 } }, (t) => {
-                let sanitized = t.replace(/[^a-zA-Z0-9]/g, "");
+                let sanitized = t.replace(/[^0-9]/g, ""); // Apenas números no bip
                 document.getElementById('barcode-res').value = sanitized;
                 buscaHibrida(sanitized);
                 document.getElementById('qtd').focus();
@@ -184,22 +182,20 @@
         const idx = inventario.findIndex(i => i.code === code);
         if(idx !== -1) inventario[idx].qtd = (parseFloat(inventario[idx].qtd) + q).toFixed(3);
         else inventario.push({ code, nome: produtoAtivo ? produtoAtivo.nome : "AVULSO", qtd: q.toFixed(3) });
-        atualizarTela(); input.value = ""; document.getElementById('qtd').value = "1"; input.focus();
+        atualizarTela(); input.value = ""; document.getElementById('qtd').value = "1.000"; input.focus();
         document.getElementById('p-nome').innerText = "PRONTO PARA COLETAR";
     }
 
     function exportarBinario() {
         if(inventario.length === 0) return alert("Vazio!");
-        const c = inventario.map(i => "Inventario " + i.code.padStart(13,'0') + " " + i.qtd).join("\r\n");
-        const blob = new Blob([c], { type: 'text/plain' });
+        const blob = new Blob([formatarParaProgress()], { type: 'text/plain' });
         const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'invent.txt'; a.click();
     }
 
     async function compartilharZap() {
         if(inventario.length === 0) return;
-        const c = inventario.map(i => "Inventario " + i.code.padStart(13,'0') + " " + i.qtd).join("\r\n");
-        const file = new File([c], `inventario.txt`, { type: 'text/plain' });
-        if (navigator.share) try { await navigator.share({ files: [file], title: 'Inventário' }); } catch (e) {}
+        const file = new File([formatarParaProgress()], `invent_progress.txt`, { type: 'text/plain' });
+        if (navigator.share) try { await navigator.share({ files: [file], title: 'Coleta Progress' }); } catch (e) {}
     }
 
     function abrirModalRecuperacao() {
@@ -212,7 +208,7 @@
                 const dados = JSON.parse(localStorage.getItem(chave));
                 const div = document.createElement('div');
                 div.className = "sug-item";
-                div.innerHTML = `<b>${chave}</b><small>${dados.length} itens</small>`;
+                div.innerHTML = `<b>${chave}</b><small>${dados.length} linhas</small>`;
                 div.onclick = () => { if(confirm("Restaurar?")) { inventario = dados; atualizarTela(); modal.style.display='none'; }};
                 listaUI.appendChild(div);
             }
@@ -226,7 +222,7 @@
         iniciarScanner(camerasTraseiras[cameraIndiceAtual].id);
     }
 
-    function limparLista() { if(confirm("Limpar?")) { inventario = []; atualizarTela(); } }
+    function limparLista() { if(confirm("Limpar tudo?")) { inventario = []; atualizarTela(); } }
     function editarItem(code) { const idx = inventario.findIndex(i => i.code === code); const n = prompt("Qtd:", inventario[idx].qtd); if(n) { inventario[idx].qtd = parseFloat(n.replace(',','.')).toFixed(3); atualizarTela(); } }
 
     window.onload = () => {
