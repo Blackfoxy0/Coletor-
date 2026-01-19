@@ -3,27 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Coletor Pro v32.7 - iPhone Fix</title>
+    <title>Coletor Pro v33.0 - Edição Final</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #050505; --card: #121216; --primary: #3b82f6; --accent: #60a5fa; --success: #10b981; --danger: #ef4444; --border: rgba(255, 255, 255, 0.1); --text: #fff; --whatsapp: #25d366; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: calc(280px + env(safe-area-inset-bottom)); overflow-x: hidden; }
+        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: calc(180px + env(safe-area-inset-bottom)); overflow-x: hidden; }
         .header { padding: 10px; text-align: center; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 1000; }
         .v-tag { font-size: 9px; letter-spacing: 2px; font-weight: 900; color: var(--primary); text-transform: uppercase; }
         .scanner-container { padding: 8px; max-width: 500px; margin: auto; }
-        .scanner-frame { position: relative; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); background: #000; line-height: 0; }
-        #reader { width: 100%; aspect-ratio: 16/10; } 
+        .scanner-frame { position: relative; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); background: #000; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        #reader { width: 100%; aspect-ratio: 16/10; transition: all 0.4s ease; }
+        .cam-minimized { aspect-ratio: 100/1 !important; opacity: 0; transform: translateY(-20px); pointer-events: none; }
         .btn-switch-cam { position: absolute; top: 10px; right: 10px; z-index: 1100; width: 44px; height: 44px; border-radius: 50%; background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.3); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-        .main-panel { background: var(--card); border-radius: 24px; padding: 15px; margin-top: 10px; border: 1px solid var(--border); position: relative; }
+        .main-panel { background: var(--card); border-radius: 24px; padding: 15px; margin-top: 10px; border: 1px solid var(--border); position: relative; z-index: 2000; }
         .display-prod { background: rgba(0,0,0,0.4); padding: 12px; border-radius: 12px; margin-bottom: 10px; text-align: center; border: 1px solid var(--border); min-height: 45px; display: flex; align-items: center; justify-content: center; }
         .display-prod b { font-size: 12px; color: var(--accent); text-transform: uppercase; }
         input { width: 100%; padding: 14px; background: rgba(255,255,255,0.05); border: 2px solid transparent; border-radius: 14px; color: #fff; font-size: 16px; font-weight: 600; margin-bottom: 10px; outline: none; }
         input:focus { border-color: var(--primary); }
-        .suggestions { background: #1a1a22; border: 1px solid var(--primary); border-radius: 14px; position: absolute; width: calc(100% - 30px); z-index: 4000; max-height: 200px; overflow-y: auto; top: 125px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        .sug-item { padding: 14px; border-bottom: 1px solid var(--border); font-size: 13px; color: #fff; cursor: pointer; }
-        .sug-item b { display: block; color: var(--accent); }
+        .suggestions { background: #1a1a22; border: 1px solid var(--primary); border-radius: 16px; position: absolute; width: calc(100% - 30px); z-index: 5000; max-height: 250px; overflow-y: auto; top: 125px; box-shadow: 0 20px 50px rgba(0,0,0,1); }
+        .sug-item { padding: 16px; border-bottom: 1px solid var(--border); cursor: pointer; }
+        .sug-item b { display: block; color: #fff; font-size: 13px; }
+        .sug-item small { color: var(--accent); font-family: monospace; }
         .btn-main { width: 100%; background: var(--primary); color: white; border: none; padding: 16px; border-radius: 16px; font-weight: 900; font-size: 15px; cursor: pointer; }
         .item-card { background: var(--card); border: 1px solid var(--border); padding: 12px 18px; border-radius: 20px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
         .dashboard { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 10, 15, 0.95); backdrop-filter: blur(25px); padding: 15px 15px calc(15px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); z-index: 3000; }
@@ -33,7 +35,7 @@
         .btn-export, .btn-share { flex: 1; border: none; padding: 14px; border-radius: 14px; font-weight: 900; color: white; cursor: pointer; }
         .btn-export { background: var(--success); }
         .btn-share { background: var(--whatsapp); }
-        #modal-backups { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 5000; padding: 20px; align-items: center; justify-content: center; }
+        #modal-backups { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 6000; padding: 20px; align-items: center; justify-content: center; }
         .modal-content { background: var(--card); padding: 25px; border-radius: 32px; border: 1px solid var(--border); width: 100%; max-width: 450px; display: flex; flex-direction: column; }
     </style>
 </head>
@@ -41,42 +43,44 @@
 
 <div id="modal-backups" onclick="this.style.display='none'">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <h3 style="margin:0; color:var(--primary);">Backups Disponíveis</h3>
+        <h3 style="margin:0; color:var(--primary);">Histórico Progress</h3>
         <div id="lista-backups" style="overflow-y: auto; flex-grow: 1; margin-top:15px;"></div>
-        <button onclick="document.getElementById('modal-backups').style.display='none'" style="width:100%; margin-top:20px; padding:18px; border-radius:18px; background:#222; color:#fff; border:none; font-weight:bold;">VOLTAR</button>
+        <button onclick="document.getElementById('modal-backups').style.display='none'" style="width:100%; margin-top:20px; padding:18px; border-radius:18px; background:#222; color:#fff; border:none; font-weight:bold;">FECHAR</button>
     </div>
 </div>
 
-<div class="header"><div class="v-tag">ISAQUE PRUSSAK • IPHONE & PROGRESS v32.7</div></div>
+<div class="header"><div class="v-tag">ISAQUE PRUSSAK • FINAL v33.0</div></div>
 
 <div class="scanner-container">
-    <div class="scanner-frame">
+    <div class="scanner-frame" id="frame-cam">
         <div class="btn-switch-cam" id="cam-toggle" onclick="ciclarCamera()" style="display:none;">🔄</div>
         <div id="reader"></div>
     </div>
     
     <div class="main-panel">
         <div class="display-prod"><b id="p-nome">PRONTO PARA COLETAR</b></div>
-        <input type="text" id="barcode-res" placeholder="CÓDIGO OU NOME" oninput="limparInput(this); buscaHibrida(this.value)" autocomplete="off">
+        <input type="text" id="barcode-res" placeholder="DIGITE NOME OU CÓDIGO" 
+               onfocus="toggleCam(true)" 
+               onblur="setTimeout(()=>toggleCam(false), 300)"
+               oninput="limparInput(this); buscaHibrida(this.value)" autocomplete="off">
         <div id="suggestions-box" class="suggestions" style="display:none"></div>
         <input type="text" id="qtd" value="1.000" inputmode="decimal" oninput="limparQtd(this)" onfocus="this.select()">
         <button class="btn-main" onclick="adicionarItem()">REGISTRAR ITEM</button>
     </div>
-    
     <div id="lista-corpo" style="margin-top:20px;"></div>
 </div>
 
 <div class="dashboard">
     <div class="stats">
-        <div class="stat-box"><small>Linhas</small><br><b id="st-skus">0</b></div>
-        <div class="stat-box"><small>Total Peças</small><br><b id="st-total">0</b></div>
+        <div class="stat-box"><small>Itens</small><br><b id="st-skus">0</b></div>
+        <div class="stat-box"><small>Peças</small><br><b id="st-total">0</b></div>
     </div>
     <div class="btn-group">
-        <button class="btn-export" onclick="exportarBinario()">💾 TXT</button>
+        <button class="btn-export" onclick="exportarBinario()">💾 DOWNLOAD TXT</button>
         <button class="btn-share" onclick="compartilharZap()">🟢 WHATSAPP</button>
     </div>
     <div class="footer-tools" style="display:flex; justify-content:space-between; margin-top:10px;">
-        <button onclick="abrirModalRecuperacao()" style="background:none; border:none; color:#666; font-size:10px; font-weight:bold;">🩹 HISTÓRICO</button>
+        <button onclick="abrirModalRecuperacao()" style="background:none; border:none; color:#666; font-size:10px; font-weight:bold;">🩹 BACKUPS</button>
         <button onclick="location.reload()" style="background:none; border:none; color:#666; font-size:10px; font-weight:bold;">🔄 RECARREGAR</button>
         <button onclick="limparLista()" style="background:none; border:none; color:var(--danger); font-size:10px; font-weight:bold;">🗑️ LIMPAR</button>
     </div>
@@ -90,6 +94,12 @@
     let camerasTraseiras = [];
     let cameraIndiceAtual = 0;
     let scannerAtivo = false;
+
+    function toggleCam(min) {
+        const reader = document.getElementById('reader');
+        if(min) { reader.classList.add('cam-minimized'); } 
+        else { reader.classList.remove('cam-minimized'); }
+    }
 
     function limparInput(el) { el.value = el.value.replace(/[^a-zA-Z0-9 ]/g, ""); }
     function limparQtd(el) { el.value = el.value.replace(/[^0-9.]/g, ""); }
@@ -118,47 +128,18 @@
     }
 
     function iniciarScanner(id) {
-        if(html5QrCode) { 
-            html5QrCode.stop().then(() => start(id)).catch(() => start(id)); 
-        } else { 
-            start(id); 
-        }
-
+        if(html5QrCode) { html5QrCode.stop().then(() => start(id)).catch(() => start(id)); } else { start(id); }
         function start(camId) {
             html5QrCode = new Html5Qrcode("reader");
-            // AJUSTE PARA IPHONE: Adicionado constraints de foco e resolução estável
-            const config = { 
-                fps: 25, 
-                qrbox: { width: 250, height: 150 },
-                videoConstraints: {
-                    focusMode: "continuous",
-                    facingMode: "environment"
-                }
-            };
-
+            const config = { fps: 25, qrbox: { width: 250, height: 150 }, videoConstraints: { focusMode: "continuous", facingMode: "environment" } };
             html5QrCode.start(camId, config, (t) => {
                 let sanitized = t.replace(/[^0-9]/g, "");
                 document.getElementById('barcode-res').value = sanitized;
                 buscaHibrida(sanitized);
                 document.getElementById('qtd').focus();
-                // Feedback tátil simples se suportado
-                if (navigator.vibrate) navigator.vibrate(50);
-            }).then(() => {
-                scannerAtivo = true;
-            }).catch(err => {
-                console.error("Erro ao iniciar câmera:", err);
-            });
+            }).then(() => scannerAtivo = true);
         }
     }
-
-    document.addEventListener("visibilitychange", () => {
-        if (document.hidden) { 
-            if (html5QrCode && scannerAtivo) html5QrCode.stop().then(() => scannerAtivo = false); 
-        }
-        else { 
-            if (camerasTraseiras.length > 0 && !scannerAtivo) iniciarScanner(camerasTraseiras[cameraIndiceAtual].id); 
-        }
-    });
 
     function buscaHibrida(val) {
         let v = val.trim().toUpperCase();
@@ -169,14 +150,14 @@
             let vBusca = v.padStart(13, '0');
             const match = catalogoMemo.find(i => i.code === vBusca);
             if(match) { document.getElementById('p-nome').innerText = match.nome; produtoAtivo = match; }
-            else { document.getElementById('p-nome').innerText = "NOVO PRODUTO"; produtoAtivo = { code: vBusca, nome: "AVULSO" }; }
+            else { document.getElementById('p-nome').innerText = "PRODUTO AVULSO"; produtoAtivo = { code: vBusca, nome: "AVULSO" }; }
             box.style.display = 'none';
         } else {
-            const resultados = catalogoMemo.filter(i => i.nome.includes(v)).slice(0, 10);
+            const resultados = catalogoMemo.filter(i => i.nome.includes(v)).slice(0, 15);
             if(resultados.length > 0) {
-                box.innerHTML = resultados.map(i => `<div class="sug-item" onclick="selecionarSugestao('${i.code}', '${i.nome}')"><b>${i.nome}</b><small>${i.code}</small></div>`).join('');
+                box.innerHTML = resultados.map(i => `<div class="sug-item" onmousedown="selecionarSugestao('${i.code}', '${i.nome}')"><b>${i.nome}</b><small>${i.code}</small></div>`).join('');
                 box.style.display = 'block';
-            } else { box.style.display = 'none'; document.getElementById('p-nome').innerText = "NÃO ENCONTRADO"; }
+            } else { box.style.display = 'none'; }
         }
     }
 
@@ -185,7 +166,7 @@
         document.getElementById('barcode-res').value = code;
         document.getElementById('p-nome').innerText = nome;
         document.getElementById('suggestions-box').style.display = 'none';
-        document.getElementById('qtd').focus();
+        setTimeout(() => { document.getElementById('qtd').focus(); toggleCam(false); }, 150);
     }
 
     function adicionarItem() {
@@ -199,21 +180,22 @@
         if(idx !== -1) inventario[idx].qtd = (parseFloat(inventario[idx].qtd) + q).toFixed(3);
         else inventario.push({ code, nome: produtoAtivo ? produtoAtivo.nome : "AVULSO", qtd: q.toFixed(3) });
         atualizarTela(); input.value = ""; document.getElementById('qtd').value = "1.000"; input.focus();
-        document.getElementById('p-nome').innerText = "PRONTO PARA COLETAR";
+    }
+
+    function gerarTextoProgress() {
+        return inventario.map(i => `Inventario ${i.code.padStart(13,'0')} ${parseFloat(i.qtd).toFixed(3)}`).join("\r\n");
     }
 
     function exportarBinario() {
-        if(inventario.length === 0) return alert("Vazio!");
-        const c = inventario.map(i => `Inventario ${i.code.padStart(13,'0')} ${parseFloat(i.qtd).toFixed(3)}`).join("\r\n");
-        const blob = new Blob([c], { type: 'text/plain' });
+        if(inventario.length === 0) return;
+        const blob = new Blob([gerarTextoProgress()], { type: 'text/plain' });
         const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'invent_progress.txt'; a.click();
     }
 
     async function compartilharZap() {
         if(inventario.length === 0) return;
-        const c = inventario.map(i => `Inventario ${i.code.padStart(13,'0')} ${parseFloat(i.qtd).toFixed(3)}`).join("\r\n");
-        const file = new File([c], `inventario.txt`, { type: 'text/plain' });
-        if (navigator.share) try { await navigator.share({ files: [file], title: 'Coleta Isaque' }); } catch (e) {}
+        const file = new File([gerarTextoProgress()], `invent_progress.txt`, { type: 'text/plain' });
+        if (navigator.share) try { await navigator.share({ files: [file], title: 'Coleta Progress' }); } catch (e) {}
     }
 
     function abrirModalRecuperacao() {
@@ -226,7 +208,7 @@
                 const dados = JSON.parse(localStorage.getItem(chave));
                 const div = document.createElement('div');
                 div.className = "sug-item";
-                div.innerHTML = `<b>${chave}</b><small>${dados.length} linhas</small>`;
+                div.innerHTML = `<b>Sessão de Backup</b><small>${dados.length} SKUs</small>`;
                 div.onclick = () => { if(confirm("Restaurar?")) { inventario = dados; atualizarTela(); modal.style.display='none'; }};
                 listaUI.appendChild(div);
             }
@@ -240,18 +222,17 @@
         iniciarScanner(camerasTraseiras[cameraIndiceAtual].id);
     }
 
-    function limparLista() { if(confirm("Limpar tudo?")) { inventario = []; atualizarTela(); } }
-    function editarItem(code) { const idx = inventario.findIndex(i => i.code === code); const n = prompt("Nova Qtd:", inventario[idx].qtd); if(n) { inventario[idx].qtd = parseFloat(n.replace(',','.')).toFixed(3); atualizarTela(); } }
+    function limparLista() { if(confirm("Limpar lista?")) { inventario = []; atualizarTela(); } }
+    function editarItem(code) { const idx = inventario.findIndex(i => i.code === code); const n = prompt("Qtd:", inventario[idx].qtd); if(n) { inventario[idx].qtd = parseFloat(n.replace(',','.')).toFixed(3); atualizarTela(); } }
 
     window.onload = () => {
         carregarCatalogo(); atualizarTela();
         Html5Qrcode.getCameras().then(devices => {
-            // No iPhone, filtramos para pegar as traseiras (back)
             camerasTraseiras = devices.filter(d => d.label.toLowerCase().includes('back') || d.label.toLowerCase().includes('traseira') || d.label.toLowerCase().includes('0'));
             if (camerasTraseiras.length === 0) camerasTraseiras = devices;
             if (camerasTraseiras.length > 1) document.getElementById('cam-toggle').style.display = 'flex';
             iniciarScanner(camerasTraseiras[0].id);
-        }).catch(e => alert("Erro ao acessar câmeras. Verifique as permissões do Safari."));
+        });
     };
 </script>
 </body>
