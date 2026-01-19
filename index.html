@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Coletor Pro v32.6 - Progress 2012</title>
+    <title>Coletor Pro v32.7 - iPhone Fix</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     <style>
@@ -15,7 +15,7 @@
         .scanner-container { padding: 8px; max-width: 500px; margin: auto; }
         .scanner-frame { position: relative; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); background: #000; line-height: 0; }
         #reader { width: 100%; aspect-ratio: 16/10; } 
-        .btn-switch-cam { position: absolute; top: 10px; right: 10px; z-index: 1100; width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.3); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .btn-switch-cam { position: absolute; top: 10px; right: 10px; z-index: 1100; width: 44px; height: 44px; border-radius: 50%; background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.3); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; }
         .main-panel { background: var(--card); border-radius: 24px; padding: 15px; margin-top: 10px; border: 1px solid var(--border); position: relative; }
         .display-prod { background: rgba(0,0,0,0.4); padding: 12px; border-radius: 12px; margin-bottom: 10px; text-align: center; border: 1px solid var(--border); min-height: 45px; display: flex; align-items: center; justify-content: center; }
         .display-prod b { font-size: 12px; color: var(--accent); text-transform: uppercase; }
@@ -47,7 +47,7 @@
     </div>
 </div>
 
-<div class="header"><div class="v-tag">ISAQUE PRUSSAK • PROGRESS COMPAT v32.6</div></div>
+<div class="header"><div class="v-tag">ISAQUE PRUSSAK • IPHONE & PROGRESS v32.7</div></div>
 
 <div class="scanner-container">
     <div class="scanner-frame">
@@ -60,7 +60,7 @@
         <input type="text" id="barcode-res" placeholder="CÓDIGO OU NOME" oninput="limparInput(this); buscaHibrida(this.value)" autocomplete="off">
         <div id="suggestions-box" class="suggestions" style="display:none"></div>
         <input type="text" id="qtd" value="1.000" inputmode="decimal" oninput="limparQtd(this)" onfocus="this.select()">
-        <button class="btn-main" onclick="adicionarItem()">REGISTRAR NO PROGRESS</button>
+        <button class="btn-main" onclick="adicionarItem()">REGISTRAR ITEM</button>
     </div>
     
     <div id="lista-corpo" style="margin-top:20px;"></div>
@@ -72,7 +72,7 @@
         <div class="stat-box"><small>Total Peças</small><br><b id="st-total">0</b></div>
     </div>
     <div class="btn-group">
-        <button class="btn-export" onclick="exportarBinario()">💾 EXPORTAR TXT</button>
+        <button class="btn-export" onclick="exportarBinario()">💾 TXT</button>
         <button class="btn-share" onclick="compartilharZap()">🟢 WHATSAPP</button>
     </div>
     <div class="footer-tools" style="display:flex; justify-content:space-between; margin-top:10px;">
@@ -117,31 +117,47 @@
         document.getElementById('st-total').innerText = soma.toFixed(3);
     }
 
-    // FORMATAÇÃO RIGOROSA PROGRESS SERVER
-    function formatarParaProgress() {
-        return inventario.map(i => {
-            const code = i.code.toString().padStart(13, '0');
-            const qtd = parseFloat(i.qtd).toFixed(3); // Garante 1.000 em vez de 1
-            return `Inventario ${code} ${qtd}`;
-        }).join("\r\n");
-    }
-
     function iniciarScanner(id) {
-        if(html5QrCode) { html5QrCode.stop().then(() => start(id)).catch(() => start(id)); } else { start(id); }
+        if(html5QrCode) { 
+            html5QrCode.stop().then(() => start(id)).catch(() => start(id)); 
+        } else { 
+            start(id); 
+        }
+
         function start(camId) {
             html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start(camId, { fps: 20, qrbox: { width: 220, height: 150 } }, (t) => {
-                let sanitized = t.replace(/[^0-9]/g, ""); // Apenas números no bip
+            // AJUSTE PARA IPHONE: Adicionado constraints de foco e resolução estável
+            const config = { 
+                fps: 25, 
+                qrbox: { width: 250, height: 150 },
+                videoConstraints: {
+                    focusMode: "continuous",
+                    facingMode: "environment"
+                }
+            };
+
+            html5QrCode.start(camId, config, (t) => {
+                let sanitized = t.replace(/[^0-9]/g, "");
                 document.getElementById('barcode-res').value = sanitized;
                 buscaHibrida(sanitized);
                 document.getElementById('qtd').focus();
-            }).then(() => scannerAtivo = true);
+                // Feedback tátil simples se suportado
+                if (navigator.vibrate) navigator.vibrate(50);
+            }).then(() => {
+                scannerAtivo = true;
+            }).catch(err => {
+                console.error("Erro ao iniciar câmera:", err);
+            });
         }
     }
 
     document.addEventListener("visibilitychange", () => {
-        if (document.hidden) { if (html5QrCode && scannerAtivo) html5QrCode.stop().then(() => scannerAtivo = false); }
-        else { if (camerasTraseiras.length > 0 && !scannerAtivo) iniciarScanner(camerasTraseiras[cameraIndiceAtual].id); }
+        if (document.hidden) { 
+            if (html5QrCode && scannerAtivo) html5QrCode.stop().then(() => scannerAtivo = false); 
+        }
+        else { 
+            if (camerasTraseiras.length > 0 && !scannerAtivo) iniciarScanner(camerasTraseiras[cameraIndiceAtual].id); 
+        }
     });
 
     function buscaHibrida(val) {
@@ -188,14 +204,16 @@
 
     function exportarBinario() {
         if(inventario.length === 0) return alert("Vazio!");
-        const blob = new Blob([formatarParaProgress()], { type: 'text/plain' });
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'invent.txt'; a.click();
+        const c = inventario.map(i => `Inventario ${i.code.padStart(13,'0')} ${parseFloat(i.qtd).toFixed(3)}`).join("\r\n");
+        const blob = new Blob([c], { type: 'text/plain' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'invent_progress.txt'; a.click();
     }
 
     async function compartilharZap() {
         if(inventario.length === 0) return;
-        const file = new File([formatarParaProgress()], `invent_progress.txt`, { type: 'text/plain' });
-        if (navigator.share) try { await navigator.share({ files: [file], title: 'Coleta Progress' }); } catch (e) {}
+        const c = inventario.map(i => `Inventario ${i.code.padStart(13,'0')} ${parseFloat(i.qtd).toFixed(3)}`).join("\r\n");
+        const file = new File([c], `inventario.txt`, { type: 'text/plain' });
+        if (navigator.share) try { await navigator.share({ files: [file], title: 'Coleta Isaque' }); } catch (e) {}
     }
 
     function abrirModalRecuperacao() {
@@ -223,16 +241,17 @@
     }
 
     function limparLista() { if(confirm("Limpar tudo?")) { inventario = []; atualizarTela(); } }
-    function editarItem(code) { const idx = inventario.findIndex(i => i.code === code); const n = prompt("Qtd:", inventario[idx].qtd); if(n) { inventario[idx].qtd = parseFloat(n.replace(',','.')).toFixed(3); atualizarTela(); } }
+    function editarItem(code) { const idx = inventario.findIndex(i => i.code === code); const n = prompt("Nova Qtd:", inventario[idx].qtd); if(n) { inventario[idx].qtd = parseFloat(n.replace(',','.')).toFixed(3); atualizarTela(); } }
 
     window.onload = () => {
         carregarCatalogo(); atualizarTela();
         Html5Qrcode.getCameras().then(devices => {
-            camerasTraseiras = devices.filter(d => !d.label.toLowerCase().includes('front'));
+            // No iPhone, filtramos para pegar as traseiras (back)
+            camerasTraseiras = devices.filter(d => d.label.toLowerCase().includes('back') || d.label.toLowerCase().includes('traseira') || d.label.toLowerCase().includes('0'));
             if (camerasTraseiras.length === 0) camerasTraseiras = devices;
             if (camerasTraseiras.length > 1) document.getElementById('cam-toggle').style.display = 'flex';
             iniciarScanner(camerasTraseiras[0].id);
-        });
+        }).catch(e => alert("Erro ao acessar câmeras. Verifique as permissões do Safari."));
     };
 </script>
 </body>
