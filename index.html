@@ -1,205 +1,47 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Coletor Pro v32.1</title>
-    <script src="https://unpkg.com/html5-qrcode"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
-    <style>
-        :root { --bg: #050505; --card: #121216; --primary: #3b82f6; --accent: #60a5fa; --success: #10b981; --danger: #ef4444; --border: rgba(255, 255, 255, 0.1); --text: #fff; --whatsapp: #25d366; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: calc(260px + env(safe-area-inset-bottom)); overflow-x: hidden; }
-        .header { padding: 10px; text-align: center; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 1000; }
-        .v-tag { font-size: 9px; letter-spacing: 2px; font-weight: 900; color: var(--primary); text-transform: uppercase; }
-        
-        /* Câmera Reduzida para visualização melhor */
-        .scanner-container { padding: 8px; max-width: 500px; margin: auto; }
-        .scanner-frame { 
-            position: relative; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); 
-            background: #000; box-shadow: 0 15px 30px rgba(0,0,0,0.6); line-height: 0;
-        }
-        #reader { width: 100%; aspect-ratio: 16/10; } /* Câmera mais baixa (retangular) */
-
-        .btn-switch-cam { position: absolute; top: 10px; right: 10px; z-index: 1100; width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.3); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-        
-        .main-panel { background: var(--card); border-radius: 24px; padding: 15px; margin-top: 10px; border: 1px solid var(--border); }
-        .display-prod { background: rgba(0,0,0,0.4); padding: 12px; border-radius: 12px; margin-bottom: 10px; text-align: center; border: 1px solid var(--border); min-height: 45px; display: flex; align-items: center; justify-content: center; }
-        .display-prod b { font-size: 12px; color: var(--accent); text-transform: uppercase; }
-        
-        input { width: 100%; padding: 14px; background: rgba(255,255,255,0.05); border: 2px solid transparent; border-radius: 14px; color: #fff; font-size: 16px; font-weight: 600; margin-bottom: 10px; outline: none; transition: 0.2s; }
-        input:focus { border-color: var(--primary); background: rgba(255,255,255,0.08); }
-        
-        .btn-main { width: 100%; background: var(--primary); color: white; border: none; padding: 16px; border-radius: 16px; font-weight: 900; font-size: 15px; cursor: pointer; }
-        
-        /* Itens da lista */
-        .item-card { background: var(--card); border: 1px solid var(--border); padding: 12px 18px; border-radius: 20px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-        
-        /* Rodapé fixo */
-        .dashboard { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 10, 15, 0.95); backdrop-filter: blur(25px); padding: 15px 15px calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); z-index: 3000; }
-        .stats { display: flex; gap: 8px; margin-bottom: 10px; }
-        .stat-box { flex: 1; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 14px; text-align: center; border: 1px solid var(--border); }
-        .btn-group { display: flex; gap: 8px; }
-        .btn-export, .btn-share { flex: 1; border: none; padding: 14px; border-radius: 14px; font-weight: 900; font-size: 12px; cursor: pointer; color: white; }
-        .btn-export { background: var(--success); }
-        .btn-share { background: var(--whatsapp); }
-        
-        .footer-tools { display: flex; justify-content: space-between; margin-top: 10px; }
-        .btn-tool { background: none; border: none; color: #666; font-size: 9px; font-weight: bold; cursor: pointer; }
-    </style>
-</head>
-<body>
-
-<div class="header"><div class="v-tag">ISAQUE PRUSSAK • PRO v32.1</div></div>
-
-<div class="scanner-container">
-    <div class="scanner-frame">
-        <div class="btn-switch-cam" id="cam-toggle" onclick="ciclarCamera()" style="display:none;">🔄</div>
-        <div id="reader"></div>
-    </div>
-    
-    <div class="main-panel">
-        <div class="display-prod"><b id="p-nome">PRONTO PARA COLETAR</b></div>
-        <input type="text" id="barcode-res" placeholder="CÓDIGO OU NOME" oninput="buscaHibrida(this.value)" autocomplete="off">
-        <div id="suggestions-box" style="display:none" class="suggestions"></div>
-        
-        <input type="number" id="qtd" value="1" step="any" inputmode="decimal" onfocus="this.select()" style="border-color: rgba(59, 130, 246, 0.4);">
-        
-        <button class="btn-main" onclick="adicionarItem()">REGISTRAR PRODUTO</button>
-    </div>
-    
-    <div id="lista-corpo" style="margin-top:20px;"></div>
-</div>
-
-<div class="dashboard">
-    <div class="stats">
-        <div class="stat-box"><small>Itens</small><br><b id="st-skus">0</b></div>
-        <div class="stat-box"><small>Peças</small><br><b id="st-total">0</b></div>
-    </div>
-    <div class="btn-group">
-        <button class="btn-export" onclick="exportarBinario()">💾 BAIXAR</button>
-        <button class="btn-share" onclick="compartilharZap()">🟢 WHATSAPP</button>
-    </div>
-    <div class="footer-tools">
-        <button class="btn-tool" onclick="abrirModalRecuperacao()">🩹 HISTÓRICO</button>
-        <button class="btn-tool" onclick="location.reload()">🔄 RECARREGAR</button>
-        <button class="btn-tool" onclick="limparLista()" style="color:var(--danger)">🗑️ LIMPAR</button>
+<div id="modal-backups" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 5000; padding: 20px; align-items: center; justify-content: center;">
+    <div class="modal-content" style="background: #121216; padding: 25px; border-radius: 32px; border: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 450px; max-height: 80vh; display: flex; flex-direction: column;">
+        <h3 style="margin:0; color:#3b82f6;">Histórico de Backups</h3>
+        <p style="font-size: 11px; color: #888; margin-bottom: 15px;">Toque num item para restaurar a lista.</p>
+        <div id="lista-backups" style="overflow-y: auto; flex-grow: 1;"></div>
+        <button onclick="document.getElementById('modal-backups').style.display='none'" style="width:100%; margin-top:20px; padding:18px; border-radius:18px; background:#222; color:#fff; font-weight:bold; border:none; cursor:pointer;">FECHAR</button>
     </div>
 </div>
 
 <script>
-    // A lógica interna permanece a mesma da v32.0 para garantir a eficácia
-    let inventario = JSON.parse(localStorage.getItem('coleta_isaque_v15')) || [];
-    let catalogoMemo = [];
-    let produtoAtivo = null;
-    let html5QrCode = null;
-    let camerasTraseiras = [];
-    let cameraIndiceAtual = 0;
-    let scannerAtivo = false;
+    function abrirModalRecuperacao() {
+        const modal = document.getElementById('modal-backups');
+        const listaUI = document.getElementById('lista-backups');
+        listaUI.innerHTML = "";
+        let backupsencontrados = 0;
 
-    async function carregarCatalogo() {
-        try {
-            const r = await fetch('PRODUTO.TXT', { cache: "no-store" });
-            const t = await r.text();
-            catalogoMemo = t.split(/\r?\n/).filter(l => l.trim().length > 13).map(l => ({
-                code: l.substring(0, 13).trim().padStart(13, '0'),
-                nome: l.substring(13).slice(0, -10).trim()
-            }));
-        } catch (e) { }
-    }
-
-    function atualizarTela() {
-        localStorage.setItem('coleta_isaque_v15', JSON.stringify(inventario));
-        let soma = 0;
-        document.getElementById('lista-corpo').innerHTML = [...inventario].reverse().map(i => {
-            soma += i.qtd;
-            return `<div class="item-card"><div><small style="color:#666; font-size:9px;">${i.nome}</small><br><b>${i.code}</b></div>
-                <div style="text-align:right"><b style="color:var(--primary); font-size:16px;">${i.qtd}</b><br><button onclick="editarItem('${i.code}')" style="border:none; background:none; color:var(--primary); font-size:10px; font-weight:bold;">EDITAR</button></div></div>`;
-        }).join('');
-        document.getElementById('st-skus').innerText = inventario.length;
-        document.getElementById('st-total').innerText = soma.toFixed(2);
-    }
-
-    function iniciarScanner(id) {
-        if(html5QrCode) { html5QrCode.stop().then(() => start(id)).catch(() => start(id)); } else { start(id); }
-        function start(camId) {
-            html5QrCode = new Html5Qrcode("reader");
-            // Ajuste de QRBOX para o novo tamanho da câmera
-            html5QrCode.start(camId, { fps: 25, qrbox: { width: 220, height: 150 } }, (t) => {
-                document.getElementById('barcode-res').value = t;
-                buscaHibrida(t);
-                document.getElementById('qtd').focus();
-            }).then(() => { scannerAtivo = true; });
-        }
-    }
-
-    document.addEventListener("visibilitychange", () => {
-        if (document.hidden) { if (html5QrCode && scannerAtivo) { html5QrCode.stop().then(() => { scannerAtivo = false; }); } }
-        else { if (camerasTraseiras.length > 0 && !scannerAtivo) { iniciarScanner(camerasTraseiras[cameraIndiceAtual].id); } }
-    });
-
-    function buscaHibrida(val) {
-        let v = val.trim().toUpperCase();
-        if(v.length < 2) return;
-        const isNum = /^\d+$/.test(v);
-        let vBusca = isNum ? v.padStart(13, '0') : v;
-        const match = catalogoMemo.find(i => i.code === vBusca);
-        if(match) { document.getElementById('p-nome').innerText = match.nome; produtoAtivo = match; }
-        else { document.getElementById('p-nome').innerText = isNum ? "NOVO" : "BUSCANDO..."; produtoAtivo = { code: isNum ? vBusca : "", nome: "AVULSO" }; }
-    }
-
-    function adicionarItem() {
-        const input = document.getElementById('barcode-res');
-        let code = input.value.trim();
-        const q = parseFloat(document.getElementById('qtd').value.replace(',','.'));
-        if(!code || isNaN(q)) return;
-        if(/^\d+$/.test(code)) code = code.padStart(13, '0');
-        const idx = inventario.findIndex(i => i.code === code);
-        if(idx !== -1) inventario[idx].qtd = parseFloat((inventario[idx].qtd + q).toFixed(3));
-        else inventario.push({ code, nome: produtoAtivo ? produtoAtivo.nome : "AVULSO", qtd: q });
-        atualizarTela(); input.value = ""; document.getElementById('qtd').value = "1"; input.focus();
-    }
-
-    function gerarConteudoTXT() {
-        let c = ""; inventario.forEach(i => { c += "Inventario " + i.code.padStart(13,'0') + " " + i.qtd + "\r\n"; });
-        return c;
-    }
-
-    function exportarBinario() {
-        if(inventario.length === 0) return;
-        const blob = new Blob([gerarConteudoTXT()], { type: 'text/plain' });
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'invent.txt'; a.click();
-    }
-
-    async function compartilharZap() {
-        if(inventario.length === 0) return;
-        const data = new Date().toLocaleDateString().replace(/\//g, '-');
-        const file = new File([gerarConteudoTXT()], `invent_${data}.txt`, { type: 'text/plain' });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            try { await navigator.share({ files: [file], title: 'Inventário' }); } catch (e) {}
-        } else { alert("Use o botão BAIXAR."); }
-    }
-
-    function ciclarCamera() {
-        if (camerasTraseiras.length < 2) return;
-        cameraIndiceAtual = (cameraIndiceAtual + 1) % camerasTraseiras.length;
-        iniciarScanner(camerasTraseiras[cameraIndiceAtual].id);
-    }
-
-    function limparLista() { if(confirm("Limpar tudo?")) { inventario = []; atualizarTela(); } }
-    function editarItem(code) { const idx = inventario.findIndex(i => i.code === code); const n = prompt("Nova Qtd:", inventario[idx].qtd); if(n) { inventario[idx].qtd = parseFloat(n.replace(',','.')); atualizarTela(); } }
-
-    window.onload = () => {
-        carregarCatalogo(); atualizarTela();
-        Html5Qrcode.getCameras().then(devices => {
-            camerasTraseiras = devices.filter(d => !d.label.toLowerCase().includes('front') && !d.label.toLowerCase().includes('selfie'));
-            if (camerasTraseiras.length === 0) camerasTraseiras = devices;
-            if (camerasTraseiras.length > 0) {
-                if (camerasTraseiras.length > 1) document.getElementById('cam-toggle').style.display = 'flex';
-                iniciarScanner(camerasTraseiras[0].id);
+        for (let i = 0; i < localStorage.length; i++) {
+            const chave = localStorage.key(i);
+            // Procura por qualquer registo de coleta ou inventário
+            if (chave.toLowerCase().includes('coleta') || chave.toLowerCase().includes('v15')) {
+                try {
+                    const dados = JSON.parse(localStorage.getItem(chave));
+                    if (Array.isArray(dados) && dados.length > 0) {
+                        backupsencontrados++;
+                        const div = document.createElement('div');
+                        div.style = "padding:15px; background:rgba(255,255,255,0.05); margin-bottom:10px; border-radius:15px; border:1px solid rgba(255,255,255,0.1); cursor:pointer;";
+                        div.innerHTML = `<b style="color:#3b82f6;">${chave}</b><br><small style="color:#eee;">${dados.length} produtos encontrados</small>`;
+                        div.onclick = () => {
+                            if(confirm("Deseja restaurar os dados de: " + chave + "? Isso substituirá a lista atual.")) {
+                                inventario = dados;
+                                atualizarTela();
+                                modal.style.display = 'none';
+                            }
+                        };
+                        listaUI.appendChild(div);
+                    }
+                } catch(e) { console.error("Erro ao ler chave:", chave); }
             }
-        });
-    };
+        }
+
+        if (backupsencontrados === 0) {
+            listaUI.innerHTML = "<p style='text-align:center; color:#666;'>Nenhum backup encontrado na memória deste telemóvel.</p>";
+        }
+
+        modal.style.display = 'flex'; // Abre o modal
+    }
 </script>
-</body>
-</html>
