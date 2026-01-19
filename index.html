@@ -3,56 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Coletor Pro v12.7 - Verificado</title>
+    <title>Coletor Pro v12.8 - Modo Livre</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root { --bg: #000; --card: #111; --primary: #fff; --accent: #3b82f6; --border: #222; --text-muted: #888; --success: #10b981; }
         body { font-family: sans-serif; margin: 0; background: var(--bg); color: var(--primary); padding-bottom: 220px; overflow-x: hidden; }
         .header { padding: 15px; text-align: center; font-weight: bold; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 1000; font-size: 14px; }
         .container { padding: 12px; max-width: 500px; margin: auto; }
-        
-        /* Scanner */
         .scanner-card { background: #000; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); aspect-ratio: 1/1; position: relative; }
         #reader { width: 100%; height: 100%; }
-        
-        /* Painel Central */
         .panel { background: var(--card); border-radius: 24px; padding: 20px; margin-top: -40px; position: relative; z-index: 100; border: 1px solid var(--border); }
         .product-name-display { color: var(--accent); font-weight: 800; font-size: 14px; margin-bottom: 12px; text-align: center; min-height: 20px; text-transform: uppercase; border: 1px dashed #333; padding: 8px; border-radius: 8px; background: #050505; }
-        
         .row { display: flex; gap: 10px; margin-bottom: 12px; }
         label { font-size: 10px; color: var(--text-muted); font-weight: bold; display: block; margin-bottom: 4px; text-transform: uppercase; }
         input { width: 100%; padding: 12px; background: #000; border: 1px solid var(--border); border-radius: 10px; color: #fff; font-weight: bold; font-size: 16px; outline: none; box-sizing: border-box; }
         input:focus { border-color: var(--accent); }
-        
         .btn-add { width: 100%; background: var(--accent); color: #fff; border: none; padding: 16px; border-radius: 14px; font-weight: bold; font-size: 16px; cursor: pointer; }
-        .btn-add:active { opacity: 0.8; }
-
-        /* Barra de Busca Interna da Lista */
-        .search-container { margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border); }
-        
-        /* Itens da Lista */
         .list-item { background: var(--card); padding: 12px; border-radius: 12px; margin-top: 8px; border: 1px solid var(--border); }
         .item-desc { font-size: 11px; color: var(--text-muted); font-weight: bold; margin-bottom: 4px; text-transform: uppercase; }
         .item-main { display: flex; justify-content: space-between; align-items: center; }
         .qty-badge { color: var(--success); font-weight: 900; font-size: 18px; }
-        .btn-edit { background: #1a1a1a; color: var(--accent); border: 1px solid var(--accent); padding: 8px 12px; border-radius: 8px; font-size: 10px; font-weight: bold; cursor: pointer; }
-
-        /* Rodapé Fixado */
-        .footer { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); padding: 15px; border-top: 1px solid var(--border); z-index: 2000; }
-        .btn-export { background: var(--success); color: #fff; border: none; padding: 15px; border-radius: 12px; font-weight: bold; width: 100%; margin-bottom: 8px; font-size: 14px; }
-        .btn-catalog { background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 10px; border-radius: 10px; width: 100%; font-size: 11px; text-transform: uppercase; }
+        .btn-edit { background: #1a1a1a; color: var(--accent); border: 1px solid var(--accent); padding: 8px 12px; border-radius: 8px; font-size: 10px; font-weight: bold; }
+        .footer { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.95); padding: 15px; border-top: 1px solid var(--border); z-index: 2000; }
+        .btn-export { background: var(--success); color: #fff; border: none; padding: 15px; border-radius: 12px; font-weight: bold; width: 100%; margin-bottom: 8px; }
+        .btn-catalog { background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 10px; border-radius: 10px; width: 100%; font-size: 11px; }
     </style>
 </head>
 <body>
 
-<div class="header">COLETOR PRO V12.7 • SISTEMA COMPLETO</div>
+<div class="header">COLETOR V12.8 • MODO LIVRE</div>
 
 <div class="container">
     <div class="scanner-card"><div id="reader"></div></div>
-    
     <div class="panel">
         <div id="prod-nome" class="product-name-display">AGUARDANDO BUSCA...</div>
-        
         <div class="row">
             <div style="flex: 2;">
                 <label>BUSCAR (CÓD. OU NOME)</label>
@@ -63,33 +47,27 @@
                 <input type="number" id="qtd" value="1" step="any" inputmode="decimal" onfocus="this.select()">
             </div>
         </div>
-        
-        <button class="btn-add" onclick="adicionarItem()">REGISTRAR PRODUTO</button>
-
-        <div class="search-container">
-            <label>🔎 FILTRAR ITENS COLETADOS</label>
-            <input type="text" id="search-list" placeholder="Procurar na lista..." oninput="atualizarTela()">
+        <button class="btn-add" onclick="adicionarItem()">REGISTRAR AGORA</button>
+        <div style="margin-top:15px; border-top:1px solid #222; padding-top:15px;">
+            <input type="text" id="search-list" placeholder="🔎 Filtrar itens coletados..." oninput="atualizarTela()">
         </div>
     </div>
-    
     <div id="lista-corpo"></div>
 </div>
 
 <div class="footer">
     <button class="btn-export" onclick="exportarTXT()">💾 EXPORTAR ARQUIVO TXT</button>
-    <button class="btn-catalog" onclick="document.getElementById('fileCat').click()">📁 CARREGAR PRODUTO.TXT</button>
+    <button class="btn-catalog" onclick="document.getElementById('fileCat').click()">📁 CARREGAR PRODUTO.TXT (OPCIONAL)</button>
     <input type="file" id="fileCat" style="display:none" accept=".txt" onchange="importarCatalogo(event)">
 </div>
 
 <script>
-    const STORAGE_KEY = 'coleta_v12_7_final';
+    const STORAGE_KEY = 'coleta_v12_8';
     let inventario = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
     let catalogoArray = []; 
     let catalogoMap = {};   
-    let produtoSelecionado = null;
     let scanner;
 
-    // Inicialização do Scanner
     Html5Qrcode.getCameras().then(devices => {
         if (devices.length > 0) {
             scanner = new Html5Qrcode("reader");
@@ -101,15 +79,13 @@
         }
     });
 
-    // Importação Inteligente do Catálogo
     function importarCatalogo(event) {
         const file = event.target.files[0];
         if (!file) return;
         const reader = new FileReader();
         reader.onload = function(e) {
             const linhas = e.target.result.split(/\r?\n/);
-            catalogoArray = [];
-            catalogoMap = {}; 
+            catalogoArray = []; catalogoMap = {}; 
             linhas.forEach(linha => {
                 if(linha.length >= 13) {
                     const code = linha.substring(0, 13).trim();
@@ -118,101 +94,78 @@
                         const item = { code: code.padStart(13, '0'), nome: nome };
                         catalogoArray.push(item);
                         catalogoMap[item.code] = item.nome;
-                        catalogoMap[code.replace(/^0+/, '')] = item.nome; // Suporte a código curto
+                        catalogoMap[code.replace(/^0+/, '')] = item.nome;
                     }
                 }
             });
-            document.getElementById('prod-nome').innerText = "CATÁLOGO ATIVO (" + catalogoArray.length + " ITENS)";
+            alert("Catálogo carregado!");
         };
         reader.readAsText(file);
     }
 
-    // Busca por Código (Curto/Longo) ou Nome
     function buscaHibrida(val) {
         const v = val.trim().toUpperCase();
-        if(!v) { 
-            document.getElementById('prod-nome').innerText = "AGUARDANDO BUSCA..."; 
-            produtoSelecionado = null;
-            return; 
-        }
-
-        // 1. Tenta código direto ou preenchido com zeros
+        if(!v) { document.getElementById('prod-nome').innerText = "AGUARDANDO BUSCA..."; return; }
+        
         const codeFull = v.padStart(13, '0');
         if (catalogoMap[v] || catalogoMap[codeFull]) {
-            const nomeEncontrado = catalogoMap[v] || catalogoMap[codeFull];
-            produtoSelecionado = { code: codeFull, nome: nomeEncontrado };
-            document.getElementById('prod-nome').innerText = nomeEncontrado;
+            document.getElementById('prod-nome').innerText = catalogoMap[v] || catalogoMap[codeFull];
             return;
         }
 
-        // 2. Busca por fragmento de nome
         const encontrado = catalogoArray.find(item => item.nome.includes(v));
         if (encontrado) {
-            produtoSelecionado = encontrado;
             document.getElementById('prod-nome').innerText = encontrado.nome;
         } else {
-            document.getElementById('prod-nome').innerText = "PRODUTO NÃO LOCALIZADO";
-            produtoSelecionado = null;
+            document.getElementById('prod-nome').innerText = "ITEM AVULSO (SEM NOME)";
         }
     }
 
-    // Registro com proteção de duplicidade (Soma quantidade)
     function adicionarItem() {
         const input = document.getElementById('barcode-res');
-        const qtdInput = document.getElementById('qtd');
-        const qtd = parseFloat(qtdInput.value.replace(',', '.'));
+        const raw = input.value.trim();
+        const qtd = parseFloat(document.getElementById('qtd').value.replace(',', '.'));
         
-        if(!produtoSelecionado && input.value) buscaHibrida(input.value);
+        if(!raw || isNaN(qtd)) return;
 
-        if(!produtoSelecionado || isNaN(qtd)) {
-            alert("Selecione um produto do catálogo primeiro.");
-            return;
-        }
-        
-        const code = produtoSelecionado.code;
-        const nome = produtoSelecionado.nome;
+        // Tenta pegar o nome do catálogo, se não existir usa "ITEM AVULSO"
+        const code = raw.padStart(13, '0');
+        const nomeDestaque = document.getElementById('prod-nome').innerText;
+        const nomeFinal = (nomeDestaque === "ITEM AVULSO (SEM NOME)" || nomeDestaque === "AGUARDANDO BUSCA...") ? "ITEM AVULSO" : nomeDestaque;
         
         const idx = inventario.findIndex(i => i.code === code);
         if(idx !== -1) {
             inventario[idx].qtd = parseFloat((inventario[idx].qtd + qtd).toFixed(3));
         } else {
-            inventario.push({ code, nome, qtd });
+            inventario.push({ code, nome: nomeFinal, qtd });
         }
 
         atualizarTela();
         input.value = "";
-        qtdInput.value = "1";
-        produtoSelecionado = null;
-        document.getElementById('prod-nome').innerText = "ITEM REGISTRADO!";
-        setTimeout(() => { if(!input.value) document.getElementById('prod-nome').innerText = "AGUARDANDO LEITURA..."; }, 1500);
+        document.getElementById('qtd').value = "1";
+        document.getElementById('prod-nome').innerText = "REGISTRADO!";
     }
 
-    // Função Editar Mantida
     function editarItem(code) {
         const idx = inventario.findIndex(i => i.code === code);
-        const novaQtd = prompt("Alterar quantidade de " + inventario[idx].nome + ":", inventario[idx].qtd);
+        const novaQtd = prompt("Nova quantidade:", inventario[idx].qtd);
         if (novaQtd !== null) {
             const v = parseFloat(novaQtd.replace(',', '.'));
-            if (!isNaN(v)) { 
-                inventario[idx].qtd = parseFloat(v.toFixed(3)); 
-                atualizarTela(); 
-            }
+            if (!isNaN(v)) { inventario[idx].qtd = v; atualizarTela(); }
         }
     }
 
-    // Atualização da Lista com Filtro de Busca
     function atualizarTela() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(inventario));
         const lista = document.getElementById('lista-corpo');
         const busca = document.getElementById('search-list').value.toLowerCase();
-        
         const filtrados = inventario.filter(i => i.code.includes(busca) || i.nome.toLowerCase().includes(busca));
 
         lista.innerHTML = [...filtrados].reverse().map(i => `
             <div class="list-item">
                 <div class="item-desc">${i.nome}</div>
                 <div class="item-main">
-                    <span style="font-family:monospace; color:#aaa; font-size:13px;">${i.code}</span>
+                    <span style="font-family:monospace; color:#aaa;">${i.code}</span>
                     <div style="display:flex; align-items:center; gap:12px;">
                         <span class="qty-badge">${i.qtd}</span>
                         <button class="btn-edit" onclick="editarItem('${i.code}')">EDITAR</button>
@@ -222,17 +175,15 @@
         `).join('');
     }
 
-    // Exportação TXT Formato Padrão
     function exportarTXT() {
-        if(inventario.length === 0) return alert("Lista vazia.");
+        if(inventario.length === 0) return;
         let txt = inventario.map(i => i.code + " " + i.qtd).join("\r\n");
         const blob = new Blob([txt], { type: 'text/plain' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = 'coleta_' + new Date().getTime() + '.txt';
+        a.download = 'coleta.txt';
         a.click();
     }
-
     atualizarTela();
 </script>
 </body>
