@@ -2,77 +2,138 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Coletor Pro v29.0</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Coletor Pro v30.0</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #050505; --card: #121216; --primary: #3b82f6; --accent: #60a5fa; --success: #10b981; --danger: #ef4444; --border: rgba(255, 255, 255, 0.1); --text: #fff; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: 280px; }
-        .header { padding: 12px; text-align: center; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.5); }
-        .v-tag { font-size: 9px; letter-spacing: 2px; font-weight: 900; color: var(--primary); text-transform: uppercase; }
-        .scanner-container { padding: 10px; max-width: 450px; margin: auto; }
-        .scanner-frame { position: relative; border-radius: 28px; overflow: hidden; border: 1px solid var(--border); background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); 
+            padding-bottom: calc(230px + env(safe-area-inset-bottom)); overflow-x: hidden; 
+        }
+
+        .header { padding: 15px; text-align: center; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 1000; }
+        .v-tag { font-size: 10px; letter-spacing: 2px; font-weight: 900; color: var(--primary); text-transform: uppercase; }
+
+        .scanner-container { padding: 12px; max-width: 500px; margin: auto; }
+        
+        .scanner-frame { 
+            position: relative; border-radius: 24px; overflow: hidden; border: 1px solid var(--border); 
+            background: #000; box-shadow: 0 20px 40px rgba(0,0,0,0.6); line-height: 0;
+        }
+        
         #reader { width: 100%; aspect-ratio: 1/1; }
-        .btn-switch-cam { position: absolute; top: 15px; right: 15px; z-index: 100; width: 42px; height: 42px; border-radius: 50%; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(5px); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; }
-        .main-panel { background: var(--card); border-radius: 30px; padding: 22px; margin-top: 15px; border: 1px solid var(--border); }
-        .display-prod { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 15px; margin-bottom: 18px; text-align: center; border: 1px solid var(--border); min-height: 45px; display: flex; align-items: center; justify-content: center; }
-        .display-prod b { font-size: 14px; color: var(--accent); text-transform: uppercase; }
-        .input-group { position: relative; }
-        input { width: 100%; padding: 16px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 16px; color: #fff; font-size: 16px; margin-bottom: 12px; outline: none; }
-        .suggestions { background: #1a1a20; border: 1px solid var(--primary); border-radius: 14px; position: absolute; width: 100%; z-index: 1000; max-height: 200px; overflow-y: auto; top: 58px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
-        .sug-item { padding: 14px; border-bottom: 1px solid var(--border); font-size: 13px; color: #eee; }
-        .btn-main { width: 100%; background: var(--primary); color: white; border: none; padding: 18px; border-radius: 18px; font-weight: 900; font-size: 16px; cursor: pointer; }
-        .item-card { background: var(--card); border: 1px solid var(--border); padding: 16px; border-radius: 22px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .btn-edit { background: rgba(59, 130, 246, 0.1); border: none; color: var(--primary); padding: 7px 14px; border-radius: 10px; font-size: 11px; font-weight: 900; }
-        .dashboard { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 10, 15, 0.96); backdrop-filter: blur(20px); padding: 18px 22px; border-top: 1px solid var(--border); z-index: 2000; }
+
+        .btn-switch-cam { 
+            position: absolute; top: 15px; right: 15px; z-index: 1100; 
+            width: 48px; height: 48px; border-radius: 50%; background: rgba(0,0,0,0.7); 
+            border: 1px solid rgba(255,255,255,0.3); color: #fff; 
+            display: flex; align-items: center; justify-content: center; font-size: 22px;
+        }
+
+        .main-panel { background: var(--card); border-radius: 28px; padding: 20px; margin-top: 15px; border: 1px solid var(--border); }
+
+        .display-prod { 
+            background: rgba(0,0,0,0.4); padding: 18px; border-radius: 16px; margin-bottom: 15px; 
+            text-align: center; border: 1px solid var(--border); min-height: 55px; 
+            display: flex; align-items: center; justify-content: center;
+        }
+        .display-prod b { font-size: 13px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .input-group { position: relative; width: 100%; }
+        
+        input { 
+            width: 100%; padding: 18px; background: rgba(255,255,255,0.05); border: 2px solid transparent; 
+            border-radius: 18px; color: #fff; font-size: 16px; font-weight: 600; margin-bottom: 12px; 
+            transition: 0.2s; outline: none;
+        }
+        input:focus { border-color: var(--primary); background: rgba(255,255,255,0.08); }
+
+        .suggestions { 
+            background: #1a1a22; border: 1px solid var(--primary); border-radius: 18px; 
+            position: absolute; width: 100%; z-index: 2000; max-height: 250px; 
+            overflow-y: auto; top: 65px; box-shadow: 0 15px 50px rgba(0,0,0,0.9);
+        }
+        .sug-item { padding: 16px; border-bottom: 1px solid var(--border); font-size: 13px; cursor: pointer; }
+        .sug-item b { color: var(--accent); display: block; }
+
+        .btn-main { 
+            width: 100%; background: var(--primary); color: white; border: none; padding: 20px; 
+            border-radius: 20px; font-weight: 900; font-size: 16px; cursor: pointer;
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .item-card { 
+            background: var(--card); border: 1px solid var(--border); padding: 18px; 
+            border-radius: 24px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .btn-edit { background: rgba(59, 130, 246, 0.15); border: none; color: var(--primary); padding: 8px 16px; border-radius: 12px; font-weight: 900; font-size: 11px; }
+
+        .dashboard { 
+            position: fixed; bottom: 0; left: 0; right: 0; 
+            background: rgba(10, 10, 15, 0.95); backdrop-filter: blur(25px); 
+            padding: 20px 20px calc(15px + env(safe-area-inset-bottom)); 
+            border-top: 1px solid var(--border); z-index: 3000;
+        }
         .stats { display: flex; gap: 12px; margin-bottom: 15px; }
-        .stat-box { flex: 1; background: rgba(255,255,255,0.03); padding: 12px; border-radius: 14px; text-align: center; border: 1px solid var(--border); }
-        .stat-box small { font-size: 8px; color: #666; text-transform: uppercase; display: block; }
-        .btn-export { background: var(--success); color: white; border: none; padding: 18px; border-radius: 18px; font-weight: 900; width: 100%; font-size: 15px; cursor: pointer; }
-        .footer-tools { display: flex; justify-content: space-between; margin-top: 15px; }
-        .btn-tool { background: none; border: none; color: #555; font-size: 10px; font-weight: bold; cursor: pointer; }
-        #modal-backups { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 3000; padding: 20px; align-items: center; justify-content: center; }
-        .modal-content { background: var(--card); padding: 25px; border-radius: 28px; border: 1px solid var(--border); width: 100%; max-width: 400px; max-height: 80vh; display: flex; flex-direction: column; }
-        .backup-item { padding: 15px; border-bottom: 1px solid #222; cursor: pointer; background: rgba(255,255,255,0.02); margin-bottom: 8px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .stat-box { flex: 1; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 18px; text-align: center; border: 1px solid var(--border); }
+        .stat-box small { font-size: 9px; color: #888; text-transform: uppercase; display: block; margin-bottom: 4px; }
+        
+        .btn-export { background: var(--success); color: white; border: none; padding: 18px; border-radius: 18px; font-weight: 900; width: 100%; font-size: 16px; }
+
+        .footer-tools { display: flex; justify-content: space-between; margin-top: 15px; padding: 0 5px; }
+        .btn-tool { background: none; border: none; color: #666; font-size: 11px; font-weight: bold; cursor: pointer; }
+
+        #modal-backups { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 4000; padding: 20px; align-items: center; justify-content: center; }
+        .modal-content { background: var(--card); padding: 25px; border-radius: 32px; border: 1px solid var(--border); width: 100%; max-width: 450px; max-height: 80vh; display: flex; flex-direction: column; }
+        .backup-list { overflow-y: auto; flex-grow: 1; margin-top: 15px; }
+        .backup-item { padding: 18px; border-radius: 16px; background: rgba(255,255,255,0.03); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); }
     </style>
 </head>
 <body>
 
 <div id="modal-backups" onclick="this.style.display='none'">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <h3 style="margin-top:0; color:var(--primary);">Histórico Cronológico</h3>
-        <p style="font-size: 10px; color: #666; margin-bottom: 15px;">Listado das versões mais antigas às mais novas.</p>
-        <div id="lista-backups" style="overflow-y: auto; flex-grow: 1;"></div>
-        <button onclick="document.getElementById('modal-backups').style.display='none'" style="width:100%; margin-top:20px; padding:15px; border-radius:15px; border:none; background:#222; color:#fff; font-weight:bold;">VOLTAR</button>
+        <h3 style="margin:0; color:var(--primary);">Histórico de Backups</h3>
+        <p style="font-size: 11px; color: #555;">Ordem cronológica: Antigos → Novos</p>
+        <div id="lista-backups" class="backup-list"></div>
+        <button onclick="document.getElementById('modal-backups').style.display='none'" style="width:100%; margin-top:20px; padding:18px; border-radius:18px; border:none; background:#222; color:#fff; font-weight:bold;">FECHAR</button>
     </div>
 </div>
 
-<div class="header"><div class="v-tag">ISAQUE • PRO v29.0 (SOMENTE TRASEIRAS)</div></div>
+<div class="header"><div class="v-tag">ISAQUE PRUSSAK • PRO v30.0</div></div>
 
 <div class="scanner-container">
     <div class="scanner-frame">
         <div class="btn-switch-cam" id="cam-toggle" onclick="ciclarCamera()" style="display:none;">🔄</div>
         <div id="reader"></div>
     </div>
+
     <div class="main-panel">
-        <div class="display-prod"><b id="p-nome">AGUARDANDO...</b></div>
+        <div class="display-prod"><b id="p-nome">PRONTO PARA COLETAR</b></div>
+        
         <div class="input-group">
             <input type="text" id="barcode-res" placeholder="CÓDIGO OU NOME" oninput="buscaHibrida(this.value)" autocomplete="off">
             <div id="suggestions-box" class="suggestions" style="display:none"></div>
         </div>
+
         <input type="number" id="qtd" value="1" step="any" inputmode="decimal" onfocus="this.select()">
-        <button class="btn-main" onclick="adicionarItem()">REGISTRAR</button>
+        <button class="btn-main" onclick="adicionarItem()">REGISTRAR PRODUTO</button>
     </div>
+
     <div id="lista-corpo" style="margin-top:25px;"></div>
 </div>
 
 <div class="dashboard">
     <div class="stats">
-        <div class="stat-box"><small>Itens</small><b id="st-skus">0</b></div>
-        <div class="stat-box"><small>Peças</small><b id="st-total">0</b></div>
+        <div class="stat-box"><small>Itens Únicos</small><b id="st-skus">0</b></div>
+        <div class="stat-box"><small>Total Peças</small><b id="st-total">0</b></div>
     </div>
-    <button class="btn-export" onclick="exportarBinario()">💾 EXPORTAR INVENT.TXT</button>
+    <button class="btn-export" onclick="exportarBinario()">💾 GERAR INVENT.TXT</button>
     <div class="footer-tools">
         <button class="btn-tool" onclick="abrirModalRecuperacao()">🩹 HISTÓRICO</button>
         <button class="btn-tool" onclick="location.reload()">🔄 RECARREGAR</button>
@@ -96,7 +157,82 @@
                 code: l.substring(0, 13).trim().padStart(13, '0'),
                 nome: l.substring(13).slice(0, -10).trim()
             }));
-        } catch (e) {}
+        } catch (e) { console.log("Catálogo não encontrado."); }
+    }
+
+    function buscaHibrida(val) {
+        let v = val.trim().toUpperCase();
+        const box = document.getElementById('suggestions-box');
+        if(v.length < 2) { box.style.display = 'none'; return; }
+        
+        const isNum = /^\d+$/.test(v);
+        let vBusca = isNum ? v.padStart(13, '0') : v;
+        const match = catalogoMemo.find(i => i.code === vBusca);
+        
+        if(match) {
+            document.getElementById('p-nome').innerText = match.nome;
+            produtoAtivo = match;
+        } else {
+            document.getElementById('p-nome').innerText = isNum ? "PRODUTO NOVO" : "PESQUISANDO...";
+            produtoAtivo = { code: isNum ? vBusca : "", nome: "AVULSO" };
+        }
+
+        if(!isNum) {
+            const res = catalogoMemo.filter(i => i.nome.includes(v)).slice(0, 15);
+            if(res.length > 0) {
+                box.innerHTML = res.map(i => `<div class="sug-item" onclick="selecionarSugestao('${i.code}','${i.nome}')"><b>${i.nome}</b><small>${i.code}</small></div>`).join('');
+                box.style.display = 'block';
+            } else box.style.display = 'none';
+        } else box.style.display = 'none';
+    }
+
+    function selecionarSugestao(code, nome) {
+        produtoAtivo = { code, nome };
+        document.getElementById('barcode-res').value = code;
+        document.getElementById('p-nome').innerText = nome;
+        document.getElementById('suggestions-box').style.display = 'none';
+        document.getElementById('qtd').focus();
+    }
+
+    function adicionarItem() {
+        const input = document.getElementById('barcode-res');
+        let code = input.value.trim();
+        const qInput = document.getElementById('qtd');
+        const q = parseFloat(qInput.value.replace(',','.'));
+        
+        if(!code || isNaN(q)) return;
+        if(/^\d+$/.test(code)) code = code.padStart(13, '0');
+
+        const idx = inventario.findIndex(i => i.code === code);
+        if(idx !== -1) inventario[idx].qtd = parseFloat((inventario[idx].qtd + q).toFixed(3));
+        else inventario.push({ code, nome: produtoAtivo ? produtoAtivo.nome : "AVULSO", qtd: q });
+        
+        atualizarTela();
+        input.value = ""; qInput.value = "1";
+        input.focus();
+    }
+
+    function atualizarTela() {
+        localStorage.setItem('coleta_isaque_v15', JSON.stringify(inventario));
+        let soma = 0;
+        document.getElementById('lista-corpo').innerHTML = [...inventario].reverse().map(i => {
+            soma += i.qtd;
+            return `<div class="item-card">
+                <div><small style="color:#666; font-size:10px;">${i.nome}</small><br><b>${i.code}</b></div>
+                <div style="text-align:right"><b style="color:var(--primary); font-size:18px;">${i.qtd}</b><br><button class="btn-edit" onclick="editarItem('${i.code}')">EDITAR</button></div>
+            </div>`;
+        }).join('');
+        document.getElementById('st-skus').innerText = inventario.length;
+        document.getElementById('st-total').innerText = soma.toFixed(2);
+    }
+
+    function editarItem(code) {
+        const idx = inventario.findIndex(i => i.code === code);
+        const n = prompt("Ajustar Quantidade:", inventario[idx].qtd);
+        if(n !== null) { 
+            const num = parseFloat(n.replace(',','.'));
+            if(!isNaN(num)) { inventario[idx].qtd = num; atualizarTela(); }
+        }
     }
 
     function abrirModalRecuperacao() {
@@ -114,32 +250,17 @@
                 } catch(e) {}
             }
         }
-        
-        // Ordenação: Antigas primeiro (baseado no nome da chave)
-        backups.sort((a, b) => a.nome.localeCompare(b.nome, undefined, {numeric: true, sensitivity: 'base'}));
-
+        backups.sort((a, b) => a.nome.localeCompare(b.nome, undefined, {numeric: true}));
         backups.forEach((item, index) => {
-            const eDuplicata = backups.some((o, idx) => idx !== index && o.conteudo === item.conteudo);
+            const eDup = backups.some((o, idx) => idx !== index && o.conteudo === item.conteudo);
             const div = document.createElement('div');
             div.className = "backup-item";
-            div.innerHTML = `<div><b style="color:var(--primary); font-size:12px;">${item.nome}</b><br><small style="color:#888;">${item.itens.length} itens</small></div>
-                             <div style="font-size:14px; opacity:${eDuplicata ? '1':'0.2'};">📂</div>`;
-            div.onclick = () => { if(confirm("Carregar backup?")) { inventario = item.itens; atualizarTela(); document.getElementById('modal-backups').style.display = 'none'; }};
+            div.innerHTML = `<div><b style="color:var(--primary);">${item.nome}</b><br><small>${item.itens.length} itens</small></div>
+                             <div style="font-size:16px;">${eDup ? '📂' : '📄'}</div>`;
+            div.onclick = () => { if(confirm("Restaurar este backup?")) { inventario = item.itens; atualizarTela(); document.getElementById('modal-backups').style.display='none'; }};
             listaUI.appendChild(div);
         });
         document.getElementById('modal-backups').style.display = 'flex';
-    }
-
-    function atualizarTela() {
-        localStorage.setItem('coleta_isaque_v15', JSON.stringify(inventario));
-        let soma = 0;
-        document.getElementById('lista-corpo').innerHTML = [...inventario].reverse().map(i => {
-            soma += i.qtd;
-            return `<div class="item-card"><div><small style="color:#555; font-size:9px;">${i.nome}</small><br><b>${i.code}</b></div>
-                <div style="text-align:right"><b style="color:var(--primary);">${i.qtd}</b><br><button class="btn-edit" onclick="editarItem('${i.code}')">EDITAR</button></div></div>`;
-        }).join('');
-        document.getElementById('st-skus').innerText = inventario.length;
-        document.getElementById('st-total').innerText = soma.toFixed(2);
     }
 
     function ciclarCamera() {
@@ -149,70 +270,51 @@
     }
 
     function iniciarScanner(id) {
-        if(html5QrCode) { html5QrCode.stop().then(() => start(id)).catch(() => start(id)); } else { start(id); }
+        if(html5QrCode) {
+            html5QrCode.stop().then(() => start(id)).catch(() => start(id));
+        } else {
+            start(id);
+        }
         function start(camId) {
             html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start(camId, { fps: 20, qrbox: 250 }, (t) => {
+            html5QrCode.start(camId, { fps: 25, qrbox: { width: 250, height: 250 } }, (t) => {
                 document.getElementById('barcode-res').value = t;
                 buscaHibrida(t);
                 document.getElementById('qtd').focus();
-            }).catch(() => {});
+            }).catch(err => console.error("Erro Camera:", err));
         }
     }
 
-    function buscaHibrida(val) {
-        let v = val.trim().toUpperCase();
-        const box = document.getElementById('suggestions-box');
-        if(v.length < 2) { box.style.display = 'none'; return; }
-        const isNum = /^\d+$/.test(v);
-        let vBusca = isNum ? v.padStart(13, '0') : v;
-        const match = catalogoMemo.find(i => i.code === vBusca);
-        if(match) { document.getElementById('p-nome').innerText = match.nome; produtoAtivo = match; }
-        else { document.getElementById('p-nome').innerText = isNum ? "NOVO" : "BUSCANDO..."; produtoAtivo = { code: isNum ? vBusca : "", nome: "AVULSO" }; }
-        if(!isNum) {
-            const res = catalogoMemo.filter(i => i.nome.includes(v)).slice(0, 15);
-            if(res.length > 0) {
-                box.innerHTML = res.map(i => `<div class="sug-item" onclick="selecionarSugestao('${i.code}','${i.nome}')"><b>${i.nome}</b><small>${i.code}</small></div>`).join('');
-                box.style.display = 'block';
-            } else box.style.display = 'none';
-        } else box.style.display = 'none';
+    function exportarBinario() {
+        if(inventario.length === 0) return alert("Lista vazia!");
+        let c = "";
+        inventario.forEach(i => { c += "Inventario " + i.code.padStart(13,'0') + " " + i.qtd + "\r\n"; });
+        const blob = new Blob([c], { type: 'text/plain' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'invent.txt';
+        a.click();
     }
 
-    function selecionarSugestao(code, nome) { produtoAtivo = { code, nome }; document.getElementById('barcode-res').value = code; document.getElementById('p-nome').innerText = nome; document.getElementById('suggestions-box').style.display = 'none'; document.getElementById('qtd').focus(); }
-    function editarItem(code) { const idx = inventario.findIndex(i => i.code === code); const n = prompt("Qtd:", inventario[idx].qtd); if(n !== null) { const num = parseFloat(n.replace(',','.')); if(!isNaN(num)) { inventario[idx].qtd = num; atualizarTela(); } } }
-    function adicionarItem() {
-        const input = document.getElementById('barcode-res');
-        let code = input.value.trim();
-        const q = parseFloat(document.getElementById('qtd').value.replace(',','.'));
-        if(!code || isNaN(q)) return;
-        if(/^\d+$/.test(code)) code = code.padStart(13, '0');
-        const idx = inventario.findIndex(i => i.code === code);
-        if(idx !== -1) inventario[idx].qtd = parseFloat((inventario[idx].qtd + q).toFixed(3));
-        else inventario.push({ code, nome: produtoAtivo ? produtoAtivo.nome : "AVULSO", qtd: q });
-        atualizarTela(); input.value = ""; document.getElementById('qtd').value = "1";
-    }
-    function exportarBinario() {
-        let c = ""; inventario.forEach(i => { c += "Inventario " + i.code.padStart(13,'0') + " " + i.qtd + "\r\n"; });
-        const blob = new Blob([c], { type: 'text/plain' });
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'invent.txt'; a.click();
-    }
-    function limparLista() { if(confirm("Limpar tudo?")) { inventario = []; atualizarTela(); } }
+    function limparLista() { if(confirm("Apagar toda a lista atual?")) { inventario = []; atualizarTela(); } }
 
     window.onload = () => {
         carregarCatalogo();
         atualizarTela();
         Html5Qrcode.getCameras().then(devices => {
-            // Filtro rigoroso: Ignora câmeras frontais ou de selfie
-            camerasTraseiras = devices.filter(d => !d.label.toLowerCase().includes('front') && !d.label.toLowerCase().includes('selfie') && !d.label.toLowerCase().includes('user'));
+            // Filtra apenas câmeras traseiras de forma agressiva
+            camerasTraseiras = devices.filter(d => {
+                const label = d.label.toLowerCase();
+                return !label.includes('front') && !label.includes('selfie') && !label.includes('user');
+            });
             
-            // Se o filtro não achar nada (em alguns PCs), usa todos os devices
             if (camerasTraseiras.length === 0) camerasTraseiras = devices;
 
             if (camerasTraseiras.length > 0) {
-                if(camerasTraseiras.length > 1) document.getElementById('cam-toggle').style.display = 'flex';
+                if (camerasTraseiras.length > 1) document.getElementById('cam-toggle').style.display = 'flex';
                 iniciarScanner(camerasTraseiras[0].id);
             }
-        });
+        }).catch(err => alert("Erro ao acessar câmeras. Verifique as permissões."));
     };
 </script>
 </body>
