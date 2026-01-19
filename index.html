@@ -3,156 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Coletor Pro v37.0 - Final Platinum</title>
+    <title>Coletor Pro v37.3 - Final Platinum</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     <style>
         :root { 
             --bg: #050505; --card: #111115; --primary: #3b82f6; --accent: #60a5fa; 
             --success: #10b981; --danger: #ef4444; --border: rgba(255, 255, 255, 0.08); 
-            --text: #fff; --whatsapp: #25d366;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --text: #fff; --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         
-        /* ESTRUTURA E ROLAGEM */
+        /* CORREÇÃO DE ROLAGEM MANUAL */
         html, body { 
             margin: 0; padding: 0; background: var(--bg); color: var(--text); 
             font-family: 'Inter', sans-serif; min-height: 100vh; 
-            overflow-x: hidden; overflow-y: auto; /* ROLAGEM MANUAL ATIVA */
+            overflow-x: hidden; overflow-y: auto !important; 
         }
 
+        /* ANIMAÇÕES */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideIn { from { opacity: 0; transform: translateX(-15px); } to { opacity: 1; transform: translateX(0); } }
 
-        /* TELA DE MENU INICIAL */
-        #menu-inicial { 
-            position: fixed; inset: 0; background: var(--bg); z-index: 9999; 
-            display: flex; align-items: center; justify-content: center; padding: 20px;
-            animation: fadeIn 0.5s ease;
-        }
-        .menu-card { 
-            background: var(--card); border: 1px solid var(--border); padding: 35px; 
-            border-radius: 35px; width: 100%; max-width: 420px; text-align: center;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
-        }
-        .menu-btn { 
-            width: 100%; padding: 22px; border-radius: 20px; border: none; 
-            font-weight: 900; font-size: 15px; color: white; margin-bottom: 15px; 
-            cursor: pointer; transition: var(--transition);
-        }
-        .menu-btn:active { transform: scale(0.96); opacity: 0.9; }
+        /* MENU INICIAL */
+        #menu-inicial { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.4s ease; }
+        .menu-card { background: var(--card); border: 1px solid var(--border); padding: 35px; border-radius: 35px; width: 100%; max-width: 420px; text-align: center; }
+        .menu-btn { width: 100%; padding: 22px; border-radius: 20px; border: none; font-weight: 900; font-size: 15px; color: white; margin-bottom: 15px; cursor: pointer; transition: var(--transition); }
 
         /* APP CONTAINER */
-        #app-container { display: none; flex-direction: column; min-height: 100vh; animation: fadeIn 0.4s ease; }
-        
-        .header { 
-            position: sticky; top: 0; padding: 15px 20px; border-bottom: 1px solid var(--border); 
-            background: rgba(5,5,5,0.9); backdrop-filter: blur(15px); 
-            display: flex; justify-content: space-between; align-items: center; z-index: 5000; 
-        }
+        #app-container { display: none; flex-direction: column; min-height: 100vh; animation: fadeIn 0.3s ease; }
+        .header { position: sticky; top: 0; padding: 15px 20px; border-bottom: 1px solid var(--border); background: rgba(5,5,5,0.9); backdrop-filter: blur(15px); display: flex; justify-content: space-between; align-items: center; z-index: 5000; }
 
-        /* SMART CAM */
-        .scanner-frame { 
-            position: relative; border-radius: 28px; overflow: hidden; 
-            border: 1px solid var(--border); background: #000; margin: 12px; 
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        #reader { width: 100%; aspect-ratio: 16/10; transition: var(--transition); }
-        .cam-minimized { aspect-ratio: 100/1 !important; opacity: 0; transform: scale(0.98); }
+        /* SCANNER FREEZE */
+        .scanner-frame { position: relative; border-radius: 28px; overflow: hidden; border: 2px solid var(--border); background: #000; margin: 12px; transition: 0.4s; }
+        .scanner-frozen { border-color: var(--primary); opacity: 0.6; filter: grayscale(0.5); }
+        #reader { width: 100%; aspect-ratio: 16/10; }
+        .cam-minimized { aspect-ratio: 100/1 !important; opacity: 0; }
         
         /* PAINEL DE DIGITAÇÃO */
-        .main-panel { 
-            background: var(--card); border-radius: 28px; padding: 20px; 
-            margin: 0 12px 15px; border: 1px solid var(--border); position: relative;
-        }
-        .display-prod { 
-            background: rgba(255,255,255,0.03); padding: 12px; border-radius: 15px; 
-            margin-bottom: 15px; text-align: center; border: 1px solid var(--border);
-        }
-        
-        input { 
-            width: 100%; padding: 18px; background: rgba(255,255,255,0.04); 
-            border: 2px solid transparent; border-radius: 18px; color: #fff; 
-            font-size: 16px; font-weight: 600; margin-bottom: 12px; transition: var(--transition);
-        }
+        .main-panel { background: var(--card); border-radius: 28px; padding: 20px; margin: 0 12px 15px; border: 1px solid var(--border); position: relative; }
+        .display-prod { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 15px; margin-bottom: 15px; text-align: center; border: 1px solid var(--border); min-height: 45px; }
+        input { width: 100%; padding: 18px; background: rgba(255,255,255,0.04); border: 2px solid transparent; border-radius: 18px; color: #fff; font-size: 16px; font-weight: 600; margin-bottom: 12px; transition: var(--transition); }
         input:focus { border-color: var(--primary); background: rgba(255,255,255,0.08); }
 
         /* ABA DA BATATA (SUGESTÕES) */
-        .suggestions { 
-            background: #1a1a22; border: 1px solid var(--primary); border-radius: 20px; 
-            position: absolute; width: calc(100% - 40px); z-index: 6000; 
-            max-height: 250px; overflow-y: auto; top: 130px; 
-            box-shadow: 0 25px 50px #000; animation: fadeIn 0.2s ease;
-        }
+        .suggestions { background: #1a1a22; border: 1px solid var(--primary); border-radius: 20px; position: absolute; width: calc(100% - 40px); z-index: 6000; max-height: 250px; overflow-y: auto; top: 130px; box-shadow: 0 25px 50px #000; }
         .sug-item { padding: 16px; border-bottom: 1px solid var(--border); transition: 0.2s; }
         .sug-item:active { background: var(--primary); }
 
-        /* HISTÓRICO DE ITENS */
-        #lista-corpo { padding: 0 15px 260px 15px; }
-        .item-card { 
-            background: var(--card); border: 1px solid var(--border); padding: 16px; 
-            border-radius: 22px; margin-bottom: 12px; display: flex; 
-            justify-content: space-between; align-items: center; 
-            border-left: 6px solid var(--primary); animation: slideIn 0.3s ease;
-        }
-        .btn-del { 
-            background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid var(--danger);
-            padding: 8px 12px; border-radius: 12px; font-size: 11px; font-weight: 900; margin-left: 10px;
-        }
+        /* HISTÓRICO ROLÁVEL */
+        #lista-corpo { padding: 0 15px 280px 15px; }
+        .item-card { background: var(--card); border: 1px solid var(--border); padding: 16px; border-radius: 22px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 6px solid var(--primary); animation: slideIn 0.3s ease; }
 
         /* DASHBOARD FIXO */
-        .dashboard { 
-            position: fixed; bottom: 0; left: 0; right: 0; 
-            background: rgba(10, 10, 15, 0.98); backdrop-filter: blur(25px); 
-            padding: 22px; border-top: 1px solid var(--border); z-index: 5000;
-        }
-        .stats-row { display: flex; justify-content: space-around; margin-bottom: 15px; font-size: 12px; font-weight: 900; }
-        .btn-act { 
-            flex: 1; border: none; padding: 18px; border-radius: 18px; 
-            color: white; font-weight: 900; transition: var(--transition);
-        }
-
-        #modal-backups { 
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); 
-            z-index: 10000; align-items: center; justify-content: center; padding: 20px;
-        }
+        .dashboard { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 10, 15, 0.98); backdrop-filter: blur(25px); padding: 22px; border-top: 1px solid var(--border); z-index: 5000; }
+        .btn-act { flex: 1; border: none; padding: 18px; border-radius: 18px; color: white; font-weight: 900; transition: var(--transition); cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div id="modal-backups" onclick="this.style.display='none'">
-    <div class="menu-card" onclick="event.stopPropagation()">
-        <h3 style="color:var(--primary); margin-bottom:20px;">Restaurar Coleta</h3>
-        <div id="lista-backups" style="max-height: 350px; overflow-y: auto;"></div>
-        <button class="menu-btn" style="background:#333; margin-top:20px;" onclick="document.getElementById('modal-backups').style.display='none'">VOLTAR</button>
-    </div>
-</div>
-
 <div id="menu-inicial">
     <div class="menu-card">
-        <h1 style="font-weight:900; letter-spacing:-1px; margin-bottom:5px;">PRUSSAK PRO</h1>
-        <p style="color:#666; font-size:11px; margin-bottom:35px; font-weight:900;">V37.0 • PROGRESS PLATINUM</p>
-        <button class="menu-btn" style="background:var(--primary); box-shadow: 0 10px 20px rgba(59,130,246,0.3);" onclick="mudarModo('INVENTARIO')">MODO INVENTÁRIO</button>
+        <h1 style="font-weight:900;">PRUSSAK PRO</h1>
+        <p style="color:#666; font-size:11px; margin-bottom:35px; font-weight:900;">V37.3 • FULL STABLE</p>
+        <button class="menu-btn" style="background:var(--primary)" onclick="mudarModo('INVENTARIO')">MODO INVENTÁRIO</button>
         <button class="menu-btn" style="background:#1a1a20; border:1px solid var(--border)" onclick="mudarModo('TROCA')">MODO TROCA / QUEBRA</button>
-        <button class="menu-btn" style="background:none; color:var(--primary); font-size:11px;" onclick="abrirBackup()">🩹 RESTAURAR BACKUPS ANTERIORES</button>
     </div>
 </div>
 
 <div id="app-container">
     <div class="header">
-        <button onclick="voltarParaMenu()" style="background:none; border:none; color:#888; font-weight:900; font-size:11px; letter-spacing:1px;">⬅ MENU</button>
-        <div id="cam-status" onclick="toggleHardwareCam()" style="color:var(--success); font-weight:900; font-size:11px; letter-spacing:1px;">CÂMERA ATIVA</div>
+        <button onclick="voltarParaMenu()" style="background:none; border:none; color:#888; font-weight:900; font-size:11px;">⬅ MENU</button>
+        <div id="cam-status" style="color:var(--success); font-weight:900; font-size:11px;">CÂMERA ATIVA</div>
     </div>
 
     <div class="scanner-frame" id="frame-cam">
         <div id="reader"></div>
-        <button onclick="ciclarCamera()" style="position:absolute; bottom:15px; right:15px; background:rgba(0,0,0,0.6); color:white; border:1px solid rgba(255,255,255,0.2); width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(5px);">🔄</button>
+        <button onclick="ciclarCamera()" style="position:absolute; bottom:15px; right:15px; background:rgba(0,0,0,0.6); color:white; border:1px solid rgba(255,255,255,0.2); width:46px; height:46px; border-radius:50%;">🔄</button>
     </div>
     
     <div class="main-panel">
-        <div class="display-prod"><b id="p-nome" style="font-size:12px; color:var(--accent); letter-spacing:0.5px;">PRONTO</b></div>
+        <div class="display-prod"><b id="p-nome" style="font-size:12px; color:var(--accent)">PRONTO</b></div>
         <input type="text" id="barcode-res" placeholder="Código ou Nome (Batata)" 
                onfocus="toggleCamView(true)" 
                onblur="setTimeout(()=>toggleCamView(false), 300)"
@@ -163,30 +94,29 @@
     </div>
 
     <div id="lista-corpo"></div>
-
     <div class="dashboard">
-        <div class="stats-row">
+        <div style="display:flex; justify-content:space-around; font-size:12px; font-weight:900; margin-bottom:15px;">
             <span>MODO: <b id="txt-modo" style="color:var(--primary)">-</b></span>
             <span>SKUS: <b id="st-skus">0</b></span>
             <span>TOTAL: <b id="st-total">0.000</b></span>
         </div>
         <div style="display:flex; gap:10px;">
             <button class="btn-act" style="background:var(--success)" onclick="exportarTxt()">💾 TXT</button>
-            <button class="btn-act" style="background:var(--whatsapp)" onclick="compartilharZap()">🟢 WHATSAPP</button>
+            <button class="btn-act" style="background:#25d366" onclick="compartilharZap()">🟢 WHATSAPP</button>
         </div>
-        <center><button onclick="limparTudo()" style="background:none; border:none; color:var(--danger); font-size:10px; font-weight:900; margin-top:15px; letter-spacing:1px; text-transform:uppercase;">Apagar Coleta Atual</button></center>
+        <center><button onclick="limparDefinitivo()" style="background:none; border:none; color:var(--danger); font-size:10px; font-weight:900; margin-top:15px;">🗑️ LIMPAR LISTA DEFINITIVAMENTE</button></center>
     </div>
 </div>
 
 <script>
     let modoGlobal = 'INVENTARIO';
-    let inventario = JSON.parse(localStorage.getItem('coleta_v37_data')) || [];
+    let inventario = JSON.parse(localStorage.getItem('coleta_atual')) || [];
     let catalogoMemo = [];
     let produtoAtivo = null;
     let html5QrCode = null;
     let camerasBack = [];
     let camIdx = 0;
-    let camHabilitada = true;
+    let scanPausado = false;
 
     function mudarModo(modo) {
         modoGlobal = modo;
@@ -198,29 +128,19 @@
     }
 
     function voltarParaMenu() {
-        if(html5QrCode) html5QrCode.stop().then(() => fecharTudo()); else fecharTudo();
-    }
-    function fecharTudo() {
-        document.getElementById('menu-inicial').style.display = 'flex';
-        document.getElementById('app-container').style.display = 'none';
-    }
-
-    function toggleHardwareCam() {
-        camHabilitada = !camHabilitada;
-        document.getElementById('cam-status').innerText = camHabilitada ? "CÂMERA ATIVA" : "CÂMERA INATIVA";
-        document.getElementById('cam-status').style.color = camHabilitada ? "var(--success)" : "var(--danger)";
-        document.getElementById('frame-cam').style.display = camHabilitada ? "block" : "none";
-        if(camHabilitada) iniciarHardware(); else if(html5QrCode) html5QrCode.stop();
+        if(html5QrCode) html5QrCode.stop().then(() => fechar()); else fechar();
+        function fechar() {
+            document.getElementById('menu-inicial').style.display = 'flex';
+            document.getElementById('app-container').style.display = 'none';
+        }
     }
 
     function toggleCamView(min) {
-        if(!camHabilitada) return;
         const r = document.getElementById('reader');
         if(min) r.classList.add('cam-minimized'); else r.classList.remove('cam-minimized');
     }
 
     function iniciarHardware() {
-        if(!camHabilitada) return;
         Html5Qrcode.getCameras().then(devices => {
             camerasBack = devices.filter(d => d.label.toLowerCase().includes('back') || d.label.toLowerCase().includes('traseira'));
             if(camerasBack.length === 0) camerasBack = devices;
@@ -233,10 +153,15 @@
         function doStart(camId) {
             html5QrCode = new Html5Qrcode("reader");
             html5QrCode.start(camId, { fps: 30, qrbox: 250 }, (t) => {
+                if(scanPausado) return;
+                scanPausado = true; // CONGELA SCANNER
+                document.getElementById('frame-cam').classList.add('scanner-frozen');
+                
                 let code = t.replace(/[^0-9]/g, "");
                 document.getElementById('barcode-res').value = code;
                 buscaHibrida(code);
                 document.getElementById('qtd').focus();
+                document.getElementById('qtd').select();
             });
         }
     }
@@ -248,7 +173,7 @@
 
     async function carregarCatalogo() {
         try {
-            const r = await fetch('PRODUTO.TXT', {cache: "no-store"});
+            const r = await fetch('PRODUTO.TXT');
             const t = await r.text();
             catalogoMemo = t.split(/\r?\n/).filter(l => l.length > 13).map(l => ({
                 code: l.substring(0, 13).trim().padStart(13, '0'),
@@ -261,16 +186,15 @@
         let v = val.trim().toUpperCase();
         const box = document.getElementById('suggestions-box');
         if(v.length < 2) { box.style.display = 'none'; return; }
-        
         if(/^\d+$/.test(v)) {
             let vBusca = v.padStart(13, '0');
             const match = catalogoMemo.find(i => i.code === vBusca);
-            produtoAtivo = match ? match : { code: vBusca, nome: "PRODUTO AVULSO" };
+            produtoAtivo = match ? match : { code: vBusca, nome: "AVULSO" };
             document.getElementById('p-nome').innerText = produtoAtivo.nome;
             box.style.display = 'none';
         } else {
-            const res = catalogoMemo.filter(i => i.nome.includes(v)).slice(0, 12);
-            box.innerHTML = res.map(i => `<div class="sug-item" onmousedown="selecionarProd('${i.code}','${i.nome}')"><b>${i.nome}</b><br><small style="color:var(--primary)">${i.code}</small></div>`).join('');
+            const res = catalogoMemo.filter(i => i.nome.includes(v)).slice(0, 10);
+            box.innerHTML = res.map(i => `<div class="sug-item" onmousedown="selecionarProd('${i.code}','${i.nome}')"><b>${i.nome}</b><br><small>${i.code}</small></div>`).join('');
             box.style.display = res.length > 0 ? 'block' : 'none';
         }
     }
@@ -280,7 +204,7 @@
         document.getElementById('barcode-res').value = c;
         document.getElementById('p-nome').innerText = n;
         document.getElementById('suggestions-box').style.display = 'none';
-        setTimeout(() => document.getElementById('qtd').focus(), 200);
+        setTimeout(() => { document.getElementById('qtd').focus(); document.getElementById('qtd').select(); }, 200);
     }
 
     function limparInput(el) { el.value = el.value.replace(/[^a-zA-Z0-9 ]/g, ""); }
@@ -296,74 +220,54 @@
         if(idx !== -1) inventario[idx].qtd = (parseFloat(inventario[idx].qtd) + q).toFixed(3);
         else inventario.push({ code, nome: produtoAtivo ? produtoAtivo.nome : "MANUAL", qtd: q.toFixed(3) });
         
-        localStorage.setItem('coleta_v37_data', JSON.stringify(inventario));
+        localStorage.setItem('coleta_atual', JSON.stringify(inventario));
         atualizarTela();
+        
+        // RESET E DESCONGELAMENTO
         document.getElementById('barcode-res').value = "";
         document.getElementById('qtd').value = "1.000";
+        document.getElementById('p-nome').innerText = "PRONTO";
+        scanPausado = false;
+        document.getElementById('frame-cam').classList.remove('scanner-frozen');
         document.getElementById('barcode-res').focus();
-        document.getElementById('p-nome').innerText = "REGISTRADO";
-    }
-
-    function removerItem(idx) {
-        inventario.splice(idx, 1);
-        localStorage.setItem('coleta_v37_data', JSON.stringify(inventario));
-        atualizarTela();
     }
 
     function atualizarTela() {
         let soma = 0;
-        document.getElementById('lista-corpo').innerHTML = inventario.map((i, index) => {
+        document.getElementById('lista-corpo').innerHTML = inventario.map((i) => {
             soma += parseFloat(i.qtd);
-            return `<div class="item-card">
-                <div><small style="color:#666; font-size:10px;">${i.nome}</small><br><b>${i.code}</b></div>
-                <div style="display:flex; align-items:center;">
-                    <b style="color:var(--primary); font-size:16px;">${i.qtd}</b>
-                    <button class="btn-del" onclick="removerItem(${index})">APAGAR</button>
-                </div>
+            return `
+            <div class="item-card">
+                <div><small>${i.nome}</small><br><b>${i.code}</b></div>
+                <b style="color:var(--primary)">${i.qtd}</b>
             </div>`;
         }).reverse().join('');
         document.getElementById('st-skus').innerText = inventario.length;
         document.getElementById('st-total').innerText = soma.toFixed(3);
     }
 
-    function formatarProgress() {
-        return inventario.map(i => {
-            let pref = (modoGlobal === 'INVENTARIO') ? 'Inventario ' : '';
-            return `${pref}${i.code.padStart(13,'0')} ${parseFloat(i.qtd).toFixed(3)}`;
-        }).join("\r\n");
-    }
-
     function exportarTxt() {
-        if(inventario.length === 0) return;
-        const blob = new Blob([formatarProgress()], { type: 'text/plain' });
+        let txt = inventario.map(i => `${modoGlobal === 'INVENTARIO' ? 'Inventario ' : ''}${i.code.padStart(13,'0')} ${parseFloat(i.qtd).toFixed(3)}`).join("\r\n");
+        const blob = new Blob([txt], { type: 'text/plain' });
         const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
         a.download = 'invent.txt'; a.click();
     }
 
     async function compartilharZap() {
-        if(inventario.length === 0) return;
-        const file = new File([formatarProgress()], 'invent.txt', { type: 'text/plain' });
-        if(navigator.share) await navigator.share({ files: [file], title: 'Coleta Progress' });
+        let txt = inventario.map(i => `${modoGlobal === 'INVENTARIO' ? 'Inventario ' : ''}${i.code.padStart(13,'0')} ${parseFloat(i.qtd).toFixed(3)}`).join("\r\n");
+        const file = new File([txt], 'invent.txt', { type: 'text/plain' });
+        if(navigator.share) await navigator.share({ files: [file] });
     }
 
-    function abrirBackup() {
-        const lista = document.getElementById('lista-backups');
-        lista.innerHTML = "";
-        for (let i = 0; i < localStorage.length; i++){
-            let key = localStorage.key(i);
-            if(key.includes('coleta')){
-                let data = JSON.parse(localStorage.getItem(key));
-                let div = document.createElement('div');
-                div.className = "sug-item";
-                div.innerHTML = `<b>Sessão: ${key}</b><br><small>${data.length} itens salvos</small>`;
-                div.onclick = () => { inventario = data; mudarModo('INVENTARIO'); document.getElementById('modal-backups').style.display='none'; };
-                lista.appendChild(div);
-            }
+    function limparDefinitivo() {
+        if(confirm("Apagar tudo DEFINITIVAMENTE?")) {
+            inventario = []; 
+            localStorage.removeItem('coleta_atual');
+            atualizarTela();
+            scanPausado = false;
+            document.getElementById('frame-cam').classList.remove('scanner-frozen');
         }
-        document.getElementById('modal-backups').style.display = 'flex';
     }
-
-    function limparTudo() { if(confirm("Deseja limpar toda a lista?")) { inventario = []; localStorage.removeItem('coleta_v37_data'); atualizarTela(); } }
 
     window.onload = carregarCatalogo;
 </script>
