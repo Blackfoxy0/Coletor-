@@ -3,91 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Coletor Pro v30.0</title>
+    <title>Coletor Pro v31.0</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #050505; --card: #121216; --primary: #3b82f6; --accent: #60a5fa; --success: #10b981; --danger: #ef4444; --border: rgba(255, 255, 255, 0.1); --text: #fff; }
-        
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); 
-            padding-bottom: calc(230px + env(safe-area-inset-bottom)); overflow-x: hidden; 
-        }
-
+        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: calc(240px + env(safe-area-inset-bottom)); overflow-x: hidden; }
         .header { padding: 15px; text-align: center; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 1000; }
         .v-tag { font-size: 10px; letter-spacing: 2px; font-weight: 900; color: var(--primary); text-transform: uppercase; }
-
         .scanner-container { padding: 12px; max-width: 500px; margin: auto; }
-        
-        .scanner-frame { 
-            position: relative; border-radius: 24px; overflow: hidden; border: 1px solid var(--border); 
-            background: #000; box-shadow: 0 20px 40px rgba(0,0,0,0.6); line-height: 0;
-        }
-        
+        .scanner-frame { position: relative; border-radius: 24px; overflow: hidden; border: 1px solid var(--border); background: #000; box-shadow: 0 20px 40px rgba(0,0,0,0.6); line-height: 0; }
         #reader { width: 100%; aspect-ratio: 1/1; }
-
-        .btn-switch-cam { 
-            position: absolute; top: 15px; right: 15px; z-index: 1100; 
-            width: 48px; height: 48px; border-radius: 50%; background: rgba(0,0,0,0.7); 
-            border: 1px solid rgba(255,255,255,0.3); color: #fff; 
-            display: flex; align-items: center; justify-content: center; font-size: 22px;
-        }
-
+        .btn-switch-cam { position: absolute; top: 15px; right: 15px; z-index: 1100; width: 48px; height: 48px; border-radius: 50%; background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.3); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 22px; }
         .main-panel { background: var(--card); border-radius: 28px; padding: 20px; margin-top: 15px; border: 1px solid var(--border); }
-
-        .display-prod { 
-            background: rgba(0,0,0,0.4); padding: 18px; border-radius: 16px; margin-bottom: 15px; 
-            text-align: center; border: 1px solid var(--border); min-height: 55px; 
-            display: flex; align-items: center; justify-content: center;
-        }
-        .display-prod b { font-size: 13px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; }
-
+        .display-prod { background: rgba(0,0,0,0.4); padding: 18px; border-radius: 16px; margin-bottom: 15px; text-align: center; border: 1px solid var(--border); min-height: 55px; display: flex; align-items: center; justify-content: center; }
+        .display-prod b { font-size: 13px; color: var(--accent); text-transform: uppercase; }
         .input-group { position: relative; width: 100%; }
-        
-        input { 
-            width: 100%; padding: 18px; background: rgba(255,255,255,0.05); border: 2px solid transparent; 
-            border-radius: 18px; color: #fff; font-size: 16px; font-weight: 600; margin-bottom: 12px; 
-            transition: 0.2s; outline: none;
-        }
+        input { width: 100%; padding: 18px; background: rgba(255,255,255,0.05); border: 2px solid transparent; border-radius: 18px; color: #fff; font-size: 16px; font-weight: 600; margin-bottom: 12px; transition: 0.2s; outline: none; }
         input:focus { border-color: var(--primary); background: rgba(255,255,255,0.08); }
-
-        .suggestions { 
-            background: #1a1a22; border: 1px solid var(--primary); border-radius: 18px; 
-            position: absolute; width: 100%; z-index: 2000; max-height: 250px; 
-            overflow-y: auto; top: 65px; box-shadow: 0 15px 50px rgba(0,0,0,0.9);
-        }
+        .suggestions { background: #1a1a22; border: 1px solid var(--primary); border-radius: 18px; position: absolute; width: 100%; z-index: 2000; max-height: 250px; overflow-y: auto; top: 65px; box-shadow: 0 15px 50px rgba(0,0,0,0.9); }
         .sug-item { padding: 16px; border-bottom: 1px solid var(--border); font-size: 13px; cursor: pointer; }
-        .sug-item b { color: var(--accent); display: block; }
-
-        .btn-main { 
-            width: 100%; background: var(--primary); color: white; border: none; padding: 20px; 
-            border-radius: 20px; font-weight: 900; font-size: 16px; cursor: pointer;
-            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
-        }
-
-        .item-card { 
-            background: var(--card); border: 1px solid var(--border); padding: 18px; 
-            border-radius: 24px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;
-        }
+        .btn-main { width: 100%; background: var(--primary); color: white; border: none; padding: 20px; border-radius: 20px; font-weight: 900; font-size: 16px; cursor: pointer; }
+        .item-card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 24px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         .btn-edit { background: rgba(59, 130, 246, 0.15); border: none; color: var(--primary); padding: 8px 16px; border-radius: 12px; font-weight: 900; font-size: 11px; }
-
-        .dashboard { 
-            position: fixed; bottom: 0; left: 0; right: 0; 
-            background: rgba(10, 10, 15, 0.95); backdrop-filter: blur(25px); 
-            padding: 20px 20px calc(15px + env(safe-area-inset-bottom)); 
-            border-top: 1px solid var(--border); z-index: 3000;
-        }
+        .dashboard { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 10, 15, 0.95); backdrop-filter: blur(25px); padding: 20px 20px calc(15px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); z-index: 3000; }
         .stats { display: flex; gap: 12px; margin-bottom: 15px; }
         .stat-box { flex: 1; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 18px; text-align: center; border: 1px solid var(--border); }
         .stat-box small { font-size: 9px; color: #888; text-transform: uppercase; display: block; margin-bottom: 4px; }
-        
         .btn-export { background: var(--success); color: white; border: none; padding: 18px; border-radius: 18px; font-weight: 900; width: 100%; font-size: 16px; }
-
-        .footer-tools { display: flex; justify-content: space-between; margin-top: 15px; padding: 0 5px; }
+        .footer-tools { display: flex; justify-content: space-between; margin-top: 15px; }
         .btn-tool { background: none; border: none; color: #666; font-size: 11px; font-weight: bold; cursor: pointer; }
-
         #modal-backups { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 4000; padding: 20px; align-items: center; justify-content: center; }
         .modal-content { background: var(--card); padding: 25px; border-radius: 32px; border: 1px solid var(--border); width: 100%; max-width: 450px; max-height: 80vh; display: flex; flex-direction: column; }
         .backup-list { overflow-y: auto; flex-grow: 1; margin-top: 15px; }
@@ -105,26 +51,22 @@
     </div>
 </div>
 
-<div class="header"><div class="v-tag">ISAQUE PRUSSAK • PRO v30.0</div></div>
+<div class="header"><div class="v-tag">ISAQUE PRUSSAK • PRO v31.0</div></div>
 
 <div class="scanner-container">
     <div class="scanner-frame">
         <div class="btn-switch-cam" id="cam-toggle" onclick="ciclarCamera()" style="display:none;">🔄</div>
         <div id="reader"></div>
     </div>
-
     <div class="main-panel">
         <div class="display-prod"><b id="p-nome">PRONTO PARA COLETAR</b></div>
-        
         <div class="input-group">
             <input type="text" id="barcode-res" placeholder="CÓDIGO OU NOME" oninput="buscaHibrida(this.value)" autocomplete="off">
             <div id="suggestions-box" class="suggestions" style="display:none"></div>
         </div>
-
         <input type="number" id="qtd" value="1" step="any" inputmode="decimal" onfocus="this.select()">
         <button class="btn-main" onclick="adicionarItem()">REGISTRAR PRODUTO</button>
     </div>
-
     <div id="lista-corpo" style="margin-top:25px;"></div>
 </div>
 
@@ -148,6 +90,7 @@
     let html5QrCode = null;
     let camerasTraseiras = [];
     let cameraIndiceAtual = 0;
+    let scannerAtivo = false;
 
     async function carregarCatalogo() {
         try {
@@ -157,26 +100,68 @@
                 code: l.substring(0, 13).trim().padStart(13, '0'),
                 nome: l.substring(13).slice(0, -10).trim()
             }));
-        } catch (e) { console.log("Catálogo não encontrado."); }
+        } catch (e) { }
+    }
+
+    function atualizarTela() {
+        localStorage.setItem('coleta_isaque_v15', JSON.stringify(inventario));
+        let soma = 0;
+        document.getElementById('lista-corpo').innerHTML = [...inventario].reverse().map(i => {
+            soma += i.qtd;
+            return `<div class="item-card">
+                <div><small style="color:#666; font-size:10px;">${i.nome}</small><br><b>${i.code}</b></div>
+                <div style="text-align:right"><b style="color:var(--primary); font-size:18px;">${i.qtd}</b><br><button class="btn-edit" onclick="editarItem('${i.code}')">EDITAR</button></div>
+            </div>`;
+        }).join('');
+        document.getElementById('st-skus').innerText = inventario.length;
+        document.getElementById('st-total').innerText = soma.toFixed(2);
+    }
+
+    function iniciarScanner(id) {
+        if(html5QrCode) {
+            html5QrCode.stop().then(() => start(id)).catch(() => start(id));
+        } else {
+            start(id);
+        }
+        function start(camId) {
+            html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start(camId, { fps: 25, qrbox: { width: 250, height: 250 } }, (t) => {
+                document.getElementById('barcode-res').value = t;
+                buscaHibrida(t);
+                document.getElementById('qtd').focus();
+            }).then(() => { scannerAtivo = true; })
+            .catch(err => console.error(err));
+        }
+    }
+
+    // --- NOVA FUNÇÃO DE SEGURANÇA ---
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+            if (html5QrCode && scannerAtivo) {
+                html5QrCode.stop().then(() => { scannerAtivo = false; });
+            }
+        } else {
+            if (camerasTraseiras.length > 0 && !scannerAtivo) {
+                iniciarScanner(camerasTraseiras[cameraIndiceAtual].id);
+            }
+        }
+    });
+
+    function ciclarCamera() {
+        if (camerasTraseiras.length < 2) return;
+        cameraIndiceAtual = (cameraIndiceAtual + 1) % camerasTraseiras.length;
+        iniciarScanner(camerasTraseiras[cameraIndiceAtual].id);
     }
 
     function buscaHibrida(val) {
         let v = val.trim().toUpperCase();
         const box = document.getElementById('suggestions-box');
         if(v.length < 2) { box.style.display = 'none'; return; }
-        
         const isNum = /^\d+$/.test(v);
         let vBusca = isNum ? v.padStart(13, '0') : v;
         const match = catalogoMemo.find(i => i.code === vBusca);
-        
-        if(match) {
-            document.getElementById('p-nome').innerText = match.nome;
-            produtoAtivo = match;
-        } else {
-            document.getElementById('p-nome').innerText = isNum ? "PRODUTO NOVO" : "PESQUISANDO...";
-            produtoAtivo = { code: isNum ? vBusca : "", nome: "AVULSO" };
-        }
-
+        if(match) { document.getElementById('p-nome').innerText = match.nome; produtoAtivo = match; }
+        else { document.getElementById('p-nome').innerText = isNum ? "PRODUTO NOVO" : "PESQUISANDO..."; produtoAtivo = { code: isNum ? vBusca : "", nome: "AVULSO" }; }
         if(!isNum) {
             const res = catalogoMemo.filter(i => i.nome.includes(v)).slice(0, 15);
             if(res.length > 0) {
@@ -197,38 +182,20 @@
     function adicionarItem() {
         const input = document.getElementById('barcode-res');
         let code = input.value.trim();
-        const qInput = document.getElementById('qtd');
-        const q = parseFloat(qInput.value.replace(',','.'));
-        
+        const q = parseFloat(document.getElementById('qtd').value.replace(',','.'));
         if(!code || isNaN(q)) return;
         if(/^\d+$/.test(code)) code = code.padStart(13, '0');
-
         const idx = inventario.findIndex(i => i.code === code);
         if(idx !== -1) inventario[idx].qtd = parseFloat((inventario[idx].qtd + q).toFixed(3));
         else inventario.push({ code, nome: produtoAtivo ? produtoAtivo.nome : "AVULSO", qtd: q });
-        
         atualizarTela();
-        input.value = ""; qInput.value = "1";
+        input.value = ""; document.getElementById('qtd').value = "1";
         input.focus();
-    }
-
-    function atualizarTela() {
-        localStorage.setItem('coleta_isaque_v15', JSON.stringify(inventario));
-        let soma = 0;
-        document.getElementById('lista-corpo').innerHTML = [...inventario].reverse().map(i => {
-            soma += i.qtd;
-            return `<div class="item-card">
-                <div><small style="color:#666; font-size:10px;">${i.nome}</small><br><b>${i.code}</b></div>
-                <div style="text-align:right"><b style="color:var(--primary); font-size:18px;">${i.qtd}</b><br><button class="btn-edit" onclick="editarItem('${i.code}')">EDITAR</button></div>
-            </div>`;
-        }).join('');
-        document.getElementById('st-skus').innerText = inventario.length;
-        document.getElementById('st-total').innerText = soma.toFixed(2);
     }
 
     function editarItem(code) {
         const idx = inventario.findIndex(i => i.code === code);
-        const n = prompt("Ajustar Quantidade:", inventario[idx].qtd);
+        const n = prompt("Qtd:", inventario[idx].qtd);
         if(n !== null) { 
             const num = parseFloat(n.replace(',','.'));
             if(!isNaN(num)) { inventario[idx].qtd = num; atualizarTela(); }
@@ -256,37 +223,14 @@
             const div = document.createElement('div');
             div.className = "backup-item";
             div.innerHTML = `<div><b style="color:var(--primary);">${item.nome}</b><br><small>${item.itens.length} itens</small></div>
-                             <div style="font-size:16px;">${eDup ? '📂' : '📄'}</div>`;
-            div.onclick = () => { if(confirm("Restaurar este backup?")) { inventario = item.itens; atualizarTela(); document.getElementById('modal-backups').style.display='none'; }};
+                             <div>${eDup ? '📂' : '📄'}</div>`;
+            div.onclick = () => { if(confirm("Restaurar backup?")) { inventario = item.itens; atualizarTela(); document.getElementById('modal-backups').style.display='none'; }};
             listaUI.appendChild(div);
         });
         document.getElementById('modal-backups').style.display = 'flex';
     }
 
-    function ciclarCamera() {
-        if (camerasTraseiras.length < 2) return;
-        cameraIndiceAtual = (cameraIndiceAtual + 1) % camerasTraseiras.length;
-        iniciarScanner(camerasTraseiras[cameraIndiceAtual].id);
-    }
-
-    function iniciarScanner(id) {
-        if(html5QrCode) {
-            html5QrCode.stop().then(() => start(id)).catch(() => start(id));
-        } else {
-            start(id);
-        }
-        function start(camId) {
-            html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start(camId, { fps: 25, qrbox: { width: 250, height: 250 } }, (t) => {
-                document.getElementById('barcode-res').value = t;
-                buscaHibrida(t);
-                document.getElementById('qtd').focus();
-            }).catch(err => console.error("Erro Camera:", err));
-        }
-    }
-
     function exportarBinario() {
-        if(inventario.length === 0) return alert("Lista vazia!");
         let c = "";
         inventario.forEach(i => { c += "Inventario " + i.code.padStart(13,'0') + " " + i.qtd + "\r\n"; });
         const blob = new Blob([c], { type: 'text/plain' });
@@ -296,25 +240,22 @@
         a.click();
     }
 
-    function limparLista() { if(confirm("Apagar toda a lista atual?")) { inventario = []; atualizarTela(); } }
+    function limparLista() { if(confirm("Limpar lista?")) { inventario = []; atualizarTela(); } }
 
     window.onload = () => {
         carregarCatalogo();
         atualizarTela();
         Html5Qrcode.getCameras().then(devices => {
-            // Filtra apenas câmeras traseiras de forma agressiva
             camerasTraseiras = devices.filter(d => {
                 const label = d.label.toLowerCase();
                 return !label.includes('front') && !label.includes('selfie') && !label.includes('user');
             });
-            
             if (camerasTraseiras.length === 0) camerasTraseiras = devices;
-
             if (camerasTraseiras.length > 0) {
                 if (camerasTraseiras.length > 1) document.getElementById('cam-toggle').style.display = 'flex';
                 iniciarScanner(camerasTraseiras[0].id);
             }
-        }).catch(err => alert("Erro ao acessar câmeras. Verifique as permissões."));
+        });
     };
 </script>
 </body>
