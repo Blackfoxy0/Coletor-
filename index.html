@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Coletor Pro v16.2 - Isaque Prussak Silveira</title>
+    <title>Coletor Pro v16.3 - Isaque Prussak Silveira</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root { --bg: #000; --card: #111; --primary: #fff; --accent: #3b82f6; --border: #222; --success: #10b981; --danger: #ef4444; }
@@ -24,6 +24,7 @@
         .footer { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.95); padding: 10px 15px; border-top: 1px solid var(--border); z-index: 2000; }
         .btn-export { background: var(--success); color: #fff; border: none; padding: 15px; border-radius: 12px; font-weight: bold; width: 100%; margin-bottom: 8px; font-size: 14px; }
         .btn-mini { background: none; border: 1px solid #333; color: #777; padding: 8px; border-radius: 8px; font-size: 9px; flex: 1; font-weight: bold; text-transform: uppercase; }
+        .btn-edit { background: #222; color: var(--accent); border: 1px solid var(--accent); padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 3000; justify-content: center; align-items: center; }
         .modal-content { background: #111; border: 1px solid #333; padding: 20px; border-radius: 20px; width: 85%; max-width: 400px; max-height: 70vh; overflow-y: auto; }
         .backup-item { background: #1a1a1a; padding: 12px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #333; cursor: pointer; }
@@ -39,7 +40,7 @@
     </div>
 </div>
 
-<div class="header" id="header-info">ISAQUE PRUSSAK SILVEIRA - INVENTÁRIO</div>
+<div class="header" id="header-info">ISAQUE PRUSSAK SILVEIRA - INVENTÁRIO v16.3</div>
 <div class="stats-bar" id="stats-info">ITENS NA LISTA: 0</div>
 
 <div class="container">
@@ -68,7 +69,7 @@
         <button class="btn-mini" style="color:var(--accent); border-color:var(--accent);" onclick="abrirModalRecuperacao()">🩹 RECUPERAR</button>
         <button class="btn-mini" style="color:var(--danger); border-color:var(--danger);" onclick="limparLista()">🗑️ LIMPAR</button>
     </div>
-    <div style="text-align: center; font-size: 9px; color: #444; margin-top: 8px; font-weight: bold; letter-spacing: 1px;">ISAQUE PRUSSAK SILVEIRA © 2026</div>
+    <div style="text-align: center; font-size: 9px; color: #444; margin-top: 8px; font-weight: bold; letter-spacing: 1px;">ISAQUE PRUSSAK SILVEIRA - Versão 16.3 © 2026</div>
 </div>
 
 <script>
@@ -88,7 +89,7 @@
                 code: linha.substring(0, 13).trim().padStart(13, '0'),
                 nome: linha.substring(13).slice(0, -10).trim()
             }));
-            document.getElementById('header-info').innerText = "✅ CATÁLOGO: " + catalogoMemo.length + " ITENS";
+            document.getElementById('header-info').innerText = "✅ CATÁLOGO OK - v16.3";
         } catch (e) { document.getElementById('header-info').innerText = "❌ ERRO NO PRODUTO.TXT"; }
     }
 
@@ -141,7 +142,6 @@
             produtoAtivo = { code: v.padStart(13, '0'), nome: "ITEM AVULSO" };
         }
 
-        // Mostrar lista APENAS se estiver a pesquisar por NOME (não numérico)
         if (!isNumerico) {
             const resultados = catalogoMemo.filter(i => i.nome.includes(v)).slice(0, 15);
             if (resultados.length > 0) {
@@ -151,9 +151,7 @@
                     </div>`).join('');
                 box.style.display = 'block';
             } else { box.style.display = 'none'; }
-        } else {
-            box.style.display = 'none';
-        }
+        } else { box.style.display = 'none'; }
     }
 
     function selecionarSugestao(code, nome) {
@@ -181,6 +179,18 @@
         produtoAtivo = null; document.getElementById('prod-nome').innerText = "✓ REGISTRADO";
     }
 
+    function editarItem(code) {
+        const idx = inventario.findIndex(i => i.code === code);
+        const novaQtd = prompt(`Editar quantidade para ${inventario[idx].nome}:`, inventario[idx].qtd);
+        if (novaQtd !== null) {
+            const num = parseFloat(novaQtd.replace(',', '.'));
+            if(!isNaN(num)) {
+                inventario[idx].qtd = num;
+                atualizarTela();
+            }
+        }
+    }
+
     function atualizarTela() {
         localStorage.setItem('coleta_isaque_v15', JSON.stringify(inventario));
         document.getElementById('stats-info').innerText = "ITENS NA LISTA: " + inventario.length;
@@ -189,7 +199,10 @@
                 <div style="font-size:10px; color:#666; font-weight:bold;">${i.nome}</div>
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span style="font-family:monospace; font-size:13px;">${i.code}</span>
-                    <b style="color:var(--accent); font-size:16px;">${i.qtd}</b>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <b style="color:var(--accent); font-size:16px;">${i.qtd}</b>
+                        <button class="btn-edit" onclick="editarItem('${i.code}')">EDITAR</button>
+                    </div>
                 </div>
             </div>`).join('');
     }
@@ -197,8 +210,7 @@
     function abrirModalRecuperacao() {
         const lista = document.getElementById('lista-backups');
         lista.innerHTML = "";
-        const chaves = Object.keys(localStorage).filter(k => k.includes('coleta'));
-        chaves.forEach(chave => {
+        Object.keys(localStorage).filter(k => k.includes('coleta')).forEach(chave => {
             const dados = JSON.parse(localStorage.getItem(chave));
             if(dados.length > 0) {
                 const div = document.createElement('div');
@@ -216,7 +228,6 @@
 
     function exportarTXT() {
         if(inventario.length === 0) return alert("Lista vazia!");
-        // FORMATO EXATO PARA O SEU ERP: inventario ean qtd
         let txt = inventario.map(i => `inventario ${i.code.trim()} ${i.qtd}`).join("\r\n");
         const blob = new Blob([txt], { type: 'text/plain' });
         const a = document.createElement('a');
