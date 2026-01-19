@@ -3,215 +3,269 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Coletor Pro v11.2</title>
+    <title>Coletor Pro v12.1 - Dark</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        :root { --primary: #0f172a; --accent: #2563eb; --success: #16a34a; --danger: #dc2626; --bg: #f8fafc; }
-        body { font-family: sans-serif; margin: 0; background: var(--bg); padding-bottom: 160px; }
+        :root { 
+            --bg: #000000; 
+            --card: #111111; 
+            --primary: #ffffff; 
+            --accent: #3b82f6; 
+            --success: #10b981; 
+            --danger: #ef4444; 
+            --border: #222222;
+            --text-muted: #888888;
+        }
         
-        .header { background: var(--primary); color: white; padding: 15px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        body { 
+            font-family: -apple-system, sans-serif; 
+            margin: 0; 
+            background: var(--bg); 
+            color: var(--primary); 
+            padding-bottom: 180px; 
+        }
+        
+        .header { 
+            background: var(--bg); 
+            color: var(--primary); 
+            padding: 15px; 
+            text-align: center; 
+            font-weight: bold; 
+            border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 1000;
+        }
+
         .container { padding: 12px; max-width: 500px; margin: auto; }
         
-        .scanner-card { background: #000; border-radius: 20px; overflow: hidden; position: relative; aspect-ratio: 1/1; border: 2px solid #fff; }
+        /* Scanner */
+        .scanner-card { 
+            background: #000; 
+            border-radius: 20px; 
+            overflow: hidden; 
+            position: relative; 
+            aspect-ratio: 1/1; 
+            border: 1px solid var(--border);
+        }
         #reader { width: 100%; height: 100%; }
-        .cam-btn { position: absolute; top: 10px; right: 10px; z-index: 50; background: var(--accent); color: white; border: none; padding: 8px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; }
-
-        .panel { background: white; border-radius: 20px; padding: 20px; margin-top: -30px; position: relative; z-index: 100; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); }
-        .stats { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 12px; font-weight: bold; color: #475569; background: #f1f5f9; padding: 10px; border-radius: 10px; }
+        
+        /* Painel */
+        .panel { 
+            background: var(--card); 
+            border-radius: 20px; 
+            padding: 20px; 
+            margin-top: -30px; 
+            position: relative; 
+            z-index: 100; 
+            border: 1px solid var(--border);
+        }
+        
+        .product-name-display { 
+            color: var(--accent); 
+            font-weight: 900; 
+            font-size: 15px; 
+            margin-bottom: 12px; 
+            min-height: 20px; 
+            text-align: center; 
+            text-transform: uppercase;
+        }
         
         .row { display: flex; gap: 10px; margin-bottom: 15px; }
-        label { font-size: 11px; font-weight: bold; color: #94a3b8; display: block; margin-bottom: 4px; }
-        input { width: 100%; padding: 12px; border: 2px solid #f1f5f9; border-radius: 10px; font-size: 16px; box-sizing: border-box; font-weight: bold; outline: none; }
-        input:focus { border-color: var(--accent); background: #fff; }
+        label { font-size: 10px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px; letter-spacing: 1px; }
         
-        .btn-add { width: 100%; background: var(--accent); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; font-size: 16px; }
-
-        .search-container { margin-top: 20px; padding-top: 15px; border-top: 1px solid #f1f5f9; }
-        .search-input { border: 2px solid #e2e8f0; background: #fdfdfd; font-size: 14px; }
-
-        .list-section { background: white; border-radius: 20px; margin-top: 15px; padding: 15px; }
-        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f8fafc; }
-        .item-info { font-family: monospace; font-size: 14px; font-weight: bold; color: #1e293b; }
-        .item-actions { display: flex; gap: 8px; align-items: center; }
-        .qty-val { font-weight: 800; color: var(--accent); font-size: 15px; margin-right: 5px; }
+        input { 
+            width: 100%; 
+            padding: 14px; 
+            background: #000; 
+            border: 1px solid var(--border); 
+            border-radius: 12px; 
+            font-size: 16px; 
+            color: white; 
+            font-weight: bold;
+            outline: none;
+        }
+        input:focus { border-color: var(--accent); }
         
-        .btn-edit { background: #e0e7ff; color: #4338ca; border: none; padding: 8px 16px; border-radius: 8px; font-size: 11px; font-weight: bold; }
+        .btn-add { 
+            width: 100%; 
+            background: var(--accent); 
+            color: white; 
+            border: none; 
+            padding: 16px; 
+            border-radius: 14px; 
+            font-weight: bold; 
+            font-size: 16px; 
+            cursor: pointer;
+        }
 
-        .footer { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 12px; border-top: 1px solid #e2e8f0; z-index: 2000; }
-        .footer-row { display: flex; gap: 8px; margin-bottom: 8px; }
-        .btn-export { flex: 2; background: var(--success); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: bold; }
-        .btn-import { flex: 1; background: #64748b; color: white; border: none; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 11px; }
-        .btn-clear { width: 100%; background: none; color: var(--danger); border: none; font-size: 11px; font-weight: bold; cursor: pointer; }
+        /* Lista */
+        .list-item { 
+            background: var(--card); 
+            padding: 15px; 
+            border-radius: 15px;
+            margin-top: 10px;
+            border: 1px solid var(--border);
+        }
+        .item-desc { font-size: 12px; color: var(--text-muted); font-weight: bold; margin-bottom: 4px; }
+        .item-main { display: flex; justify-content: space-between; align-items: center; }
+        .item-code { font-family: monospace; font-size: 15px; font-weight: bold; color: var(--primary); }
+        .qty-badge { color: var(--accent); font-size: 18px; font-weight: 900; }
+
+        /* Rodapé */
+        .footer { 
+            position: fixed; bottom: 0; left: 0; right: 0; 
+            background: rgba(0,0,0,0.9); 
+            backdrop-filter: blur(10px);
+            padding: 15px; 
+            border-top: 1px solid var(--border); 
+            z-index: 2000; 
+        }
+        .btn-export { 
+            background: var(--success); 
+            color: white; 
+            border: none; 
+            padding: 14px; 
+            border-radius: 12px; 
+            font-weight: bold; 
+            width: 100%; 
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .btn-catalog { 
+            background: transparent; 
+            color: var(--text-muted); 
+            border: 1px solid var(--border); 
+            padding: 10px; 
+            border-radius: 10px; 
+            width: 100%; 
+            font-size: 11px; 
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
-<div class="header">COLETOR V11.2 - PESQUISA ATIVA</div>
+<div class="header">COLETOR PRO 12.1 • DARK MODE</div>
 
 <div class="container">
     <div class="scanner-card">
-        <button class="cam-btn" onclick="proximaCamera()">🔄 TROCAR LENTE</button>
         <div id="reader"></div>
     </div>
 
     <div class="panel">
-        <div class="stats">
-            <span id="stat-count">ITENS: 0</span>
-            <span id="stat-sum">TOTAL: 0.000</span>
-        </div>
+        <div id="prod-nome" class="product-name-display">AGUARDANDO BIP...</div>
         <div class="row">
             <div style="flex: 2;">
-                <label>CÓDIGO (EAN-13)</label>
-                <input type="text" id="barcode-res" placeholder="Bipar...">
+                <label>CÓDIGO DE BARRAS</label>
+                <input type="text" id="barcode-res" placeholder="0000000000000" oninput="buscarNoCatalogo(this.value)">
             </div>
             <div style="flex: 1;">
                 <label>QTD / KG</label>
-                <input type="number" id="qtd" value="1" step="any" inputmode="decimal" onfocus="this.select()">
+                <input type="number" id="qtd" value="1" step="any" inputmode="decimal">
             </div>
         </div>
-        <button class="btn-add" onclick="adicionarItem()">REGISTRAR PRODUTO</button>
-
-        <div class="search-container">
-            <label>🔎 PESQUISAR NA LISTA</label>
-            <input type="text" id="search-input" class="search-input" placeholder="Digite para filtrar..." oninput="atualizarTela()">
-        </div>
+        <button class="btn-add" onclick="adicionarItem()">REGISTRAR ITEM</button>
     </div>
 
-    <div class="list-section">
-        <div id="lista-corpo"></div>
-    </div>
+    <div id="lista-corpo" style="margin-top: 5px;"></div>
 </div>
 
 <div class="footer">
-    <div class="footer-row">
-        <button class="btn-import" onclick="document.getElementById('fileIn').click()">📥 IMPORTAR</button>
-        <button class="btn-export" onclick="exportarTXT()">💾 EXPORTAR TXT</button>
-    </div>
-    <button class="btn-clear" onclick="limparDados()">⚠️ APAGAR TODA A LISTA</button>
-    <input type="file" id="fileIn" style="display:none" accept=".txt" onchange="importarArquivo(event)">
+    <button class="btn-export" onclick="exportarTXT()">💾 EXPORTAR INVENTÁRIO</button>
+    <button class="btn-catalog" onclick="document.getElementById('fileCat').click()">📁 ATUALIZAR CATÁLOGO (PRODUTO.TXT)</button>
+    <input type="file" id="fileCat" style="display:none" accept=".txt" onchange="importarCatalogo(event)">
 </div>
 
 <script>
-    let inventario = JSON.parse(localStorage.getItem('coleta')) || [];
-    let cameras = [];
-    let cameraIdx = 0;
+    let inventario = JSON.parse(localStorage.getItem('coleta_v12_dark')) || [];
+    let catalogo = {};
     let scanner;
 
+    // Inicialização da Câmera
     Html5Qrcode.getCameras().then(devices => {
         if (devices.length > 0) {
-            cameras = devices;
-            cameraIdx = cameras.length - 1;
-            iniciarScanner(cameras[cameraIdx].id);
+            scanner = new Html5Qrcode("reader");
+            scanner.start(devices[devices.length-1].id, { fps: 20, qrbox: 250 }, 
+                (text) => {
+                    document.getElementById('barcode-res').value = text;
+                    buscarNoCatalogo(text);
+                    if(navigator.vibrate) navigator.vibrate(80);
+                }
+            );
         }
     });
 
-    function iniciarScanner(id) {
-        if (scanner) scanner.clear();
-        scanner = new Html5Qrcode("reader");
-        scanner.start(id, { fps: 20, qrbox: { width: 250, height: 200 } },
-            (text) => {
-                document.getElementById('barcode-res').value = text;
-                if(navigator.vibrate) navigator.vibrate(80);
-            }
-        ).catch(err => console.error(err));
-    }
-
-    async function proximaCamera() {
-        if (cameras.length < 2) return;
-        await scanner.stop();
-        cameraIdx = (cameraIdx + 1) % cameras.length;
-        iniciarScanner(cameras[cameraIdx].id);
-    }
-
-    function formatar13(v) { return v.toString().trim().padStart(13, '0'); }
-
-    function adicionarItem() {
-        let raw = document.getElementById('barcode-res').value.trim();
-        let qtd = parseFloat(document.getElementById('qtd').value.replace(',', '.'));
-        if(!raw || isNaN(qtd)) return;
-
-        const code = formatar13(raw);
-        const idx = inventario.findIndex(i => i.code === code);
-
-        if(idx !== -1) {
-            inventario[idx].qtd = parseFloat((parseFloat(inventario[idx].qtd) + qtd).toFixed(3));
-        } else {
-            inventario.push({ code, qtd: qtd });
-        }
-
-        document.getElementById('search-input').value = ""; 
-        atualizarTela();
-        document.getElementById('barcode-res').value = "";
-        document.getElementById('qtd').value = "1";
-    }
-
-    function editarItem(code) {
-        const idx = inventario.findIndex(i => i.code === code);
-        const novaQtd = prompt("Alterar quantidade para " + code + ":", inventario[idx].qtd);
-        if (novaQtd !== null) {
-            const valor = parseFloat(novaQtd.replace(',', '.'));
-            if (!isNaN(valor)) {
-                inventario[idx].qtd = parseFloat(valor.toFixed(3));
-                atualizarTela();
-            }
-        }
-    }
-
-    function atualizarTela() {
-        localStorage.setItem('coleta', JSON.stringify(inventario));
-        const lista = document.getElementById('lista-corpo');
-        const busca = document.getElementById('search-input').value.toLowerCase();
-        
-        const totalSum = inventario.reduce((acc, curr) => acc + parseFloat(curr.qtd), 0);
-        document.getElementById('stat-count').innerText = `ITENS: ${inventario.length}`;
-        document.getElementById('stat-sum').innerText = `TOTAL: ${totalSum.toFixed(3)}`;
-
-        const filtrados = inventario.filter(i => i.code.includes(busca));
-
-        lista.innerHTML = [...filtrados].reverse().map(i => `
-            <div class="list-item">
-                <div class="item-info">${i.code}</div>
-                <div class="item-actions">
-                    <span class="qty-val">${i.qtd}</span>
-                    <button class="btn-edit" onclick="editarItem('${i.code}')">EDITAR</button>
-                </div>
-            </div>
-        `).join('') || '<p style="text-align:center; color:#94a3b8; font-size:12px;">Nenhum registro.</p>';
-    }
-
-    function exportarTXT() {
-        if(inventario.length === 0) return;
-        let txt = inventario.map(i => i.code + " " + i.qtd).join("\r\n");
-        const blob = new Blob([txt], { type: 'text/plain' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'invent.txt';
-        a.click();
-    }
-
-    function importarArquivo(event) {
+    // Importação do Catálogo (Otimizada para o seu PRODUTO.TXT)
+    function importarCatalogo(event) {
         const file = event.target.files[0];
         if (!file) return;
         const reader = new FileReader();
         reader.onload = function(e) {
             const linhas = e.target.result.split(/\r?\n/);
+            catalogo = {}; 
             linhas.forEach(linha => {
-                const partes = linha.trim().split(/\s+/);
-                if(partes.length >= 2) {
-                    const code = formatar13(partes[0]);
-                    const qtd = parseFloat(partes[1].replace(',', '.'));
-                    const idx = inventario.findIndex(i => i.code === code);
-                    if(idx !== -1) inventario[idx].qtd = parseFloat((inventario[idx].qtd + qtd).toFixed(3));
-                    else inventario.push({ code, qtd });
+                if(linha.trim().length > 13) {
+                    const code = linha.substring(0, 13).trim();
+                    // Captura do nome (ajustado para a estrutura do seu arquivo)
+                    const nome = linha.substring(13, 35).trim(); 
+                    if(code) catalogo[code] = nome;
                 }
             });
-            atualizarTela();
+            alert("Catálogo Ativo: " + Object.keys(catalogo).length + " itens.");
         };
         reader.readAsText(file);
     }
 
-    function limparDados() {
-        if(confirm("Zerar inventário completo?")) { inventario = []; atualizarTela(); }
+    function buscarNoCatalogo(val) {
+        const code = val.trim().padStart(13, '0');
+        const nome = catalogo[code] || "CÓDIGO NÃO LOCALIZADO";
+        document.getElementById('prod-nome').innerText = nome;
+    }
+
+    function adicionarItem() {
+        const raw = document.getElementById('barcode-res').value.trim();
+        const qtdInput = document.getElementById('qtd').value.replace(',', '.');
+        const qtd = parseFloat(qtdInput);
+
+        if(!raw || isNaN(qtd)) return;
+
+        const code = raw.padStart(13, '0');
+        const nome = catalogo[code] || "ITEM SEM CADASTRO";
+        const idx = inventario.findIndex(i => i.code === code);
+
+        if(idx !== -1) {
+            inventario[idx].qtd = parseFloat((inventario[idx].qtd + qtd).toFixed(3));
+        } else {
+            inventario.push({ code, nome, qtd });
+        }
+
+        atualizarTela();
+        document.getElementById('barcode-res').value = "";
+        document.getElementById('qtd').value = "1";
+        document.getElementById('prod-nome').innerText = "AGUARDANDO BIP...";
+    }
+
+    function atualizarTela() {
+        localStorage.setItem('coleta_v12_dark', JSON.stringify(inventario));
+        const lista = document.getElementById('lista-corpo');
+        lista.innerHTML = [...inventario].reverse().map(i => `
+            <div class="list-item">
+                <div class="item-desc">${i.nome}</div>
+                <div class="item-main">
+                    <span class="item-code">${i.code}</span>
+                    <span class="qty-badge">${i.qtd}</span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function exportarTXT() {
+        if(inventario.length === 0) return alert("Nada para exportar.");
+        let txt = inventario.map(i => i.code + " " + i.qtd).join("\r\n");
+        const blob = new Blob([txt], { type: 'text/plain' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'inventario_coletado.txt';
+        a.click();
     }
 
     atualizarTela();
