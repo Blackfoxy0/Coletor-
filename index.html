@@ -3,55 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Coletor Pro v27.0</title>
+    <title>Coletor Pro v28.0</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #050505; --card: #121216; --primary: #3b82f6; --accent: #60a5fa; --success: #10b981; --danger: #ef4444; --border: rgba(255, 255, 255, 0.1); --text: #fff; }
         body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: 280px; }
-        
         .header { padding: 12px; text-align: center; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.5); }
         .v-tag { font-size: 9px; letter-spacing: 2px; font-weight: 900; color: var(--primary); text-transform: uppercase; }
-
-        /* Scanner */
         .scanner-container { padding: 10px; max-width: 450px; margin: auto; }
         .scanner-frame { position: relative; border-radius: 28px; overflow: hidden; border: 1px solid var(--border); background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         #reader { width: 100%; aspect-ratio: 1/1; }
         .btn-switch-cam { position: absolute; top: 15px; right: 15px; z-index: 100; width: 42px; height: 42px; border-radius: 50%; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(5px); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; }
-
-        /* Painel */
         .main-panel { background: var(--card); border-radius: 30px; padding: 22px; margin-top: 15px; border: 1px solid var(--border); box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
         .display-prod { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 15px; margin-bottom: 18px; text-align: center; border: 1px solid var(--border); min-height: 45px; display: flex; align-items: center; justify-content: center; }
         .display-prod b { font-size: 14px; color: var(--accent); text-transform: uppercase; }
-
         .input-group { position: relative; }
         input { width: 100%; padding: 16px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 16px; color: #fff; font-size: 16px; font-weight: 600; box-sizing: border-box; margin-bottom: 12px; outline: none; }
-        
         .suggestions { background: #1a1a20; border: 1px solid var(--primary); border-radius: 14px; position: absolute; width: 100%; z-index: 1000; max-height: 200px; overflow-y: auto; top: 58px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
         .sug-item { padding: 14px; border-bottom: 1px solid var(--border); font-size: 13px; color: #eee; }
-
         .btn-main { width: 100%; background: var(--primary); color: white; border: none; padding: 18px; border-radius: 18px; font-weight: 900; font-size: 16px; cursor: pointer; }
-
-        /* Lista */
         .item-card { background: var(--card); border: 1px solid var(--border); padding: 16px; border-radius: 22px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         .btn-edit { background: rgba(59, 130, 246, 0.1); border: none; color: var(--primary); padding: 7px 14px; border-radius: 10px; font-size: 11px; font-weight: 900; }
-
-        /* Rodapé */
         .dashboard { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 10, 15, 0.96); backdrop-filter: blur(20px); padding: 18px 22px; border-top: 1px solid var(--border); z-index: 2000; }
         .stats { display: flex; gap: 12px; margin-bottom: 15px; }
         .stat-box { flex: 1; background: rgba(255,255,255,0.03); padding: 12px; border-radius: 14px; text-align: center; border: 1px solid var(--border); }
         .stat-box small { font-size: 8px; color: #666; text-transform: uppercase; display: block; }
-
         .btn-export { background: var(--success); color: white; border: none; padding: 18px; border-radius: 18px; font-weight: 900; width: 100%; font-size: 15px; cursor: pointer; }
         .footer-tools { display: flex; justify-content: space-between; margin-top: 15px; }
         .btn-tool { background: none; border: none; color: #555; font-size: 10px; font-weight: bold; cursor: pointer; }
-
-        /* Modal Backup */
         #modal-backups { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 3000; padding: 20px; align-items: center; justify-content: center; }
         .modal-content { background: var(--card); padding: 25px; border-radius: 28px; border: 1px solid var(--border); width: 100%; max-width: 400px; max-height: 80vh; display: flex; flex-direction: column; }
         .backup-item { padding: 15px; border-bottom: 1px solid #222; cursor: pointer; background: rgba(255,255,255,0.02); margin-bottom: 8px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .dup-icon { font-size: 14px; filter: grayscale(1); opacity: 0.5; }
-        .dup-active { filter: grayscale(0); opacity: 1; color: #ff9800; }
+        .dup-active { color: #ff9800; }
     </style>
 </head>
 <body>
@@ -59,15 +43,13 @@
 <div id="modal-backups" onclick="this.style.display='none'">
     <div class="modal-content" onclick="event.stopPropagation()">
         <h3 style="margin-top:0; color:var(--primary);">Histórico de Backups</h3>
-        <p style="font-size: 10px; color: #666; margin-bottom: 15px;">Ícone 📂 indica que existem outros backups idênticos a este no histórico.</p>
+        <p style="font-size: 10px; color: #666; margin-bottom: 15px;">Ícone 📂 indica duplicatas no próprio histórico.</p>
         <div id="lista-backups" style="overflow-y: auto; flex-grow: 1;"></div>
         <button onclick="document.getElementById('modal-backups').style.display='none'" style="width:100%; margin-top:20px; padding:15px; border-radius:15px; border:none; background:#222; color:#fff; font-weight:bold;">VOLTAR</button>
     </div>
 </div>
 
-<div class="header">
-    <div class="v-tag">ISAQUE • PRO v27.0</div>
-</div>
+<div class="header"><div class="v-tag">ISAQUE • PRO v28.0</div></div>
 
 <div class="scanner-container">
     <div class="scanner-frame">
@@ -121,69 +103,30 @@
     function abrirModalRecuperacao() {
         const listaUI = document.getElementById('lista-backups');
         listaUI.innerHTML = "";
-        
-        let backupsTemporarios = [];
-
-        // 1. Coletar todos os backups válidos
+        let backups = [];
         for (let i = 0; i < localStorage.length; i++) {
             const chave = localStorage.key(i);
             if (chave.toLowerCase().includes('coleta')) {
                 try {
                     const dados = JSON.parse(localStorage.getItem(chave));
                     if (Array.isArray(dados) && dados.length > 0) {
-                        backupsTemporarios.push({
-                            nome: chave,
-                            conteudo: JSON.stringify(dados),
-                            itens: dados
-                        });
+                        backups.push({ nome: chave, conteudo: JSON.stringify(dados), itens: dados });
                     }
                 } catch(e) {}
             }
         }
-
-        // 2. Renderizar e comparar entre eles
-        backupsTemporarios.forEach((item, index) => {
-            // Verifica se o conteúdo deste backup existe em qualquer outro backup da lista (exceto ele mesmo)
-            const temDuplicataNoHistorico = backupsTemporarios.some((outros, idx) => 
-                idx !== index && outros.conteudo === item.conteudo
-            );
-
+        backups.forEach((item, index) => {
+            const eDuplicata = backups.some((o, idx) => idx !== index && o.conteudo === item.conteudo);
             const div = document.createElement('div');
             div.className = "backup-item";
-            div.innerHTML = `
-                <div>
-                    <b style="color:var(--primary); font-size:12px;">${item.nome}</b><br>
-                    <small style="color:#888;">${item.itens.length} itens registrados</small>
-                </div>
-                <div class="dup-icon ${temDuplicataNoHistorico ? 'dup-active' : ''}">📂</div>y
-            `;
-            div.onclick = () => {
-                if(confirm("Carregar backup '" + item.nome + "'?")) {
-                    inventario = item.itens;
-                    atualizarTela();
-                    document.getElementById('modal-backups').style.display = 'none';
-                }
-            };
+            div.innerHTML = `<div><b style="color:var(--primary); font-size:12px;">${item.nome}</b><br><small style="color:#888;">${item.itens.length} itens</small></div>
+                             <div style="font-size:14px;" class="${eDuplicata ? 'dup-active' : ''}">📂</div>`;
+            div.onclick = () => { if(confirm("Carregar backup?")) { inventario = item.itens; atualizarTela(); document.getElementById('modal-backups').style.display = 'none'; }};
             listaUI.appendChild(div);
         });
-
-        if(backupsTemporarios.length === 0) listaUI.innerHTML = "<p style='text-align:center; color:#444;'>Vazio.</p>";
         document.getElementById('modal-backups').style.display = 'flex';
     }
 
-    /* --- Funções Base Mantidas --- */
-    function adicionarItem() {
-        const input = document.getElementById('barcode-res');
-        let code = input.value.trim();
-        const q = parseFloat(document.getElementById('qtd').value.replace(',','.'));
-        if(!code || isNaN(q)) return;
-        if(/^\d+$/.test(code)) code = code.padStart(13, '0');
-        const idx = inventario.findIndex(i => i.code === code);
-        if(idx !== -1) inventario[idx].qtd = parseFloat((inventario[idx].qtd + q).toFixed(3));
-        else inventario.push({ code, nome: produtoAtivo ? produtoAtivo.nome : "AVULSO", qtd: q });
-        atualizarTela();
-        input.value = ""; document.getElementById('qtd').value = "1";
-    }
     function atualizarTela() {
         localStorage.setItem('coleta_isaque_v15', JSON.stringify(inventario));
         let soma = 0;
@@ -197,6 +140,29 @@
         document.getElementById('st-skus').innerText = inventario.length;
         document.getElementById('st-total').innerText = soma.toFixed(2);
     }
+
+    function ciclarCamera() {
+        if (camerasDisponiveis.length < 2) return;
+        cameraIndiceAtual = (cameraIndiceAtual + 1) % camerasDisponiveis.length;
+        iniciarScanner(camerasDisponiveis[cameraIndiceAtual].id);
+    }
+
+    function iniciarScanner(camId) {
+        if(html5QrCode) {
+            html5QrCode.stop().then(() => start(camId)).catch(() => start(camId));
+        } else {
+            start(camId);
+        }
+        function start(id) {
+            html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start(id, { fps: 20, qrbox: 250 }, (t) => {
+                document.getElementById('barcode-res').value = t;
+                buscaHibrida(t);
+                document.getElementById('qtd').focus();
+            }).catch(() => {});
+        }
+    }
+
     function buscaHibrida(val) {
         let v = val.trim().toUpperCase();
         const box = document.getElementById('suggestions-box');
@@ -214,20 +180,40 @@
             } else box.style.display = 'none';
         } else box.style.display = 'none';
     }
+
     function selecionarSugestao(code, nome) { produtoAtivo = { code, nome }; document.getElementById('barcode-res').value = code; document.getElementById('p-nome').innerText = nome; document.getElementById('suggestions-box').style.display = 'none'; document.getElementById('qtd').focus(); }
     function editarItem(code) { const idx = inventario.findIndex(i => i.code === code); const n = prompt("Qtd:", inventario[idx].qtd); if(n !== null) { const num = parseFloat(n.replace(',','.')); if(!isNaN(num)) { inventario[idx].qtd = num; atualizarTela(); } } }
+    function adicionarItem() {
+        const input = document.getElementById('barcode-res');
+        let code = input.value.trim();
+        const q = parseFloat(document.getElementById('qtd').value.replace(',','.'));
+        if(!code || isNaN(q)) return;
+        if(/^\d+$/.test(code)) code = code.padStart(13, '0');
+        const idx = inventario.findIndex(i => i.code === code);
+        if(idx !== -1) inventario[idx].qtd = parseFloat((inventario[idx].qtd + q).toFixed(3));
+        else inventario.push({ code, nome: produtoAtivo ? produtoAtivo.nome : "AVULSO", qtd: q });
+        atualizarTela(); input.value = ""; document.getElementById('qtd').value = "1";
+    }
     function exportarBinario() {
         let c = ""; inventario.forEach(i => { c += "Inventario " + i.code.padStart(13,'0') + " " + i.qtd + "\r\n"; });
         const blob = new Blob([c], { type: 'text/plain' });
         const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'invent.txt'; a.click();
     }
-    function ciclarCamera() { if (camerasDisponiveis.length < 2) return; cameraIndiceAtual = (cameraIndiceAtual + 1) % camerasDisponiveis.length; iniciarScanner(camerasDisponiveis[cameraIndiceAtual].id); }
-    function iniciarScanner(id) {
-        if(html5QrCode) { html5QrCode.stop().then(() => start(id)).catch(() => start(id)); } else { start(id); }
-        function start(camId) { html5QrCode = new Html5Qrcode("reader"); html5QrCode.start(camId, { fps: 20, qrbox: 250 }, (t) => { document.getElementById('barcode-res').value = t; buscaHibrida(t); document.getElementById('qtd').focus(); }).catch(() => {}); }
-    }
     function limparLista() { if(confirm("Limpar tudo?")) { inventario = []; atualizarTela(); } }
-    window.onload = () => { carregarCatalogo(); atualizarTela(); Html5Qrcode.getCameras().then(devices => { if (devices && devices.length) { camerasDisponiveis = devices; iniciarScanner(devices[0].id); } }); };
+
+    window.onload = () => {
+        carregarCatalogo();
+        atualizarTela();
+        Html5Qrcode.getCameras().then(devices => {
+            if (devices && devices.length) {
+                camerasDisponiveis = devices;
+                // Procura a traseira. Se não achar pelo nome, pega a primeira disponível.
+                const backCam = devices.find(d => d.label.toLowerCase().includes('back') || d.label.toLowerCase().includes('traseira') || d.label.toLowerCase().includes('environment'));
+                cameraIndiceAtual = backCam ? devices.indexOf(backCam) : 0;
+                iniciarScanner(devices[cameraIndiceAtual].id);
+            }
+        });
+    };
 </script>
 </body>
 </html>
