@@ -3,346 +3,287 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Apex Precision v51</title>
-    
+    <title>Coletor Pro v52.0 - Diamond</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Manrope:wght@500;800&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     <style>
         :root { 
-            --bg: #050507; --card: #101014; --primary: #0062ff; --accent: #00f2ff; 
-            --success: #0cf387; --warning: #ffb400; --danger: #ff3b30; --border: #222226;
-            --text: #ffffff; --text-dim: #808086;
+            --bg: #0a0a0f; /* Fundo ligeiramente mais rico */
+            --card-bg: rgba(30, 30, 35, 0.7); /* Vidro escuro */
+            --header-bg: rgba(10, 10, 15, 0.85);
+            --primary: #3b82f6; --accent: #60a5fa; 
+            --success: #10b981; --danger: #ef4444; 
+            --border: rgba(255, 255, 255, 0.1); 
+            --text: #fff; 
+            --blur: blur(12px);
         }
-
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Manrope', sans-serif; overflow-x: hidden; }
+        html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; overflow-y: auto !important; }
 
-        /* --- HEADER --- */
-        .nav-header { 
-            position: sticky; top: 0; padding: 15px 20px; 
-            background: rgba(5, 5, 7, 0.9); backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border); display: flex; 
-            justify-content: space-between; align-items: center; z-index: 9000;
-        }
-        .brand { font-weight: 800; font-size: 16px; letter-spacing: 1px; color: var(--primary); display: flex; align-items: center; gap: 8px; }
-        .brand span { color: var(--text); }
+        /* ANIMAÇÕES */
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- COMPACT SCANNER --- */
-        .scan-area { 
-            position: relative; margin: 10px; height: 210px; /* Altura reduzida para mais espaço */
-            border-radius: 24px; overflow: hidden; border: 1px solid var(--border);
-            background: #000; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        /* MENU INICIAL GLASS */
+        #menu-inicial { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .menu-card { 
+            background: var(--card-bg); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+            border: 1px solid var(--border); padding: 35px; border-radius: 35px; width: 100%; max-width: 420px; text-align: center; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
-        .scan-area.minimized { height: 0; margin: 0; border: none; opacity: 0; }
+        .menu-btn { width: 100%; padding: 20px; border-radius: 18px; border: none; font-weight: 900; font-size: 15px; color: white; margin-bottom: 12px; cursor: pointer; transition: 0.2s; }
+        .menu-btn:active { transform: scale(0.97); }
+
+        /* APP STRUCTURE */
+        #app-container { display: none; flex-direction: column; min-height: 100vh; }
+        .header { 
+            position: sticky; top: 0; padding: 12px 20px; border-bottom: 1px solid var(--border); 
+            background: var(--header-bg); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+            display: flex; justify-content: space-between; align-items: center; z-index: 5000; 
+        }
+
+        /* SCANNER REFINADO */
+        .scanner-frame { position: relative; border-radius: 28px; overflow: hidden; border: 2px solid var(--border); background: #000; margin: 12px; transition: 0.4s; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+        .scanner-frozen { border-color: var(--primary); opacity: 0.5; filter: grayscale(1); }
+        #reader { width: 100%; overflow: hidden; }
+        .btn-cycle { 
+            position: absolute; bottom: 15px; right: 15px; 
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+            color: white; border: 1px solid rgba(255,255,255,0.2); width: 48px; height: 48px; border-radius: 50%; z-index: 100; font-size: 20px; 
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* PAINEL GLASS */
+        .main-panel { 
+            background: var(--card-bg); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+            border-radius: 28px; padding: 20px; margin: 0 12px 15px; border: 1px solid var(--border); position: relative; 
+        }
+        .status-bar { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; text-align: center; margin-bottom: 15px; border: 1px solid var(--border); }
         
-        #reader { width: 100%; height: 100%; transform: scale(1.02); } /* Escala para evitar bordas brancas */
-        #reader video { object-fit: cover !important; } /* CORREÇÃO DE ÂNGULO */
-
-        .scan-overlay {
-            position: absolute; inset: 0; pointer-events: none;
-            border: 2px solid transparent; transition: 0.3s; z-index: 10;
+        /* INPUT INTEGRADO */
+        .input-wrapper {
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 18px;
+            display: flex; align-items: center; margin-bottom: 12px; padding-right: 5px; transition: 0.3s;
         }
-        .scan-line {
-            position: absolute; top: 0; left: 0; width: 100%; height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
-            box-shadow: 0 0 15px var(--accent); animation: moveLine 2s infinite linear;
+        .input-wrapper:focus-within { border-color: var(--primary); background: rgba(255,255,255,0.08); }
+        input.integrated { width: 100%; padding: 18px; background: transparent; border: none; color: #fff; font-size: 16px; font-weight: 600; }
+        .btn-clear-input { background: rgba(255,255,255,0.1); color: #fff; border: none; border-radius: 50%; width: 30px; height: 30px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-left: 5px;}
+
+        /* LISTA ANIMADA */
+        #lista-corpo { padding: 0 15px 330px 15px; }
+        .item-card { 
+            background: var(--card-bg); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+            border: 1px solid var(--border); padding: 16px; border-radius: 22px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 6px solid var(--primary); 
+            animation: slideInUp 0.3s ease-out;
         }
-        @keyframes moveLine { 0% { top: 0%; } 100% { top: 100%; } }
+        .qtd-badge { background: rgba(59, 130, 246, 0.2); color: var(--accent); padding: 8px 12px; border-radius: 12px; font-weight: 900; font-size: 16px; cursor: pointer; border: 1px solid var(--primary); }
 
-        /* --- INPUT MODULE --- */
-        .input-card { background: var(--card); margin: 0 10px 10px; padding: 18px; border-radius: 24px; border: 1px solid var(--border); }
-        .label-micro { font-size: 10px; font-weight: 800; color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px; display: block; }
-        
-        .row-input { display: flex; gap: 10px; margin-bottom: 12px; }
-        input { 
-            background: #000; border: 1px solid var(--border); border-radius: 14px; 
-            color: #fff; padding: 14px 18px; font-family: 'JetBrains Mono', monospace; font-size: 15px; width: 100%;
+        /* DASHBOARD GLASS */
+        .dashboard { 
+            position: fixed; bottom: 0; left: 0; right: 0; 
+            background: var(--header-bg); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+            padding: 22px; border-top: 1px solid var(--border); z-index: 5000; 
         }
-        input:focus { border-color: var(--primary); }
-
-        .btn-action { 
-            background: var(--primary); color: #fff; border: none; border-radius: 14px;
-            padding: 0 25px; font-weight: 800; cursor: pointer; transition: 0.2s;
-        }
-        .btn-action:active { transform: scale(0.95); }
-
-        /* --- SEARCH & LIST --- */
-        .list-controls { padding: 0 15px 10px; display: flex; align-items: center; gap: 10px; }
-        .search-bar { background: var(--card); border: 1px solid var(--border); padding: 8px 15px; border-radius: 10px; flex: 1; color: #fff; font-size: 13px; }
-
-        .items-scroll { padding: 0 10px 320px; }
-        .item-tile { 
-            background: var(--card); padding: 15px 18px; border-radius: 18px; 
-            margin-bottom: 8px; border: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: space-between;
-            animation: fadeIn 0.3s ease;
-        }
-        .item-main b { display: block; font-size: 14px; margin-bottom: 2px; }
-        .item-main small { color: var(--text-dim); font-size: 11px; font-family: 'JetBrains Mono'; }
-        .item-val { background: rgba(0, 98, 255, 0.1); color: var(--primary); padding: 8px 12px; border-radius: 10px; font-weight: 800; font-family: 'JetBrains Mono'; border: 1px solid rgba(0, 98, 255, 0.2); }
-
-        /* --- DASHBOARD --- */
-        .stats-hud { 
-            position: fixed; bottom: 0; inset-x: 0; background: rgba(16, 16, 20, 0.95); 
-            backdrop-filter: blur(30px); border-top: 1px solid var(--border);
-            padding: 20px 20px 40px; border-radius: 30px 30px 0 0;
-        }
-        .stat-flex { display: flex; justify-content: space-between; margin-bottom: 20px; text-align: center; }
-        .stat-item span { display: block; font-size: 10px; color: var(--text-dim); font-weight: 800; margin-bottom: 4px; }
-        .stat-item b { font-size: 22px; font-family: 'JetBrains Mono'; color: var(--accent); }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<audio id="beep" src="https://raw.githubusercontent.com/isaque-prussak/coletor/main/beep.mp3" preload="auto"></audio>
-<input type="file" id="catalog-file" style="display:none" onchange="apex.load(this)">
+<audio id="beep-sound" src="https://raw.githubusercontent.com/isaque-prussak/coletor/main/beep.mp3" preload="auto"></audio>
 
-<div id="start-screen" style="position:fixed; inset:0; z-index:10000; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px;">
-    <div style="width:50px; height:50px; background:var(--primary); border-radius:12px; transform:rotate(45deg); margin-bottom:20px; box-shadow:0 0 20px var(--primary);"></div>
-    <h1 style="font-weight:800; font-size:24px; margin:0;">APEX <span>PRECISION</span></h1>
-    <p style="color:var(--text-dim); font-size:12px; margin:10px 0 40px;">v51.0 ENTERPRISE TERMINAL</p>
-    
-    <button onclick="apex.start('INVENTARIO')" class="btn-action" style="height:60px; width:100%; margin-bottom:15px; border-radius:20px;">INICIAR OPERAÇÃO</button>
-    <button onclick="document.getElementById('catalog-file').click()" style="background:none; border:none; color:var(--text-dim); font-size:12px; font-weight:700;">IMPORTAR PRODUTO.TXT</button>
+<div id="menu-inicial">
+    <div class="menu-card">
+        <h1 style="font-weight:900; margin-bottom:5px; letter-spacing: -1px;">PRUSSAK PRO</h1>
+        <p style="color:var(--accent); font-size:11px; font-weight:900; margin-bottom:35px; letter-spacing: 1px;">V52.0 • DIAMOND EDITION</p>
+        <button class="menu-btn" style="background:var(--primary); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);" onclick="app.mudarModo('INVENTARIO')">MODO INVENTÁRIO</button>
+        <button class="menu-btn" style="background:rgba(255,255,255,0.05); border:1px solid var(--border)" onclick="app.mudarModo('TROCA')">MODO TROCA / QUEBRA</button>
+    </div>
 </div>
 
-<div id="main-app" style="display:none;">
-    <header class="nav-header">
-        <div class="brand">APEX <span>PRECISION</span></div>
-        <button id="toggle-cam" onclick="apex.toggleCam()" style="background:var(--primary); border:none; color:white; font-size:10px; font-weight:800; padding:8px 15px; border-radius:10px;">CAM ON</button>
-    </header>
+<div id="app-container">
+    <div class="header">
+        <button onclick="app.voltarMenu()" style="background:none; border:none; color:#aaa; font-weight:900; font-size:11px; letter-spacing: 1px;">⬅ MENU</button>
+        <div style="display:flex; gap:15px; align-items:center;">
+            <div id="cam-status" style="color:var(--success); font-weight:900; font-size:11px; letter-spacing: 0.5px;">• SISTEMA ATIVO</div>
+            <button onclick="location.reload()" style="background:none; border:none; color:var(--accent); font-weight:900; font-size:11px;">🔄 RESET</button>
+        </div>
+    </div>
 
-    <div class="scan-area" id="scan-wrap">
-        <div class="scan-overlay" id="ovl"><div class="scan-line"></div></div>
+    <div class="scanner-frame" id="frame-cam">
         <div id="reader"></div>
-        <div style="position:absolute; bottom:10px; left:10px; right:10px; display:flex; justify-content:space-between; z-index:20;">
-            <button onclick="apex.flip()" style="background:rgba(0,0,0,0.6); border:1px solid var(--border); color:white; padding:8px 12px; border-radius:10px; font-size:12px;">🔄 Inverter</button>
-            <button onclick="apex.torch()" style="background:rgba(0,0,0,0.6); border:1px solid var(--border); color:white; padding:8px 12px; border-radius:10px; font-size:12px;">🔦 Flash</button>
+        <button class="btn-cycle" onclick="app.ciclarCamera()">🔄</button>
+    </div>
+    
+    <div class="main-panel">
+        <div class="status-bar"><b id="p-nome" style="font-size:13px; color:var(--accent); letter-spacing: 0.5px;">AGUARDANDO LEITURA...</b></div>
+        
+        <div class="input-wrapper">
+            <input type="text" id="barcode-res" class="integrated" placeholder="Código ou Nome" oninput="app.monitorarInput(this.value)" autocomplete="off">
+            <button class="btn-clear-input" onclick="app.limparInput()">✕</button>
         </div>
+        
+        <div class="input-wrapper" style="margin-bottom: 15px;">
+            <input type="text" id="qtd" class="integrated" value="1.000" inputmode="decimal" onfocus="this.select()" style="font-size: 18px; color:var(--accent);">
+        </div>
+
+        <button class="menu-btn" style="background:var(--primary); margin:0; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);" onclick="app.adicionarItem()">REGISTRAR ITEM</button>
     </div>
 
-    <div class="input-card">
-        <span class="label-micro" id="prod-desc">Aguardando Leitura...</span>
-        <div class="row-input">
-            <input type="text" id="bc-in" placeholder="Código de Barras" oninput="apex.check(this.value)">
+    <div id="lista-corpo"></div>
+
+    <div class="dashboard">
+        <div style="display:flex; justify-content:space-around; font-size:12px; font-weight:900; margin-bottom:15px; color:#ccc;">
+            <span>SKUS: <b id="st-skus" style="color:#fff">0</b></span>
+            <span>TOTAL: <b id="st-total" style="color:var(--accent)">0.000</b></span>
         </div>
-        <div class="row-input">
-            <input type="text" id="qty-in" value="1.000" inputmode="decimal" onfocus="this.select()">
-            <button class="btn-action" onclick="apex.add()">SALVAR</button>
+        <div style="display:flex; gap:12px;">
+            <button class="menu-btn" style="background:var(--success); flex:1; margin:0;" onclick="app.exportarTxt()">💾 SALVAR TXT</button>
+            <button class="menu-btn" style="background:#25d366; flex:1; margin:0;" onclick="app.compartilharZap()">🟢 WHATSAPP</button>
         </div>
+        <center><button onclick="app.limparTudoManual()" style="background:none; border:none; color:var(--danger); font-size:11px; font-weight:900; margin-top:15px; opacity:0.7;">🗑️ LIMPAR LISTA</button></center>
     </div>
-
-    <div class="list-controls">
-        <input type="text" class="search-bar" placeholder="🔍 Filtrar na lista..." oninput="apex.filter(this.value)">
-    </div>
-
-    <div class="items-scroll" id="list-render"></div>
-
-    <footer class="stats-hud">
-        <div class="stat-flex">
-            <div class="stat-item"><span>LINHAS</span><b id="st-skus">0</b></div>
-            <div class="stat-item"><span>TOTAL UNID.</span><b id="st-units">0.000</b></div>
-        </div>
-        <div style="display:flex; gap:10px;">
-            <button onclick="apex.export()" style="flex:1; background:var(--card); border:1px solid var(--border); color:white; padding:15px; border-radius:15px; font-weight:800; font-size:13px;">EXPORTAR TXT</button>
-            <button onclick="apex.zap()" style="flex:1; background:#25d366; border:none; color:white; padding:15px; border-radius:15px; font-weight:800; font-size:13px;">WHATSAPP</button>
-        </div>
-    </footer>
 </div>
 
 <script>
-    const apex = {
-        db: JSON.parse(localStorage.getItem('apex_v51_db')) || [],
-        catalog: [], active: null, isPaused: false, camOn: true, light: false,
-        hw: { scanner: null, list: [], idx: 0 },
+    const app = {
+        dados: { modo: 'INVENTARIO', lista: JSON.parse(localStorage.getItem('coleta_atual')) || [], catalogo: [], produtoAtivo: null, scanPausado: false },
+        hw: { scanner: null, cameras: [], camIdx: 0 },
 
-        async init() {
+        init: function() { this.carregarCatalogo(); },
+
+        carregarCatalogo: async function() {
             try {
                 const r = await fetch('PRODUTO.TXT');
-                if(r.ok) this.parse(await r.text());
-            } catch(e) {}
-            this.render();
+                const t = await r.text();
+                this.dados.catalogo = t.split(/\r?\n/).filter(l => l.length > 13).map(l => ({
+                    code: l.substring(0, 13).trim().padStart(13, '0'),
+                    nome: l.substring(13).slice(0, -10).trim()
+                }));
+            } catch(e) { console.log("Catálogo ausente"); }
         },
 
-        parse(t) {
-            this.catalog = t.split(/\r?\n/).filter(l => l.length > 13).map(l => ({
-                c: l.substring(0, 13).trim().padStart(13, '0'),
-                n: l.substring(13).slice(0, -10).trim()
-            }));
+        mudarModo: function(m) {
+            this.dados.modo = m;
+            document.getElementById('menu-inicial').style.display = 'none';
+            document.getElementById('app-container').style.display = 'flex';
+            this.renderLista();
+            this.iniciarCamera();
         },
 
-        load(i) {
-            const r = new FileReader();
-            r.onload = (e) => { this.parse(e.target.result); alert("CATÁLOGO OK"); };
-            r.readAsText(i.files[0]);
-        },
-
-        start(m) {
-            this.mode = m;
-            document.getElementById('start-screen').style.display = 'none';
-            document.getElementById('main-app').style.display = 'block';
-            this.initCam();
-        },
-
-        toggleCam() {
-            this.camOn = !this.camOn;
-            const wrap = document.getElementById('scan-wrap');
-            const btn = document.getElementById('toggle-cam');
-            if(this.camOn) {
-                wrap.classList.remove('minimized');
-                btn.innerText = "CAM ON"; btn.style.background = "var(--primary)";
-                this.initCam();
-            } else {
-                wrap.classList.add('minimized');
-                btn.innerText = "CAM OFF"; btn.style.background = "#222";
-                if(this.hw.scanner) this.hw.scanner.stop();
-            }
-        },
-
-        initCam() {
-            Html5Qrcode.getCameras().then(d => {
-                this.hw.list = d.filter(c => /back|traseira|0/i.test(c.label)) || d;
-                this.run(this.hw.list[this.hw.idx].id);
+        iniciarCamera: function() {
+            Html5Qrcode.getCameras().then(devs => {
+                this.hw.cameras = devs.filter(d => /back|traseira|0/i.test(d.label));
+                if(this.hw.cameras.length === 0) this.hw.cameras = devs;
+                this.ligarCamera(this.hw.cameras[this.hw.camIdx].id);
             });
         },
 
-        run(id) {
-            if(this.hw.scanner) this.hw.scanner.stop().then(() => this.exec(id));
-            else this.exec(id);
+        ligarCamera: function(id) {
+            if(this.hw.scanner) this.hw.scanner.stop().then(() => this.executar(id));
+            else this.executar(id);
         },
 
-        exec(id) {
+        executar: function(id) {
             this.hw.scanner = new Html5Qrcode("reader");
-            // CONFIGURAÇÃO DE PRECISÃO: Sem aspectRatio fixo para evitar distorção
-            this.hw.scanner.start(id, { fps: 30, qrbox: {width: 220, height: 130} }, (t) => {
-                if(this.isPaused) return;
-                this.isPaused = true;
-                this.feedback();
+            this.hw.scanner.start(id, { 
+                fps: 25, qrbox: (w, h) => { return { width: w * 0.85, height: h * 0.30 } }, aspectRatio: 1.777
+            }, (t) => {
+                if(this.dados.scanPausado) return;
+                this.dados.scanPausado = true;
+                this.feedback(true); // Toca bip e vibra
+                document.getElementById('frame-cam').classList.add('scanner-frozen');
                 let code = t.replace(/[^0-9]/g, "").padStart(13, '0');
-                document.getElementById('bc-in').value = code;
-                this.check(code);
-                document.getElementById('qty-in').focus();
+                document.getElementById('barcode-res').value = code;
+                this.buscaHibrida(code);
+                document.getElementById('qtd').focus(); document.getElementById('qtd').select();
             });
         },
 
-        check(v) {
-            const ovl = document.getElementById('ovl');
-            if(!v) {
-                this.isPaused = false;
-                ovl.style.borderColor = "transparent";
-                document.getElementById('prod-desc').innerText = "Aguardando Leitura...";
-                return;
+        ciclarCamera: function() {
+            this.hw.camIdx = (this.hw.camIdx + 1) % this.hw.cameras.length;
+            this.ligarCamera(this.hw.cameras[this.hw.camIdx].id);
+        },
+
+        monitorarInput: function(val) {
+            if(val.length === 0) {
+                this.dados.scanPausado = false;
+                document.getElementById('frame-cam').classList.remove('scanner-frozen');
+                document.getElementById('p-nome').innerText = "AGUARDANDO LEITURA...";
+                document.getElementById('p-nome').style.color = "var(--accent)";
+            } else { this.buscaHibrida(val); }
+        },
+
+        limparInput: function() {
+            document.getElementById('barcode-res').value = "";
+            this.monitorarInput("");
+            document.getElementById('barcode-res').focus();
+        },
+
+        buscaHibrida: function(val) {
+            let v = val.trim().toUpperCase();
+            if(/^\d+$/.test(v)) {
+                let vBusca = v.padStart(13, '0');
+                const match = this.dados.catalogo.find(i => i.code === vBusca);
+                this.dados.produtoAtivo = match ? match : { code: vBusca, nome: "AVULSO" };
+                document.getElementById('p-nome').innerText = this.dados.produtoAtivo.nome;
+                document.getElementById('p-nome').style.color = "#fff";
             }
-            let c = v.trim().padStart(13, '0');
-            const hit = this.catalog.find(i => i.c === c);
-            this.active = hit || { c: c, n: "NÃO CADASTRADO" };
+        },
+
+        adicionarItem: function() {
+            let codeIn = document.getElementById('barcode-res').value.trim();
+            let q = parseFloat(document.getElementById('qtd').value.replace(',','.'));
+            if(!codeIn || isNaN(q)) return;
             
-            document.getElementById('prod-desc').innerText = this.active.n;
-            ovl.style.borderColor = hit ? "var(--success)" : "var(--warning)";
-            document.getElementById('prod-desc').style.color = hit ? "var(--success)" : "var(--warning)";
+            this.feedback(false); // Apenas vibra no registro manual
+            
+            let code = codeIn.padStart(13, '0');
+            const idx = this.dados.lista.findIndex(i => i.code === code);
+            if(idx !== -1) this.dados.lista[idx].qtd = (parseFloat(this.dados.lista[idx].qtd) + q).toFixed(3);
+            else this.dados.lista.push({ code, nome: this.dados.produtoAtivo?.nome || "AVULSO", qtd: q.toFixed(3) });
+            this.salvar(); this.renderLista(); this.limparInput();
+            document.getElementById('qtd').value = "1.000";
         },
 
-        add() {
-            const c = document.getElementById('bc-in').value.trim().padStart(13, '0');
-            const q = parseFloat(document.getElementById('qty-in').value.replace(',','.'));
-            if(!c || isNaN(q)) return;
-
-            const idx = this.db.findIndex(i => i.c === c);
-            if(idx !== -1) this.db[idx].q = (parseFloat(this.db[idx].q) + q).toFixed(3);
-            else this.db.push({ c, n: this.active ? this.active.n : "AVULSO", q: q.toFixed(3) });
-
-            this.persist();
-            this.reset();
-        },
-
-        persist() {
-            localStorage.setItem('apex_v51_db', JSON.stringify(this.db));
-            this.render();
-        },
-
-        render(data = null) {
-            const source = data || this.db;
-            let total = 0;
-            const html = source.map((it, i) => {
-                total += parseFloat(it.q);
-                return `<div class="item-tile">
-                    <div class="item-main">
-                        <b>${it.n}</b>
-                        <small>${it.c}</small>
-                    </div>
-                    <div class="item-val" onclick="apex.edit('${it.c}')">${it.q}</div>
-                    <button onclick="apex.del('${it.c}')" style="background:none; border:none; color:var(--danger); margin-left:10px; font-weight:800;">✕</button>
-                </div>`;
+        renderLista: function() {
+            let soma = 0;
+            document.getElementById('lista-corpo').innerHTML = this.dados.lista.map((item, idx) => {
+                soma += parseFloat(item.qtd);
+                return `<div class="item-card"><div style="flex:1"><b style="color:#fff; display:block; font-size:13px; margin-bottom:4px;">${item.nome}</b><small style="color:var(--accent); letter-spacing:1px;">${item.code}</small></div><div style="text-align:right"><span class="qtd-badge" onclick="app.editarQtd(${idx})">${item.qtd}</span><button onclick="app.apagarItem(${idx})" style="background:none; border:none; color:var(--danger); font-weight:900; margin-left:15px; opacity:0.8;">✕</button></div></div>`;
             }).reverse().join('');
-            
-            document.getElementById('list-render').innerHTML = html;
-            document.getElementById('st-skus').innerText = source.length;
-            document.getElementById('st-units').innerText = total.toFixed(3);
+            document.getElementById('st-skus').innerText = this.dados.lista.length;
+            document.getElementById('st-total').innerText = soma.toFixed(3);
         },
 
-        filter(query) {
-            const filtered = this.db.filter(i => i.n.toLowerCase().includes(query.toLowerCase()) || i.c.includes(query));
-            this.render(filtered);
+        editarQtd: function(idx) {
+            let n = prompt("Nova Qtd:", this.dados.lista[idx].qtd);
+            if(n) { this.dados.lista[idx].qtd = parseFloat(n.replace(',','.')).toFixed(3); this.salvar(); this.renderLista(); }
         },
 
-        reset() {
-            document.getElementById('bc-in').value = "";
-            document.getElementById('qty-in').value = "1.000";
-            this.check("");
-            document.getElementById('bc-in').focus();
+        apagarItem: function(idx) { if(confirm("Remover item?")) { this.dados.lista.splice(idx,1); this.salvar(); this.renderLista(); } },
+
+        salvar: function() { localStorage.setItem('coleta_atual', JSON.stringify(this.dados.lista)); },
+        
+        feedback: function(comSom) { 
+            if(comSom && document.getElementById('beep-sound')) document.getElementById('beep-sound').play().catch(()=>{});
+            if(navigator.vibrate) navigator.vibrate(50); // Vibração tátil
         },
 
-        edit(code) {
-            const idx = this.db.findIndex(i => i.c === code);
-            const v = prompt("EDITAR QTD:", this.db[idx].q);
-            if(v) { this.db[idx].q = parseFloat(v.replace(',','.')).toFixed(3); this.persist(); }
+        exportarTxt: function() {
+            let txt = this.dados.lista.map(i => `${this.dados.modo === 'INVENTARIO' ? 'Inventario ' : ''}${i.code} ${i.qtd}`).join("\r\n");
+            const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt])); a.download = 'invent.txt'; a.click();
+            setTimeout(() => { if(confirm("Limpar lista após exportar?")) this.limparTudoManual(); }, 1000);
         },
 
-        del(code) {
-            if(confirm("REMOVER ITEM?")) {
-                this.db = this.db.filter(i => i.c !== code);
-                this.persist();
-            }
+        compartilharZap: async function() {
+            let txt = this.dados.lista.map(i => `${this.dados.modo === 'INVENTARIO' ? 'Inventario ' : ''}${i.code} ${i.qtd}`).join("\r\n");
+            if(navigator.share) { await navigator.share({ files: [new File([txt], 'invent.txt', {type:'text/plain'})] }); this.limparTudoManual(); }
         },
 
-        feedback() {
-            document.getElementById('beep').play().catch(()=>{});
-            if(navigator.vibrate) navigator.vibrate(100);
-        },
+        limparTudoManual: function() { this.dados.lista = []; this.salvar(); this.renderLista(); },
 
-        torch() {
-            this.light = !this.light;
-            if(this.hw.scanner) this.hw.scanner.applyVideoConstraints({ advanced: [{torch: this.light}] });
-        },
-
-        flip() {
-            this.hw.idx = (this.hw.idx + 1) % this.hw.list.length;
-            this.run(this.hw.list[this.hw.idx].id);
-        },
-
-        export() {
-            const pre = this.mode === 'INVENTARIO' ? 'Inventario ' : '';
-            const txt = this.db.map(i => `${pre}${i.c} ${i.q}`).join("\r\n");
-            const b = new Blob([txt], {type:'text/plain'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(b);
-            a.download = `APEX_PRECISION_${Date.now()}.txt`;
-            a.click();
-        },
-
-        async zap() {
-            const pre = this.mode === 'INVENTARIO' ? 'Inventario ' : '';
-            const txt = this.db.map(i => `${pre}${i.c} ${i.q}`).join("\r\n");
-            const f = new File([txt], 'apex_data.txt', {type:'text/plain'});
-            if(navigator.share) await navigator.share({ files: [f] });
-        }
+        voltarMenu: function() { if(this.hw.scanner) this.hw.scanner.stop().then(() => { document.getElementById('menu-inicial').style.display='flex'; document.getElementById('app-container').style.display='none'; }); }
     };
-    window.onload = () => apex.init();
+
+    window.onload = () => app.init();
 </script>
 </body>
 </html>
