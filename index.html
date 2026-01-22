@@ -3,86 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Coletor Pro v52.0 - Diamond</title>
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    
+    <title>Coletor Pro v52.1 - APK</title>
+    
     <script src="https://unpkg.com/html5-qrcode"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+    
     <style>
         :root { 
-            --bg: #0a0a0f; /* Fundo ligeiramente mais rico */
-            --card-bg: rgba(30, 30, 35, 0.7); /* Vidro escuro */
-            --header-bg: rgba(10, 10, 15, 0.85);
-            --primary: #3b82f6; --accent: #60a5fa; 
-            --success: #10b981; --danger: #ef4444; 
-            --border: rgba(255, 255, 255, 0.1); 
+            --bg: #050505; 
+            --card-bg: rgba(30, 30, 35, 0.8);
+            --primary: #3b82f6; 
+            --accent: #60a5fa; 
+            --success: #10b981; 
+            --danger: #ef4444; 
+            --border: rgba(255, 255, 255, 0.08); 
             --text: #fff; 
-            --blur: blur(12px);
         }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; overflow-y: auto !important; }
 
-        /* ANIMAÇÕES */
-        @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* MENU INICIAL GLASS */
-        #menu-inicial { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .menu-card { 
-            background: var(--card-bg); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
-            border: 1px solid var(--border); padding: 35px; border-radius: 35px; width: 100%; max-width: 420px; text-align: center; 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        /* Ajuste de Scroll Nativo para APK */
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+            outline: none;
+            touch-action: manipulation; /* Melhora resposta ao toque no APK */
         }
-        .menu-btn { width: 100%; padding: 20px; border-radius: 18px; border: none; font-weight: 900; font-size: 15px; color: white; margin-bottom: 12px; cursor: pointer; transition: 0.2s; }
-        .menu-btn:active { transform: scale(0.97); }
 
-        /* APP STRUCTURE */
-        #app-container { display: none; flex-direction: column; min-height: 100vh; }
+        html, body { 
+            margin: 0; padding: 0; 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: 'Inter', sans-serif; 
+            height: 100%;
+            overflow: hidden; /* O body não rola, quem rola é o container da lista */
+        }
+
+        /* Estrutura Fixa para App */
+        #app-container { 
+            display: none; 
+            flex-direction: column; 
+            height: 100vh; 
+            width: 100vw;
+        }
+
         .header { 
-            position: sticky; top: 0; padding: 12px 20px; border-bottom: 1px solid var(--border); 
-            background: var(--header-bg); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
-            display: flex; justify-content: space-between; align-items: center; z-index: 5000; 
+            padding: env(safe-area-inset-top) 20px 12px; /* Ajuste para notch da câmera */
+            border-bottom: 1px solid var(--border); 
+            background: rgba(5,5,5,0.95); 
+            backdrop-filter: blur(10px);
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000;
         }
 
-        /* SCANNER REFINADO */
-        .scanner-frame { position: relative; border-radius: 28px; overflow: hidden; border: 2px solid var(--border); background: #000; margin: 12px; transition: 0.4s; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
-        .scanner-frozen { border-color: var(--primary); opacity: 0.5; filter: grayscale(1); }
-        #reader { width: 100%; overflow: hidden; }
-        .btn-cycle { 
-            position: absolute; bottom: 15px; right: 15px; 
-            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
-            color: white; border: 1px solid rgba(255,255,255,0.2); width: 48px; height: 48px; border-radius: 50%; z-index: 100; font-size: 20px; 
-            display: flex; align-items: center; justify-content: center;
+        /* Câmera Otimizada para o Ângulo do APK */
+        .scanner-frame { 
+            position: relative; 
+            margin: 10px; 
+            border-radius: 24px; 
+            overflow: hidden; 
+            border: 2px solid var(--border);
+            background: #000;
+            flex-shrink: 0;
         }
-
-        /* PAINEL GLASS */
-        .main-panel { 
-            background: var(--card-bg); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
-            border-radius: 28px; padding: 20px; margin: 0 12px 15px; border: 1px solid var(--border); position: relative; 
-        }
-        .status-bar { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; text-align: center; margin-bottom: 15px; border: 1px solid var(--border); }
         
-        /* INPUT INTEGRADO */
+        #reader { width: 100% !important; border: none !important; }
+        #reader video { object-fit: cover !important; } /* Garante que o vídeo preencha o ângulo */
+
+        /* Painel de Controle Principal */
+        .main-panel { 
+            background: var(--card-bg); 
+            border-radius: 24px; 
+            padding: 15px; 
+            margin: 0 10px 10px; 
+            border: 1px solid var(--border);
+        }
+
         .input-wrapper {
-            background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 18px;
-            display: flex; align-items: center; margin-bottom: 12px; padding-right: 5px; transition: 0.3s;
+            background: rgba(255,255,255,0.05); 
+            border: 1px solid var(--border); 
+            border-radius: 15px;
+            display: flex; align-items: center; margin-bottom: 10px;
         }
-        .input-wrapper:focus-within { border-color: var(--primary); background: rgba(255,255,255,0.08); }
-        input.integrated { width: 100%; padding: 18px; background: transparent; border: none; color: #fff; font-size: 16px; font-weight: 600; }
-        .btn-clear-input { background: rgba(255,255,255,0.1); color: #fff; border: none; border-radius: 50%; width: 30px; height: 30px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-left: 5px;}
 
-        /* LISTA ANIMADA */
-        #lista-corpo { padding: 0 15px 330px 15px; }
+        input { 
+            width: 100%; padding: 15px; 
+            background: transparent; border: none; 
+            color: #fff; font-size: 16px; font-weight: 600; 
+        }
+
+        /* Lista com Scroll Independente (Estilo App) */
+        #lista-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 0 15px 350px; /* Espaço para o Dashboard fixo */
+            -webkit-overflow-scrolling: touch;
+        }
+
         .item-card { 
-            background: var(--card-bg); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
-            border: 1px solid var(--border); padding: 16px; border-radius: 22px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 6px solid var(--primary); 
-            animation: slideInUp 0.3s ease-out;
+            background: var(--card-bg); 
+            padding: 15px; border-radius: 18px; 
+            margin-bottom: 10px; border: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            border-left: 5px solid var(--primary);
         }
-        .qtd-badge { background: rgba(59, 130, 246, 0.2); color: var(--accent); padding: 8px 12px; border-radius: 12px; font-weight: 900; font-size: 16px; cursor: pointer; border: 1px solid var(--primary); }
 
-        /* DASHBOARD GLASS */
+        /* Dashboard Fixo no Rodapé do APK */
         .dashboard { 
             position: fixed; bottom: 0; left: 0; right: 0; 
-            background: var(--header-bg); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
-            padding: 22px; border-top: 1px solid var(--border); z-index: 5000; 
+            background: rgba(5,5,5,0.98); 
+            padding: 20px 20px calc(env(safe-area-inset-bottom) + 15px);
+            border-top: 1px solid var(--border);
+            backdrop-filter: blur(15px);
         }
+
+        .btn-action {
+            width: 100%; padding: 15px; border-radius: 15px;
+            border: none; font-weight: 900; color: white;
+            transition: 0.1s;
+        }
+        .btn-action:active { opacity: 0.8; transform: scale(0.98); }
+
+        /* Estilo do Menu Inicial */
+        #menu-inicial { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
@@ -90,200 +134,193 @@
 <audio id="beep-sound" src="https://raw.githubusercontent.com/isaque-prussak/coletor/main/beep.mp3" preload="auto"></audio>
 
 <div id="menu-inicial">
-    <div class="menu-card">
-        <h1 style="font-weight:900; margin-bottom:5px; letter-spacing: -1px;">PRUSSAK PRO</h1>
-        <p style="color:var(--accent); font-size:11px; font-weight:900; margin-bottom:35px; letter-spacing: 1px;">V52.0 • DIAMOND EDITION</p>
-        <button class="menu-btn" style="background:var(--primary); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);" onclick="app.mudarModo('INVENTARIO')">MODO INVENTÁRIO</button>
-        <button class="menu-btn" style="background:rgba(255,255,255,0.05); border:1px solid var(--border)" onclick="app.mudarModo('TROCA')">MODO TROCA / QUEBRA</button>
+    <div style="width: 85%; text-align: center;">
+        <h1 style="font-weight:900; margin:0;">PRUSSAK PRO</h1>
+        <p style="color:var(--accent); font-size:12px; font-weight:900; margin-bottom:40px;">V52.1 • APK STABLE</p>
+        <button class="btn-action" style="background:var(--primary); margin-bottom:15px;" onclick="app.mudarModo('INVENTARIO')">MODO INVENTÁRIO</button>
+        <button class="btn-action" style="background:#1a1a20; border:1px solid var(--border)" onclick="app.mudarModo('TROCA')">MODO TROCA / QUEBRA</button>
     </div>
 </div>
 
 <div id="app-container">
     <div class="header">
-        <button onclick="app.voltarMenu()" style="background:none; border:none; color:#aaa; font-weight:900; font-size:11px; letter-spacing: 1px;">⬅ MENU</button>
-        <div style="display:flex; gap:15px; align-items:center;">
-            <div id="cam-status" style="color:var(--success); font-weight:900; font-size:11px; letter-spacing: 0.5px;">• SISTEMA ATIVO</div>
-            <button onclick="location.reload()" style="background:none; border:none; color:var(--accent); font-weight:900; font-size:11px;">🔄 RESET</button>
-        </div>
+        <button onclick="app.voltarMenu()" style="background:none; border:none; color:#888; font-weight:900;">⬅ MENU</button>
+        <div id="cam-status" style="color:var(--success); font-weight:900; font-size:11px;">APP ONLINE</div>
     </div>
 
-    <div class="scanner-frame" id="frame-cam">
+    <div class="scanner-frame">
         <div id="reader"></div>
-        <button class="btn-cycle" onclick="app.ciclarCamera()">🔄</button>
+        <button onclick="app.ciclarCamera()" style="position:absolute; bottom:10px; right:10px; background:rgba(0,0,0,0.5); border:1px solid white; color:white; border-radius:50%; width:40px; height:40px; z-index:100;">🔄</button>
     </div>
     
     <div class="main-panel">
-        <div class="status-bar"><b id="p-nome" style="font-size:13px; color:var(--accent); letter-spacing: 0.5px;">AGUARDANDO LEITURA...</b></div>
-        
+        <div id="p-nome" style="text-align:center; font-size:12px; color:var(--accent); margin-bottom:10px; font-weight:900;">PRONTO</div>
         <div class="input-wrapper">
-            <input type="text" id="barcode-res" class="integrated" placeholder="Código ou Nome" oninput="app.monitorarInput(this.value)" autocomplete="off">
-            <button class="btn-clear-input" onclick="app.limparInput()">✕</button>
+            <input type="text" id="barcode-res" placeholder="Código ou Nome" oninput="app.monitorarInput(this.value)">
+            <button onclick="app.limparInput()" style="background:none; border:none; color:#fff; padding:15px; font-weight:900;">✕</button>
         </div>
-        
-        <div class="input-wrapper" style="margin-bottom: 15px;">
-            <input type="text" id="qtd" class="integrated" value="1.000" inputmode="decimal" onfocus="this.select()" style="font-size: 18px; color:var(--accent);">
-        </div>
-
-        <button class="menu-btn" style="background:var(--primary); margin:0; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);" onclick="app.adicionarItem()">REGISTRAR ITEM</button>
+        <input type="text" id="qtd" value="1.000" inputmode="decimal" onfocus="this.select()" style="background:rgba(255,255,255,0.05); border-radius:15px; margin-bottom:10px; text-align:center;">
+        <button class="btn-action" style="background:var(--primary)" onclick="app.adicionarItem()">REGISTRAR</button>
     </div>
 
-    <div id="lista-corpo"></div>
+    <div id="lista-container">
+        <div id="lista-corpo"></div>
+    </div>
 
     <div class="dashboard">
-        <div style="display:flex; justify-content:space-around; font-size:12px; font-weight:900; margin-bottom:15px; color:#ccc;">
-            <span>SKUS: <b id="st-skus" style="color:#fff">0</b></span>
-            <span>TOTAL: <b id="st-total" style="color:var(--accent)">0.000</b></span>
+        <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-weight:900; font-size:13px;">
+            <span>SKUS: <span id="st-skus">0</span></span>
+            <span>TOTAL: <span id="st-total" style="color:var(--accent)">0.000</span></span>
         </div>
-        <div style="display:flex; gap:12px;">
-            <button class="menu-btn" style="background:var(--success); flex:1; margin:0;" onclick="app.exportarTxt()">💾 SALVAR TXT</button>
-            <button class="menu-btn" style="background:#25d366; flex:1; margin:0;" onclick="app.compartilharZap()">🟢 WHATSAPP</button>
+        <div style="display:flex; gap:10px;">
+            <button class="btn-action" style="background:var(--success); flex:1;" onclick="app.exportarTxt()">💾 TXT</button>
+            <button class="btn-action" style="background:#25d366; flex:1;" onclick="app.compartilharZap()">🟢 WHATSAPP</button>
         </div>
-        <center><button onclick="app.limparTudoManual()" style="background:none; border:none; color:var(--danger); font-size:11px; font-weight:900; margin-top:15px; opacity:0.7;">🗑️ LIMPAR LISTA</button></center>
+        <center><button onclick="app.limparTudoManual()" style="background:none; border:none; color:var(--danger); font-size:11px; font-weight:900; margin-top:15px;">🗑️ DELETAR TUDO</button></center>
     </div>
 </div>
 
 <script>
-    const app = {
-        dados: { modo: 'INVENTARIO', lista: JSON.parse(localStorage.getItem('coleta_atual')) || [], catalogo: [], produtoAtivo: null, scanPausado: false },
-        hw: { scanner: null, cameras: [], camIdx: 0 },
+const app = {
+    dados: { modo: 'INVENTARIO', lista: JSON.parse(localStorage.getItem('coleta_v52')) || [], catalogo: [], produtoAtivo: null, scanPausado: false },
+    hw: { scanner: null, cameras: [], camIdx: 0 },
 
-        init: function() { this.carregarCatalogo(); },
+    init: function() { 
+        this.carregarCatalogo(); 
+        this.renderLista();
+    },
 
-        carregarCatalogo: async function() {
-            try {
-                const r = await fetch('PRODUTO.TXT');
-                const t = await r.text();
-                this.dados.catalogo = t.split(/\r?\n/).filter(l => l.length > 13).map(l => ({
-                    code: l.substring(0, 13).trim().padStart(13, '0'),
-                    nome: l.substring(13).slice(0, -10).trim()
-                }));
-            } catch(e) { console.log("Catálogo ausente"); }
-        },
+    carregarCatalogo: async function() {
+        try {
+            const r = await fetch('PRODUTO.TXT');
+            const t = await r.text();
+            this.dados.catalogo = t.split(/\r?\n/).filter(l => l.length > 13).map(l => ({
+                code: l.substring(0, 13).trim().padStart(13, '0'),
+                nome: l.substring(13).slice(0, -10).trim()
+            }));
+        } catch(e) {}
+    },
 
-        mudarModo: function(m) {
-            this.dados.modo = m;
-            document.getElementById('menu-inicial').style.display = 'none';
-            document.getElementById('app-container').style.display = 'flex';
-            this.renderLista();
-            this.iniciarCamera();
-        },
+    mudarModo: function(m) {
+        this.dados.modo = m;
+        document.getElementById('menu-inicial').style.display = 'none';
+        document.getElementById('app-container').style.display = 'flex';
+        this.iniciarCamera();
+    },
 
-        iniciarCamera: function() {
-            Html5Qrcode.getCameras().then(devs => {
-                this.hw.cameras = devs.filter(d => /back|traseira|0/i.test(d.label));
-                if(this.hw.cameras.length === 0) this.hw.cameras = devs;
-                this.ligarCamera(this.hw.cameras[this.hw.camIdx].id);
-            });
-        },
-
-        ligarCamera: function(id) {
-            if(this.hw.scanner) this.hw.scanner.stop().then(() => this.executar(id));
-            else this.executar(id);
-        },
-
-        executar: function(id) {
-            this.hw.scanner = new Html5Qrcode("reader");
-            this.hw.scanner.start(id, { 
-                fps: 25, qrbox: (w, h) => { return { width: w * 0.85, height: h * 0.30 } }, aspectRatio: 1.777
-            }, (t) => {
-                if(this.dados.scanPausado) return;
-                this.dados.scanPausado = true;
-                this.feedback(true); // Toca bip e vibra
-                document.getElementById('frame-cam').classList.add('scanner-frozen');
-                let code = t.replace(/[^0-9]/g, "").padStart(13, '0');
-                document.getElementById('barcode-res').value = code;
-                this.buscaHibrida(code);
-                document.getElementById('qtd').focus(); document.getElementById('qtd').select();
-            });
-        },
-
-        ciclarCamera: function() {
-            this.hw.camIdx = (this.hw.camIdx + 1) % this.hw.cameras.length;
+    iniciarCamera: function() {
+        Html5Qrcode.getCameras().then(devs => {
+            this.hw.cameras = devs.filter(d => /back|traseira|0/i.test(d.label));
+            if(this.hw.cameras.length === 0) this.hw.cameras = devs;
             this.ligarCamera(this.hw.cameras[this.hw.camIdx].id);
-        },
+        });
+    },
 
-        monitorarInput: function(val) {
-            if(val.length === 0) {
-                this.dados.scanPausado = false;
-                document.getElementById('frame-cam').classList.remove('scanner-frozen');
-                document.getElementById('p-nome').innerText = "AGUARDANDO LEITURA...";
-                document.getElementById('p-nome').style.color = "var(--accent)";
-            } else { this.buscaHibrida(val); }
-        },
+    ligarCamera: function(id) {
+        if(this.hw.scanner) this.hw.scanner.stop().then(() => this.executar(id));
+        else this.executar(id);
+    },
 
-        limparInput: function() {
-            document.getElementById('barcode-res').value = "";
-            this.monitorarInput("");
-            document.getElementById('barcode-res').focus();
-        },
+    executar: function(id) {
+        this.hw.scanner = new Html5Qrcode("reader");
+        this.hw.scanner.start(id, { 
+            fps: 25, 
+            qrbox: (w, h) => ({ width: w * 0.9, height: h * 0.4 }),
+            aspectRatio: 1.777
+        }, (t) => {
+            if(this.dados.scanPausado) return;
+            this.dados.scanPausado = true;
+            this.feedback();
+            document.querySelector('.scanner-frame').classList.add('scanner-frozen');
+            let code = t.replace(/[^0-9]/g, "").padStart(13, '0');
+            document.getElementById('barcode-res').value = code;
+            this.buscaHibrida(code);
+            document.getElementById('qtd').focus();
+            document.getElementById('qtd').select();
+        });
+    },
 
-        buscaHibrida: function(val) {
-            let v = val.trim().toUpperCase();
-            if(/^\d+$/.test(v)) {
-                let vBusca = v.padStart(13, '0');
-                const match = this.dados.catalogo.find(i => i.code === vBusca);
-                this.dados.produtoAtivo = match ? match : { code: vBusca, nome: "AVULSO" };
-                document.getElementById('p-nome').innerText = this.dados.produtoAtivo.nome;
-                document.getElementById('p-nome').style.color = "#fff";
-            }
-        },
+    ciclarCamera: function() {
+        this.hw.camIdx = (this.hw.camIdx + 1) % this.hw.cameras.length;
+        this.ligarCamera(this.hw.cameras[this.hw.camIdx].id);
+    },
 
-        adicionarItem: function() {
-            let codeIn = document.getElementById('barcode-res').value.trim();
-            let q = parseFloat(document.getElementById('qtd').value.replace(',','.'));
-            if(!codeIn || isNaN(q)) return;
-            
-            this.feedback(false); // Apenas vibra no registro manual
-            
-            let code = codeIn.padStart(13, '0');
-            const idx = this.dados.lista.findIndex(i => i.code === code);
-            if(idx !== -1) this.dados.lista[idx].qtd = (parseFloat(this.dados.lista[idx].qtd) + q).toFixed(3);
-            else this.dados.lista.push({ code, nome: this.dados.produtoAtivo?.nome || "AVULSO", qtd: q.toFixed(3) });
-            this.salvar(); this.renderLista(); this.limparInput();
-            document.getElementById('qtd').value = "1.000";
-        },
+    monitorarInput: function(val) {
+        if(val.length === 0) {
+            this.dados.scanPausado = false;
+            document.querySelector('.scanner-frame').classList.remove('scanner-frozen');
+            document.getElementById('p-nome').innerText = "PRONTO";
+        } else { this.buscaHibrida(val); }
+    },
 
-        renderLista: function() {
-            let soma = 0;
-            document.getElementById('lista-corpo').innerHTML = this.dados.lista.map((item, idx) => {
-                soma += parseFloat(item.qtd);
-                return `<div class="item-card"><div style="flex:1"><b style="color:#fff; display:block; font-size:13px; margin-bottom:4px;">${item.nome}</b><small style="color:var(--accent); letter-spacing:1px;">${item.code}</small></div><div style="text-align:right"><span class="qtd-badge" onclick="app.editarQtd(${idx})">${item.qtd}</span><button onclick="app.apagarItem(${idx})" style="background:none; border:none; color:var(--danger); font-weight:900; margin-left:15px; opacity:0.8;">✕</button></div></div>`;
-            }).reverse().join('');
-            document.getElementById('st-skus').innerText = this.dados.lista.length;
-            document.getElementById('st-total').innerText = soma.toFixed(3);
-        },
+    limparInput: function() {
+        document.getElementById('barcode-res').value = "";
+        this.monitorarInput("");
+    },
 
-        editarQtd: function(idx) {
-            let n = prompt("Nova Qtd:", this.dados.lista[idx].qtd);
-            if(n) { this.dados.lista[idx].qtd = parseFloat(n.replace(',','.')).toFixed(3); this.salvar(); this.renderLista(); }
-        },
+    buscaHibrida: function(val) {
+        let v = val.trim().padStart(13, '0');
+        const m = this.dados.catalogo.find(i => i.code === v);
+        this.dados.produtoAtivo = m || { code: v, nome: "AVULSO" };
+        document.getElementById('p-nome').innerText = this.dados.produtoAtivo.nome;
+    },
 
-        apagarItem: function(idx) { if(confirm("Remover item?")) { this.dados.lista.splice(idx,1); this.salvar(); this.renderLista(); } },
-
-        salvar: function() { localStorage.setItem('coleta_atual', JSON.stringify(this.dados.lista)); },
+    adicionarItem: function() {
+        let code = document.getElementById('barcode-res').value.trim().padStart(13, '0');
+        let q = parseFloat(document.getElementById('qtd').value.replace(',','.'));
+        if(!code || isNaN(q)) return;
         
-        feedback: function(comSom) { 
-            if(comSom && document.getElementById('beep-sound')) document.getElementById('beep-sound').play().catch(()=>{});
-            if(navigator.vibrate) navigator.vibrate(50); // Vibração tátil
-        },
+        const idx = this.dados.lista.findIndex(i => i.code === code);
+        if(idx !== -1) this.dados.lista[idx].qtd = (parseFloat(this.dados.lista[idx].qtd) + q).toFixed(3);
+        else this.dados.lista.push({ code, nome: this.dados.produtoAtivo?.nome || "AVULSO", qtd: q.toFixed(3) });
+        
+        this.salvar(); this.renderLista(); this.limparInput();
+        document.getElementById('qtd').value = "1.000";
+        if(navigator.vibrate) navigator.vibrate(40);
+    },
 
-        exportarTxt: function() {
-            let txt = this.dados.lista.map(i => `${this.dados.modo === 'INVENTARIO' ? 'Inventario ' : ''}${i.code} ${i.qtd}`).join("\r\n");
-            const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt])); a.download = 'invent.txt'; a.click();
-            setTimeout(() => { if(confirm("Limpar lista após exportar?")) this.limparTudoManual(); }, 1000);
-        },
+    renderLista: function() {
+        let soma = 0;
+        document.getElementById('lista-corpo').innerHTML = this.dados.lista.map((it, idx) => {
+            soma += parseFloat(it.qtd);
+            return `<div class="item-card"><div><b>${it.nome}</b><br><small>${it.code}</small></div><div style="display:flex; align-items:center;"><span onclick="app.editar(${idx})" style="background:rgba(59,130,246,0.1); color:var(--accent); padding:10px; border-radius:10px; font-weight:900;">${it.qtd}</span><button onclick="app.remover(${idx})" style="background:none; border:none; color:var(--danger); margin-left:10px; font-weight:900;">✕</button></div></div>`;
+        }).reverse().join('');
+        document.getElementById('st-skus').innerText = this.dados.lista.length;
+        document.getElementById('st-total').innerText = soma.toFixed(3);
+    },
 
-        compartilharZap: async function() {
-            let txt = this.dados.lista.map(i => `${this.dados.modo === 'INVENTARIO' ? 'Inventario ' : ''}${i.code} ${i.qtd}`).join("\r\n");
-            if(navigator.share) { await navigator.share({ files: [new File([txt], 'invent.txt', {type:'text/plain'})] }); this.limparTudoManual(); }
-        },
+    editar: function(idx) {
+        let n = prompt("Qtd:", this.dados.lista[idx].qtd);
+        if(n) { this.dados.lista[idx].qtd = parseFloat(n.replace(',','.')).toFixed(3); this.salvar(); this.renderLista(); }
+    },
 
-        limparTudoManual: function() { this.dados.lista = []; this.salvar(); this.renderLista(); },
+    remover: function(idx) { if(confirm("Remover?")) { this.dados.lista.splice(idx,1); this.salvar(); this.renderLista(); } },
 
-        voltarMenu: function() { if(this.hw.scanner) this.hw.scanner.stop().then(() => { document.getElementById('menu-inicial').style.display='flex'; document.getElementById('app-container').style.display='none'; }); }
-    };
+    salvar: function() { localStorage.setItem('coleta_v52', JSON.stringify(this.dados.lista)); },
 
-    window.onload = () => app.init();
+    feedback: function() { 
+        document.getElementById('beep-sound').play().catch(()=>{});
+        if(navigator.vibrate) navigator.vibrate(60);
+    },
+
+    exportarTxt: function() {
+        let t = this.dados.lista.map(i => `${this.dados.modo === 'INVENTARIO' ? 'Inventario ' : ''}${i.code} ${i.qtd}`).join("\r\n");
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([t])); a.download = 'invent.txt'; a.click();
+        setTimeout(() => { if(confirm("Zerar lista?")) this.limparTudoManual(); }, 1000);
+    },
+
+    compartilharZap: async function() {
+        let t = this.dados.lista.map(i => `${this.dados.modo === 'INVENTARIO' ? 'Inventario ' : ''}${i.code} ${i.qtd}`).join("\r\n");
+        const f = new File([t], 'invent.txt', {type:'text/plain'});
+        if(navigator.share) { await navigator.share({ files: [f] }); this.limparTudoManual(); }
+    },
+
+    limparTudoManual: function() { this.dados.lista = []; this.salvar(); this.renderLista(); },
+
+    voltarMenu: function() { if(this.hw.scanner) this.hw.scanner.stop().then(() => { document.getElementById('menu-inicial').style.display='flex'; document.getElementById('app-container').style.display='none'; }); }
+};
+
+window.onload = () => app.init();
 </script>
 </body>
 </html>
