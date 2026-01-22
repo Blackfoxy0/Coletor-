@@ -3,24 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Coletor Pro v38.6</title>
+    <title>Coletor Pro v38.7 - Stable</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     <style>
         :root { 
             --bg: #050505; --card: #111115; --primary: #3b82f6; --accent: #60a5fa; 
             --success: #10b981; --danger: #ef4444; --border: rgba(255, 255, 255, 0.08); 
-            --text: #fff; --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --text: #fff; 
         }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; user-select: none; }
         html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; overflow-y: auto !important; }
 
-        /* MENU INICIAL */
-        #menu-inicial { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .menu-card { background: var(--card); border: 1px solid var(--border); padding: 35px; border-radius: 35px; width: 100%; max-width: 420px; text-align: center; }
-        .menu-btn { width: 100%; padding: 20px; border-radius: 18px; border: none; font-weight: 900; font-size: 15px; color: white; margin-bottom: 12px; cursor: pointer; transition: var(--transition); }
+        /* UTILITARIOS */
+        .hidden { display: none !important; }
+        .flex-center { display: flex; align-items: center; justify-content: center; }
 
-        /* HEADER */
+        /* MENU INICIAL */
+        #menu-inicial { position: fixed; inset: 0; background: var(--bg); z-index: 9999; padding: 20px; }
+        .menu-card { background: var(--card); border: 1px solid var(--border); padding: 35px; border-radius: 35px; width: 100%; max-width: 420px; text-align: center; }
+        .menu-btn { width: 100%; padding: 20px; border-radius: 18px; border: none; font-weight: 900; font-size: 15px; color: white; margin-bottom: 12px; cursor: pointer; transition: transform 0.1s; }
+        .menu-btn:active { transform: scale(0.98); opacity: 0.9; }
+
+        /* APP E HEADER */
         #app-container { display: none; flex-direction: column; min-height: 100vh; }
         .header { position: sticky; top: 0; padding: 12px 20px; border-bottom: 1px solid var(--border); background: rgba(5,5,5,0.9); backdrop-filter: blur(15px); display: flex; justify-content: space-between; align-items: center; z-index: 5000; }
 
@@ -28,20 +33,27 @@
         .scanner-frame { position: relative; border-radius: 28px; overflow: hidden; border: 2px solid var(--border); background: #000; margin: 12px; transition: 0.4s; }
         .scanner-frozen { border-color: var(--primary); opacity: 0.5; filter: grayscale(1); }
         #reader { width: 100%; aspect-ratio: 16/10; }
-        
+        .btn-cycle { position: absolute; bottom: 15px; right: 15px; background: rgba(0,0,0,0.6); color: white; border: 1px solid rgba(255,255,255,0.2); width: 44px; height: 44px; border-radius: 50%; z-index: 100; font-size: 20px; }
+
         /* PAINEL */
         .main-panel { background: var(--card); border-radius: 28px; padding: 20px; margin: 0 12px 15px; border: 1px solid var(--border); position: relative; }
         .status-bar { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 12px; text-align: center; margin-bottom: 10px; border: 1px solid var(--border); }
         
         .input-group { position: relative; display: flex; align-items: center; margin-bottom: 12px; }
-        input { width: 100%; padding: 18px; background: rgba(255,255,255,0.04); border: 2px solid transparent; border-radius: 18px; color: #fff; font-size: 16px; font-weight: 600; }
+        input { width: 100%; padding: 18px; background: rgba(255,255,255,0.04); border: 2px solid transparent; border-radius: 18px; color: #fff; font-size: 16px; font-weight: 600; user-select: text; }
         input:focus { border-color: var(--primary); }
-        .btn-clear-input { position: absolute; right: 15px; background: #333; color: #fff; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 12px; cursor: pointer; }
+        
+        .btn-clear-input { 
+            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+            background: rgba(255,255,255,0.1); color: #fff; border: none; 
+            border-radius: 50%; width: 30px; height: 30px; 
+            font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
 
         /* LISTA */
         #lista-corpo { padding: 0 15px 330px 15px; }
         .item-card { background: var(--card); border: 1px solid var(--border); padding: 16px; border-radius: 22px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 6px solid var(--primary); }
-        .qtd-badge { background: rgba(59, 130, 246, 0.15); color: var(--primary); padding: 8px 12px; border-radius: 12px; font-weight: 900; font-size: 16px; cursor: pointer; }
+        .qtd-badge { background: rgba(59, 130, 246, 0.15); color: var(--primary); padding: 8px 12px; border-radius: 12px; font-weight: 900; font-size: 16px; cursor: pointer; border: 1px solid rgba(59, 130, 246, 0.3); }
 
         /* DASHBOARD */
         .dashboard { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 10, 15, 0.98); backdrop-filter: blur(25px); padding: 22px; border-top: 1px solid var(--border); z-index: 5000; }
@@ -51,37 +63,37 @@
 
 <audio id="beep-sound" src="https://raw.githubusercontent.com/isaque-prussak/coletor/main/beep.mp3" preload="auto"></audio>
 
-<div id="menu-inicial">
+<div id="menu-inicial" class="flex-center">
     <div class="menu-card">
         <h1 style="font-weight:900; margin-bottom:5px;">PRUSSAK PRO</h1>
-        <p style="color:#666; font-size:10px; font-weight:900; margin-bottom:30px;">V38.6 • FULL SYSTEM</p>
-        <button class="menu-btn" style="background:var(--primary)" onclick="mudarModo('INVENTARIO')">MODO INVENTÁRIO</button>
-        <button class="menu-btn" style="background:#1a1a20; border:1px solid var(--border)" onclick="mudarModo('TROCA')">MODO TROCA / QUEBRA</button>
+        <p style="color:#666; font-size:10px; font-weight:900; margin-bottom:30px;">V38.7 • STABLE RELEASE</p>
+        <button class="menu-btn" style="background:var(--primary)" onclick="app.mudarModo('INVENTARIO')">MODO INVENTÁRIO</button>
+        <button class="menu-btn" style="background:#1a1a20; border:1px solid var(--border)" onclick="app.mudarModo('TROCA')">MODO TROCA / QUEBRA</button>
     </div>
 </div>
 
 <div id="app-container">
     <div class="header">
-        <button onclick="voltarParaMenu()" style="background:none; border:none; color:#888; font-weight:900; font-size:11px;">⬅ MENU</button>
+        <button onclick="app.voltarMenu()" style="background:none; border:none; color:#888; font-weight:900; font-size:11px;">⬅ MENU</button>
         <div style="display:flex; gap:15px; align-items:center;">
-            <div id="cam-status" style="color:var(--success); font-weight:900; font-size:11px;">CÂMERA ONLINE</div>
+            <div id="cam-status" style="color:var(--success); font-weight:900; font-size:11px;">ONLINE</div>
             <button onclick="location.reload()" style="background:none; border:none; color:var(--accent); font-weight:900; font-size:11px;">🔄 ATUALIZAR</button>
         </div>
     </div>
 
     <div class="scanner-frame" id="frame-cam">
         <div id="reader"></div>
-        <button onclick="ciclarCamera()" style="position:absolute; bottom:15px; right:15px; background:rgba(0,0,0,0.6); color:white; border:1px solid rgba(255,255,255,0.2); width:44px; height:44px; border-radius:50%; z-index:100;">🔄</button>
+        <button class="btn-cycle flex-center" onclick="app.ciclarCamera()">🔄</button>
     </div>
     
     <div class="main-panel">
         <div class="status-bar"><b id="p-nome" style="font-size:12px; color:var(--accent)">AGUARDANDO...</b></div>
         <div class="input-group">
-            <input type="text" id="barcode-res" placeholder="Código ou Nome" oninput="monitorarInput(this.value)" autocomplete="off">
-            <button class="btn-clear-input" onclick="limparInput()">X</button>
+            <input type="text" id="barcode-res" placeholder="Código ou Nome" oninput="app.monitorarInput(this.value)" autocomplete="off">
+            <button class="btn-clear-input" onclick="app.limparInput(event)">✕</button>
         </div>
         <input type="text" id="qtd" value="1.000" inputmode="decimal" onfocus="this.select()">
-        <button class="menu-btn" style="background:var(--primary); margin:0;" onclick="adicionarItem()">REGISTRAR</button>
+        <button class="menu-btn" style="background:var(--primary); margin:0;" onclick="app.adicionarItem()">REGISTRAR</button>
     </div>
 
     <div id="lista-corpo"></div>
@@ -92,154 +104,247 @@
             <span>TOTAL: <b id="st-total">0.000</b></span>
         </div>
         <div style="display:flex; gap:10px;">
-            <button class="menu-btn" style="background:var(--success); flex:1; margin:0;" onclick="exportarTxt()">💾 TXT</button>
-            <button class="menu-btn" style="background:#25d366; flex:1; margin:0;" onclick="compartilharZap()">🟢 WHATSAPP</button>
+            <button class="menu-btn" style="background:var(--success); flex:1; margin:0;" onclick="app.exportarTxt()">💾 TXT</button>
+            <button class="menu-btn" style="background:#25d366; flex:1; margin:0;" onclick="app.compartilharZap()">🟢 WHATSAPP</button>
         </div>
-        <center><button onclick="limparTudoManual()" style="background:none; border:none; color:var(--danger); font-size:11px; font-weight:900; margin-top:10px;">🗑️ LIMPAR LISTA ATUAL</button></center>
+        <center><button onclick="app.limparTudoManual()" style="background:none; border:none; color:var(--danger); font-size:11px; font-weight:900; margin-top:10px; padding:10px;">🗑️ LIMPAR LISTA ATUAL</button></center>
     </div>
 </div>
 
 <script>
-    let modoGlobal = 'INVENTARIO';
-    let inventario = JSON.parse(localStorage.getItem('coleta_atual')) || [];
-    let catalogoMemo = [];
-    let produtoAtivo = null;
-    let html5QrCode = null;
-    let camerasTraseiras = [];
-    let camIdx = 0;
-    let scanPausado = false;
+    const app = {
+        dados: {
+            modo: 'INVENTARIO',
+            lista: JSON.parse(localStorage.getItem('coleta_atual')) || [],
+            catalogo: [],
+            produtoAtivo: null,
+            scanPausado: false
+        },
+        hw: {
+            scanner: null,
+            cameras: [],
+            camIdx: 0
+        },
 
-    function tocarBip() { document.getElementById('beep-sound').play().catch(()=>{}); }
+        init: function() {
+            this.carregarCatalogo();
+        },
 
-    function mudarModo(modo) {
-        modoGlobal = modo;
-        document.getElementById('menu-inicial').style.display = 'none';
-        document.getElementById('app-container').style.display = 'flex';
-        atualizarTela();
-        iniciarHardware();
-    }
+        carregarCatalogo: async function() {
+            try {
+                const r = await fetch('PRODUTO.TXT');
+                const t = await r.text();
+                this.dados.catalogo = t.split(/\r?\n/).filter(l => l.length > 13).map(l => ({
+                    code: l.substring(0, 13).trim().padStart(13, '0'),
+                    nome: l.substring(13).slice(0, -10).trim()
+                }));
+            } catch(e) { console.warn("Catálogo offline"); }
+        },
 
-    function limparInput() {
-        document.getElementById('barcode-res').value = "";
-        monitorarInput("");
-    }
+        mudarModo: function(novoModo) {
+            this.dados.modo = novoModo;
+            document.getElementById('menu-inicial').style.display = 'none';
+            document.getElementById('app-container').style.display = 'flex';
+            this.renderLista();
+            this.iniciarCamera();
+        },
 
-    function monitorarInput(val) {
-        if(val.length === 0) {
-            scanPausado = false;
-            document.getElementById('frame-cam').classList.remove('scanner-frozen');
-            document.getElementById('p-nome').innerText = "PRONTO";
-            produtoAtivo = null;
-        } else { buscaHibrida(val); }
-    }
+        iniciarCamera: function() {
+            Html5Qrcode.getCameras().then(devs => {
+                this.hw.cameras = devs.filter(d => /back|traseira|environment|0/i.test(d.label));
+                if(this.hw.cameras.length === 0) this.hw.cameras = devs;
+                this.ligarCamera(this.hw.cameras[this.hw.camIdx].id);
+            }).catch(err => console.error(err));
+        },
 
-    function iniciarHardware() {
-        Html5Qrcode.getCameras().then(devices => {
-            camerasTraseiras = devices.filter(d => d.label.toLowerCase().includes('back') || d.label.toLowerCase().includes('traseira') || d.label.toLowerCase().includes('0'));
-            if(camerasTraseiras.length === 0) camerasTraseiras = devices;
-            startCam(camerasTraseiras[camIdx].id);
-        });
-    }
+        ligarCamera: function(camId) {
+            if(this.hw.scanner) {
+                this.hw.scanner.stop().then(() => this.executarCamera(camId));
+            } else {
+                this.executarCamera(camId);
+            }
+        },
 
-    function startCam(id) {
-        if(html5QrCode) html5QrCode.stop().then(() => doStart(id)); else doStart(id);
-        function doStart(camId) {
-            html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start(camId, { fps: 20, qrbox: 250 }, (t) => {
-                if(scanPausado) return;
-                scanPausado = true; tocarBip();
+        executarCamera: function(camId) {
+            this.hw.scanner = new Html5Qrcode("reader");
+            this.hw.scanner.start(camId, { fps: 20, qrbox: 250 }, (decodedText) => {
+                if(this.dados.scanPausado) return;
+                
+                this.dados.scanPausado = true;
+                this.tocarBip();
                 document.getElementById('frame-cam').classList.add('scanner-frozen');
-                let code = t.replace(/[^0-9]/g, "").padStart(13, '0');
+                
+                let code = decodedText.replace(/[^0-9]/g, "").padStart(13, '0');
                 document.getElementById('barcode-res').value = code;
-                buscaHibrida(code);
-                document.getElementById('qtd').focus(); document.getElementById('qtd').select();
+                this.buscaHibrida(code);
+                
+                let qField = document.getElementById('qtd');
+                qField.focus(); qField.select();
             });
+        },
+
+        ciclarCamera: function() {
+            if(this.hw.cameras.length < 2) return;
+            this.hw.camIdx = (this.hw.camIdx + 1) % this.hw.cameras.length;
+            this.ligarCamera(this.hw.cameras[this.hw.camIdx].id);
+        },
+
+        monitorarInput: function(val) {
+            if(val.length === 0) {
+                this.dados.scanPausado = false;
+                document.getElementById('frame-cam').classList.remove('scanner-frozen');
+                document.getElementById('p-nome').innerText = "PRONTO";
+                this.dados.produtoAtivo = null;
+            } else {
+                this.buscaHibrida(val);
+            }
+        },
+
+        limparInput: function(e) {
+            if(e) e.preventDefault(); // Evita fechar teclado
+            document.getElementById('barcode-res').value = "";
+            document.getElementById('barcode-res').focus();
+            this.monitorarInput("");
+        },
+
+        buscaHibrida: function(val) {
+            let v = val.trim().toUpperCase();
+            if(/^\d+$/.test(v)) {
+                let vBusca = v.padStart(13, '0');
+                const match = this.dados.catalogo.find(i => i.code === vBusca);
+                this.dados.produtoAtivo = match ? match : { code: vBusca, nome: "AVULSO" };
+                document.getElementById('p-nome').innerText = this.dados.produtoAtivo.nome;
+            }
+        },
+
+        adicionarItem: function() {
+            let codeIn = document.getElementById('barcode-res').value.trim();
+            let q = parseFloat(document.getElementById('qtd').value.replace(',','.'));
+            
+            if(!codeIn || isNaN(q)) return;
+            
+            let code = codeIn.padStart(13, '0');
+            const idx = this.dados.lista.findIndex(i => i.code === code);
+            
+            if(idx !== -1) {
+                this.dados.lista[idx].qtd = (parseFloat(this.dados.lista[idx].qtd) + q).toFixed(3);
+            } else {
+                let nome = this.dados.produtoAtivo ? this.dados.produtoAtivo.nome : "AVULSO";
+                this.dados.lista.push({ code, nome, qtd: q.toFixed(3) });
+            }
+            
+            this.salvar();
+            this.renderLista();
+            this.limparInput(null);
+            document.getElementById('qtd').value = "1.000";
+        },
+
+        apagarItem: function(idx) {
+            if(confirm("Remover este item?")) {
+                this.dados.lista.splice(idx, 1);
+                this.salvar();
+                this.renderLista();
+            }
+        },
+
+        editarQtd: function(idx) {
+            let item = this.dados.lista[idx];
+            let novo = prompt(`Nova quantidade para:\n${item.nome}`, item.qtd);
+            if(novo !== null) {
+                let n = parseFloat(novo.replace(',','.'));
+                if(!isNaN(n)) {
+                    item.qtd = n.toFixed(3);
+                    this.salvar();
+                    this.renderLista();
+                }
+            }
+        },
+
+        renderLista: function() {
+            let soma = 0;
+            let html = this.dados.lista.map((item, idx) => {
+                soma += parseFloat(item.qtd);
+                return `
+                <div class="item-card">
+                    <div style="flex:1">
+                        <b style="color:var(--accent); display:block; font-size:13px;">${item.nome}</b>
+                        <small style="color:#666">${item.code}</small>
+                    </div>
+                    <div style="text-align:right">
+                        <span class="qtd-badge" onclick="app.editarQtd(${idx})">${item.qtd}</span>
+                        <button onclick="app.apagarItem(${idx})" style="background:none; border:none; color:var(--danger); font-weight:900; margin-left:8px; padding:5px;">🗑️</button>
+                    </div>
+                </div>`;
+            }).reverse().join('');
+            
+            document.getElementById('lista-corpo').innerHTML = html;
+            document.getElementById('st-skus').innerText = this.dados.lista.length;
+            document.getElementById('st-total').innerText = soma.toFixed(3);
+        },
+
+        gerarTxt: function() {
+            let prefix = this.dados.modo === 'INVENTARIO' ? 'Inventario ' : '';
+            return this.dados.lista.map(i => `${prefix}${i.code} ${i.qtd}`).join("\r\n");
+        },
+
+        exportarTxt: function() {
+            if(this.dados.lista.length === 0) return;
+            const blob = new Blob([this.gerarTxt()], {type: 'text/plain'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'invent.txt';
+            a.click();
+            URL.revokeObjectURL(url); // Limpa memória
+            setTimeout(() => this.perguntarLimpeza(), 1000);
+        },
+
+        compartilharZap: async function() {
+            if(this.dados.lista.length === 0) return;
+            const file = new File([this.gerarTxt()], 'invent.txt', {type: 'text/plain'});
+            if(navigator.share) {
+                try {
+                    await navigator.share({ files: [file] });
+                    this.perguntarLimpeza();
+                } catch(e) {}
+            } else {
+                alert("Compartilhamento não suportado. Use a opção 'Salvar TXT'.");
+            }
+        },
+
+        perguntarLimpeza: function() {
+            if(confirm("Arquivo gerado. Deseja limpar a lista atual?")) {
+                this.limparTudoManual();
+            }
+        },
+
+        limparTudoManual: function() {
+            this.dados.lista = [];
+            this.salvar();
+            this.renderLista();
+            this.limparInput(null);
+        },
+
+        salvar: function() {
+            localStorage.setItem('coleta_atual', JSON.stringify(this.dados.lista));
+        },
+
+        voltarMenu: function() {
+            if(this.hw.scanner) {
+                this.hw.scanner.stop().then(() => {
+                    document.getElementById('menu-inicial').style.display = 'flex';
+                    document.getElementById('app-container').style.display = 'none';
+                });
+            }
+        },
+
+        tocarBip: function() {
+            const aud = document.getElementById('beep-sound');
+            if(aud) { aud.currentTime = 0; aud.play().catch(()=>{}); }
         }
-    }
+    };
 
-    function ciclarCamera() { camIdx = (camIdx + 1) % camerasTraseiras.length; startCam(camerasTraseiras[camIdx].id); }
-
-    async function carregarCatalogo() {
-        try {
-            const r = await fetch('PRODUTO.TXT');
-            const t = await r.text();
-            catalogoMemo = t.split(/\r?\n/).filter(l => l.length > 13).map(l => ({
-                code: l.substring(0, 13).trim().padStart(13, '0'),
-                nome: l.substring(13).slice(0, -10).trim()
-            }));
-        } catch(e) {}
-    }
-
-    function buscaHibrida(val) {
-        let v = val.trim().toUpperCase();
-        if(/^\d+$/.test(v)) {
-            let vBusca = v.padStart(13, '0');
-            const match = catalogoMemo.find(i => i.code === vBusca);
-            produtoAtivo = match ? match : { code: vBusca, nome: "AVULSO" };
-            document.getElementById('p-nome').innerText = produtoAtivo.nome;
-        }
-    }
-
-    function adicionarItem() {
-        let codeIn = document.getElementById('barcode-res').value.trim();
-        let q = parseFloat(document.getElementById('qtd').value.replace(',','.'));
-        if(!codeIn || isNaN(q)) return;
-        let code = codeIn.padStart(13, '0');
-        const idx = inventario.findIndex(i => i.code === code);
-        if(idx !== -1) inventario[idx].qtd = (parseFloat(inventario[idx].qtd) + q).toFixed(3);
-        else inventario.push({ code, nome: produtoAtivo ? produtoAtivo.nome : "AVULSO", qtd: q.toFixed(3) });
-        localStorage.setItem('coleta_atual', JSON.stringify(inventario));
-        atualizarTela();
-        limparInput();
-    }
-
-    function editarQtd(index) {
-        let nVal = prompt("Alterar Qtd:", inventario[index].qtd);
-        if(nVal !== null) {
-            let n = parseFloat(nVal.replace(',','.'));
-            if(!isNaN(n)) { inventario[index].qtd = n.toFixed(3); localStorage.setItem('coleta_atual', JSON.stringify(inventario)); atualizarTela(); }
-        }
-    }
-
-    function apagarItem(index) {
-        if(confirm("Remover item?")) { inventario.splice(index, 1); localStorage.setItem('coleta_atual', JSON.stringify(inventario)); atualizarTela(); }
-    }
-
-    function atualizarTela() {
-        let soma = 0;
-        document.getElementById('lista-corpo').innerHTML = inventario.map((i, idx) => {
-            soma += parseFloat(i.qtd);
-            return `<div class="item-card"><div style="flex:1"><b style="color:var(--accent); display:block; font-size:13px;">${i.nome}</b><small style="color:#666">${i.code}</small></div><div style="text-align:right"><span class="qtd-badge" onclick="editarQtd(${idx})">${i.qtd}</span><button onclick="apagarItem(${idx})" style="background:none; border:none; color:var(--danger); font-weight:900; margin-left:8px;">🗑️</button></div></div>`;
-        }).reverse().join('');
-        document.getElementById('st-skus').innerText = inventario.length;
-        document.getElementById('st-total').innerText = soma.toFixed(3);
-    }
-
-    function exportarTxt() {
-        if(inventario.length === 0) return;
-        let txt = inventario.map(i => `${modoGlobal === 'INVENTARIO' ? 'Inventario ' : ''}${i.code} ${i.qtd}`).join("\r\n");
-        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt])); a.download = 'invent.txt'; a.click();
-        setTimeout(() => { if(confirm("Deseja limpar a lista agora?")) limparTudoManual(); }, 1500);
-    }
-
-    async function compartilharZap() {
-        if(inventario.length === 0) return;
-        let txt = inventario.map(i => `${modoGlobal === 'INVENTARIO' ? 'Inventario ' : ''}${i.code} ${i.qtd}`).join("\r\n");
-        const file = new File([txt], 'invent.txt', {type:'text/plain'});
-        if(navigator.share) {
-            try { await navigator.share({ files: [file] }); setTimeout(() => { if(confirm("Deseja limpar a lista agora?")) limparTudoManual(); }, 1000); } catch(e) {}
-        }
-    }
-
-    function limparTudoManual() {
-        inventario = []; localStorage.removeItem('coleta_atual'); atualizarTela();
-    }
-
-    function voltarParaMenu() {
-        if(html5QrCode) html5QrCode.stop().then(() => { document.getElementById('menu-inicial').style.display = 'flex'; document.getElementById('app-container').style.display = 'none'; });
-    }
-
-    window.onload = carregarCatalogo;
+    window.onload = () => app.init();
 </script>
 </body>
 </html>
