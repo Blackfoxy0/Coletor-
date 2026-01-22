@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>APEX TITANIUM v160</title>
+    <title>APEX TITANIUM v180</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     <style>
@@ -14,139 +14,161 @@
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
-        /* INTRO CINEMATOGRÁFICA */
-        #intro-screen { position: fixed; inset: 0; background: #000; z-index: 10001; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .intro-logo { font-family: 'Orbitron'; font-size: 40px; color: var(--brand); letter-spacing: 12px; text-shadow: 0 0 40px var(--brand); animation: zoom 3s infinite alternate; }
-        @keyframes zoom { from { transform: scale(0.95); opacity: 0.8; } to { transform: scale(1.05); opacity: 1; } }
+        /* INTRO */
+        #intro-screen { position: fixed; inset: 0; background: #000; z-index: 10001; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.8s; }
+        .intro-logo { font-family: 'Orbitron'; font-size: 42px; color: var(--brand); letter-spacing: 12px; text-shadow: 0 0 30px var(--brand); }
         
-        /* HEADER & SESSIONS */
-        header { padding: 50px 20px 10px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .session-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 10px; background: var(--surface-2); scrollbar-width: none; border-bottom: 1px solid var(--border); }
-        .tab { background: var(--surface); border: 1px solid var(--border); color: var(--mute); padding: 8px 16px; border-radius: 12px; font-size: 10px; font-weight: 800; white-space: nowrap; transition: 0.3s; }
-        .tab.active { background: var(--brand); color: white; border-color: var(--brand); box-shadow: 0 4px 12px rgba(59,130,246,0.4); }
+        /* HEADER */
+        header { padding: 50px 20px 10px; background: var(--surface); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
 
-        /* SCANNER & VIEWPORT */
-        .viewport { padding: 12px; position: relative; }
-        #reader { height: 190px; border-radius: 24px; overflow: hidden; background: #000; border: 2px solid var(--border); position: relative; }
-        .laser { position: absolute; left: 5%; width: 90%; height: 2px; background: var(--brand); box-shadow: 0 0 15px var(--brand); z-index: 10; animation: scanning 2s infinite ease-in-out; }
-        @keyframes scanning { 0%, 100% { top: 20%; opacity: 0.2; } 50% { top: 80%; opacity: 1; } }
+        /* VIEWPORT FULL WIDTH */
+        .viewport-wrapper { position: relative; width: 100%; height: 40vh; background: #000; border-bottom: 2px solid var(--brand); }
+        #reader { width: 100% !important; height: 100% !important; }
+        #reader video { object-fit: cover !important; width: 100% !important; height: 100% !important; }
 
-        /* CONTROL PANEL */
-        .panel { padding: 10px 18px; }
-        .display-card { background: var(--surface); padding: 20px; border-radius: 28px; border: 1px solid var(--border); }
-        .info-box { background: var(--surface-2); padding: 12px; border-radius: 16px; margin-bottom: 12px; text-align: center; border: 1px dashed var(--border); }
-        .name-label { color: var(--brand); font-weight: 900; font-size: 14px; text-transform: uppercase; }
+        /* CONTROLES DA CÂMERA */
+        .cam-controls { position: absolute; right: 15px; top: 15px; z-index: 100; display: flex; flex-direction: column; gap: 10px; }
+        .btn-cam-action { background: rgba(0,0,0,0.6); border: 1px solid var(--brand); color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; backdrop-filter: blur(5px); }
 
-        .input-row { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 12px; }
-        input { background: var(--bg); border: 1px solid var(--border); border-radius: 14px; padding: 14px; color: var(--text); font-weight: 700; text-align: center; font-size: 18px; }
+        .scan-overlay { position: absolute; inset: 0; z-index: 10; pointer-events: none; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .laser-line { width: 100%; height: 2px; background: var(--brand); box-shadow: 0 0 20px var(--brand); animation: scanLine 2s infinite ease-in-out; }
+        @keyframes scanLine { 0%, 100% { transform: translateY(-60px); opacity: 0.2; } 50% { transform: translateY(60px); opacity: 1; } }
+
+        .slogan-box { position: absolute; bottom: 15px; width: 100%; text-align: center; z-index: 11; }
+        .slogan-text { font-size: 9px; letter-spacing: 4px; color: var(--brand); font-weight: 900; text-transform: uppercase; text-shadow: 0 0 10px var(--brand); }
+
+        /* PAINEL */
+        .panel { flex: 1; padding: 20px; background: var(--bg); overflow-y: auto; }
+        .card { background: var(--surface); padding: 20px; border-radius: 25px; border: 1px solid var(--border); }
+        .row { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 15px; }
+        input { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 15px; color: #fff; text-align: center; font-size: 20px; font-weight: 700; }
         
-        .btn-confirm { background: var(--brand); color: white; border: none; padding: 18px; border-radius: 16px; font-weight: 900; width: 100%; text-transform: uppercase; font-size: 14px; }
-        .tool-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 12px; }
-        .btn-t { background: var(--surface-2); border: 1px solid var(--border); color: white; padding: 10px; border-radius: 12px; font-size: 9px; font-weight: 800; }
+        .btn-add { background: var(--brand); color: #fff; border: none; padding: 18px; border-radius: 15px; font-weight: 900; width: 100%; font-size: 14px; text-transform: uppercase; }
+        
+        .tools { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 15px; }
+        .btn-t { background: var(--surface-2); border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 10px; font-size: 9px; font-weight: 800; }
 
-        /* LISTING */
-        .log-container { flex: 1; overflow-y: auto; padding: 10px 18px; }
-        .item-card { background: var(--surface); padding: 14px; border-radius: 20px; margin-bottom: 10px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; animation: pop 0.3s ease; }
-        @keyframes pop { from { transform: scale(0.9); opacity: 0; } }
-        .qty-tag { background: var(--brand); width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; margin-right: 12px; }
+        /* LISTA */
+        .log { margin-top: 20px; }
+        .item { background: var(--surface); padding: 12px 15px; border-radius: 18px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .qty { background: var(--brand); width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; margin-right: 12px; font-size: 12px; }
 
-        #cam-lock { position: absolute; inset: 0; z-index: 100; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #gate { position: fixed; inset: 0; z-index: 10002; background: #000; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body onclick="App.initAudio()">
 
-    <div id="intro-screen">
+    <div id="gate">
+        <button class="btn-add" style="width:auto; padding: 20px 40px;">INICIAR APEX v180</button>
+    </div>
+
+    <div id="intro-screen" style="display:none;">
         <div class="intro-logo">APEX</div>
-        <p style="color:var(--mute); font-size:10px; margin-top:15px; letter-spacing:4px;">TAP TO START</p>
+        <div class="slogan-text" style="margin-top:20px; color:var(--mute)">Inovação em Movimento</div>
     </div>
 
     <div id="app" style="display:none; flex-direction:column; height:100vh;">
         <header>
-            <div style="font-family:'Orbitron'; font-size:16px;">APEX <span style="color:var(--brand)">SCAN</span></div>
-            <div id="cat-count" style="font-size:9px; color:var(--success); font-weight:900;">CATÁLOGO OFFLINE</div>
+            <div style="font-family:'Orbitron'; font-size:16px;">APEX <span style="color:var(--brand)">TITANIUM</span></div>
+            <div id="status-cam" style="font-size:8px; color:var(--mute)">CAM: DEFAULT</div>
         </header>
 
-        <div class="session-tabs" id="tabs"></div>
-
-        <div class="viewport">
-            <div id="reader">
-                <div class="laser"></div>
-                <div id="cam-lock">
-                    <button class="btn-confirm" style="width:auto; padding:12px 30px;" onclick="App.startCamera()">LIGAR CÂMERA</button>
-                </div>
+        <div class="viewport-wrapper">
+            <div id="reader"></div>
+            <div class="cam-controls">
+                <button class="btn-cam-action" onclick="App.switchCamera()" title="Trocar Câmera">🔄</button>
+            </div>
+            <div class="scan-overlay">
+                <div class="laser-line"></div>
+            </div>
+            <div class="slogan-box">
+                <div class="slogan-text">Inovação em Movimento</div>
             </div>
         </div>
 
         <div class="panel">
-            <div class="display-card">
-                <div class="info-box">
-                    <div id="p-name" class="name-label">AGUARDANDO...</div>
-                </div>
-                <div class="input-row">
-                    <input type="text" id="p-code" placeholder="CÓDIGO" oninput="App.lookup(this.value)">
+            <div class="card">
+                <div id="p-name" style="text-align:center; color:var(--brand); font-weight:900; font-size:13px; margin-bottom:12px; height:15px;">AGUARDANDO...</div>
+                <div class="row">
+                    <input type="text" id="p-code" placeholder="CÓDIGO" oninput="App.checkCat(this.value)">
                     <input type="number" id="p-qty" value="1">
                 </div>
-                <button class="btn-confirm" onclick="App.add()">CONFIRMAR REGISTO</button>
+                <button class="btn-add" onclick="App.manualAdd()">REGISTRAR ITEM</button>
                 
-                <div class="tool-grid">
-                    <button class="btn-t" onclick="document.getElementById('file').click()">📥 CATÁLOGO</button>
-                    <button class="btn-t" onclick="App.export()">📤 EXPORTAR</button>
-                    <button class="btn-t" onclick="App.newSess()">📂 NOVA</button>
+                <div class="tools">
+                    <button class="btn-t" onclick="document.getElementById('f').click()">CATÁLOGO</button>
+                    <button class="btn-t" onclick="App.export()">EXPORTAR</button>
+                    <button class="btn-t" style="color:var(--error)" onclick="App.clear()">LIMPAR</button>
                 </div>
-                <input type="file" id="file" style="display:none" accept=".csv,.txt" onchange="App.import(event)">
+                <input type="file" id="f" style="display:none" accept=".csv,.txt" onchange="App.importCat(event)">
             </div>
-        </div>
 
-        <div id="log" class="log-container"></div>
+            <div id="log" class="log"></div>
+        </div>
     </div>
 
     <script>
         const App = {
-            db: JSON.parse(localStorage.getItem('apex_v160_db')) || { "SESSÃO 01": [] },
-            cat: JSON.parse(localStorage.getItem('apex_v160_cat')) || {},
-            current: localStorage.getItem('apex_v160_curr') || "SESSÃO 01",
+            db: JSON.parse(localStorage.getItem('apex_v180_db')) || [],
+            cat: JSON.parse(localStorage.getItem('apex_v180_cat')) || {},
             ctx: null,
+            scanner: null,
+            cameras: [],
+            currentCamIdx: 0,
 
             initAudio() {
-                if(!this.ctx) {
-                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                if(this.ctx) return;
+                document.getElementById('gate').style.display = 'none';
+                document.getElementById('intro-screen').style.display = 'flex';
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                setTimeout(() => {
                     document.getElementById('intro-screen').style.opacity = '0';
                     setTimeout(() => {
                         document.getElementById('intro-screen').style.display = 'none';
                         document.getElementById('app').style.display = 'flex';
+                        this.initScanner();
                         this.render();
-                    }, 800);
-                }
+                    }, 600);
+                }, 1800);
             },
 
-            beep(f, d) {
-                if(!this.ctx) return;
-                const o = this.ctx.createOscillator();
-                const g = this.ctx.createGain();
-                o.connect(g); g.connect(this.ctx.destination);
-                o.frequency.value = f; g.gain.value = 0.1;
-                g.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + d);
-                o.start(); o.stop(this.ctx.currentTime + d);
-            },
-
-            async startCamera() {
-                this.beep(800, 0.1);
-                document.getElementById('cam-lock').style.display = 'none';
+            async initScanner() {
                 try {
-                    const scanner = new Html5Qrcode("reader");
-                    await scanner.start({ facingMode: "environment" }, { fps: 30, qrbox: 250 }, (val) => {
-                        document.getElementById('p-code').value = val;
-                        this.lookup(val);
-                        this.beep(1200, 0.1);
-                        if(navigator.vibrate) navigator.vibrate(60);
-                        this.add(val);
-                    });
-                } catch (e) {
-                    alert("Erro de permissão! Ative a câmara nas definições.");
-                }
+                    this.cameras = await Html5Qrcode.getCameras();
+                    if (this.cameras && this.cameras.length > 0) {
+                        this.startCam(this.cameras[this.currentCamIdx].id);
+                    } else {
+                        alert("Câmera não detectada.");
+                    }
+                } catch (e) { alert("Erro ao acessar hardware."); }
             },
 
-            import(e) {
+            async startCam(cameraId) {
+                if(this.scanner) await this.scanner.stop();
+                this.scanner = new Html5Qrcode("reader");
+                const config = { 
+                    fps: 30, 
+                    qrbox: { width: 320, height: 180 },
+                    aspectRatio: 1.777778 // 16:9 para aproveitar a largura
+                };
+                
+                await this.scanner.start(cameraId, config, (val) => {
+                    document.getElementById('p-code').value = val;
+                    this.checkCat(val);
+                    if(navigator.vibrate) navigator.vibrate(60);
+                    this.addItem(val);
+                });
+                document.getElementById('status-cam').innerText = `CAM ACTIVE: ${this.currentCamIdx + 1}`;
+            },
+
+            async switchCamera() {
+                if(this.cameras.length < 2) return alert("Apenas uma câmera detectada.");
+                this.currentCamIdx = (this.currentCamIdx + 1) % this.cameras.length;
+                await this.startCam(this.cameras[this.currentCamIdx].id);
+            },
+
+            importCat(e) {
                 const reader = new FileReader();
                 reader.onload = (ev) => {
                     const lines = ev.target.result.split('\n');
@@ -155,87 +177,53 @@
                         const [c, n] = l.split(',');
                         if(c && n) this.cat[c.trim()] = n.trim();
                     });
-                    localStorage.setItem('apex_v160_cat', JSON.stringify(this.cat));
-                    this.render();
-                    alert("Catálogo Ativado!");
+                    localStorage.setItem('apex_v180_cat', JSON.stringify(this.cat));
+                    alert("Catálogo Pronto!");
                 };
                 reader.readAsText(e.target.files[0]);
             },
 
-            lookup(c) {
-                const name = this.cat[c] || "PRODUTO NOVO";
+            checkCat(c) {
+                const name = this.cat[c] || "NOVO ITEM";
                 document.getElementById('p-name').innerText = name;
                 return name;
             },
 
-            add(scannedCode = null) {
-                const code = scannedCode || document.getElementById('p-code').value;
+            addItem(code) {
                 const qty = parseInt(document.getElementById('p-qty').value) || 1;
-                if(!code) return;
-
-                const session = this.db[this.current];
-                const item = session.find(i => i.code === code);
-                
-                if(item) {
-                    item.qty += qty;
-                } else {
-                    session.unshift({ code, qty, name: this.cat[code] || "Novo", time: new Date().toLocaleTimeString() });
-                }
-
+                const exists = this.db.find(i => i.code === code);
+                if(exists) exists.qty += qty;
+                else this.db.unshift({ code, name: this.cat[code] || "Novo", qty, time: new Date().toLocaleTimeString() });
                 this.save();
-                if(!scannedCode) {
-                    document.getElementById('p-code').value = "";
-                    document.getElementById('p-qty').value = "1";
-                    document.getElementById('p-name').innerText = "AGUARDANDO...";
-                }
             },
 
-            edit(code) {
-                const n = prompt("Nova quantidade:");
-                if(n !== null) {
-                    const item = this.db[this.current].find(i => i.code === code);
-                    item.qty = parseInt(n) || 0;
-                    this.save();
-                }
+            manualAdd() {
+                const c = document.getElementById('p-code').value;
+                if(c) { this.addItem(c); document.getElementById('p-code').value = ""; }
             },
 
-            newSess() {
-                const n = prompt("Nome da Sessão:");
-                if(n) { this.db[n] = []; this.current = n; this.save(); }
-            },
-
-            save() {
-                localStorage.setItem('apex_v160_db', JSON.stringify(this.db));
-                localStorage.setItem('apex_v160_curr', this.current);
-                this.render();
-            },
+            save() { localStorage.setItem('apex_v180_db', JSON.stringify(this.db)); this.render(); },
+            clear() { if(confirm("Limpar tudo?")) { this.db = []; this.save(); } },
 
             export() {
-                let txt = `RELATORIO APEX - ${this.current}\n\nCODIGO,NOME,QTD,HORA\n`;
-                this.db[this.current].forEach(i => txt += `${i.code},${i.name},${i.qty},${i.time}\n`);
-                const b = new Blob([txt], {type: 'text/plain'});
+                let txt = "APEX DATA\nCOD,NOME,QTD,HORA\n";
+                this.db.forEach(i => txt += `${i.code},${i.name},${i.qty},${i.time}\n`);
+                const b = new Blob([txt], {type:'text/plain'});
                 const a = document.createElement('a'); a.href = URL.createObjectURL(b);
-                a.download = `${this.current}.txt`; a.click();
+                a.download = "COLETA.txt"; a.click();
             },
 
             render() {
-                const cSize = Object.keys(this.cat).length;
-                document.getElementById('cat-count').innerText = cSize > 0 ? `${cSize} ITENS NO CATÁLOGO` : "CATÁLOGO VAZIO";
-                
-                document.getElementById('tabs').innerHTML = Object.keys(this.db).map(n => `
-                    <div class="tab ${n === this.current ? 'active' : ''}" onclick="App.current='${n}';App.save()">${n}</div>
-                `).join('');
-
-                document.getElementById('log').innerHTML = this.db[this.current].map(i => `
-                    <div class="item-card" onclick="App.edit('${i.code}')">
+                document.getElementById('log').innerHTML = this.db.map(i => `
+                    <div class="item">
                         <div style="display:flex; align-items:center">
-                            <div class="qty-tag">${i.qty}</div>
+                            <div class="qty">${i.qty}</div>
                             <div>
-                                <div style="font-size:13px; font-weight:900">${i.name}</div>
-                                <div style="font-size:10px; color:var(--mute)">${i.code} • ${i.time}</div>
+                                <div style="font-weight:900; font-size:13px">${i.name}</div>
+                                <div style="font-size:10px; color:var(--mute)">${i.code}</div>
                             </div>
                         </div>
-                        <button onclick="event.stopPropagation(); App.db['${this.current}'] = App.db['${this.current}'].filter(x=>x.code!='${i.code}'); App.save()" style="background:none; border:none; color:var(--error); font-size:18px">✕</button>
+                        <button onclick="App.db=App.db.filter(x=>x.code!='${i.code}');App.save()" style="background:none; border:none; color:var(--error)">✕</button>
                     </div>
                 `).join('');
             }
