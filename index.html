@@ -2,6 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <!-- Viewport otimizado para evitar zoom não intencional e respeitar áreas seguras -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>APEX TITANIUM v190</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
@@ -12,67 +13,103 @@
             --text: #fff; --mute: #6b7280; --border: #1e1e20; --success: #10b981; --error: #ef4444;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        
+        /* Uso de dvh (Dynamic Viewport Height) para lidar com a barra de endereços mobile */
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: 'Inter', sans-serif; 
+            height: 100vh; 
+            height: 100dvh; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+        }
 
         /* HEADER */
-        header { padding: 45px 20px 10px; background: var(--surface); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
-        .logo { font-family: 'Orbitron'; font-size: 18px; letter-spacing: 2px; }
+        header { 
+            padding: calc(15px + env(safe-area-inset-top)) 20px 15px; 
+            background: var(--surface); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid var(--border); 
+            z-index: 20;
+        }
+        .logo { font-family: 'Orbitron', sans-serif; font-size: 18px; letter-spacing: 2px; }
 
         /* VIEWPORT OPTIMIZED */
-        .viewport-wrapper { position: relative; width: 100%; height: 38vh; background: #000; overflow: hidden; }
-        #reader { width: 100% !important; height: 100% !important; }
+        .viewport-wrapper { position: relative; width: 100%; height: 35dvh; background: #000; overflow: hidden; }
+        #reader { width: 100% !important; height: 100% !important; display: flex; align-items: center; justify-content: center; }
+        #reader video { object-fit: cover !important; } /* Força o vídeo a preencher o espaço */
         
         .overlay { position: absolute; inset: 0; pointer-events: none; z-index: 10; border: 30px solid rgba(0,0,0,0.4); }
         .laser { position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: var(--brand); box-shadow: 0 0 15px var(--brand); animation: scan 2s infinite ease-in-out; }
-        @keyframes scan { 0%, 100% { transform: translateY(-30px); opacity: 0.3; } 50% { transform: translateY(30px); opacity: 1; } }
+        @keyframes scan { 0%, 100% { transform: translateY(-40px); opacity: 0.3; } 50% { transform: translateY(40px); opacity: 1; } }
 
         /* CAM CONTROLS */
         .cam-ui { position: absolute; right: 15px; top: 15px; z-index: 100; display: flex; flex-direction: column; gap: 12px; }
-        .icon-btn { background: rgba(0,0,0,0.7); border: 1px solid var(--border); color: #fff; width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); font-size: 18px; }
+        .icon-btn { background: rgba(0,0,0,0.7); border: 1px solid var(--border); color: #fff; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); font-size: 18px; cursor: pointer;}
+        .icon-btn:active { background: rgba(255,255,255,0.2); }
 
         /* CONTROL PANEL */
-        .panel { flex: 1; padding: 15px 20px; background: var(--bg); border-top: 1px solid var(--border); overflow-y: auto; }
-        .status-bar { text-align: center; margin-bottom: 12px; height: 18px; }
+        .panel { 
+            flex: 1; 
+            padding: 15px 20px calc(20px + env(safe-area-inset-bottom)); /* Espaço para barra de gestos do iOS/Android */
+            background: var(--bg); 
+            border-top: 1px solid var(--border); 
+            overflow-y: auto; 
+            display: flex;
+            flex-direction: column;
+        }
+        .status-bar { text-align: center; margin-bottom: 12px; min-height: 18px; }
         .p-name { color: var(--brand); font-weight: 900; font-size: 13px; text-transform: uppercase; }
 
-        .input-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 12px; }
-        input { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px; color: #fff; text-align: center; font-size: 18px; font-weight: 700; transition: 0.2s; }
+        .input-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 15px; }
+        input { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px; color: #fff; text-align: center; font-size: 16px; font-weight: 700; transition: 0.2s; width: 100%; }
         input:focus { border-color: var(--brand); outline: none; background: var(--surface-2); }
         
-        .btn-add { background: var(--brand); color: #fff; border: none; padding: 18px; border-radius: 16px; font-weight: 900; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; width: 100%; box-shadow: 0 4px 15px rgba(59,130,246,0.3); }
+        .btn-add { background: var(--brand); color: #fff; border: none; padding: 16px; border-radius: 14px; font-weight: 900; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; width: 100%; box-shadow: 0 4px 15px rgba(59,130,246,0.3); cursor: pointer; }
+        .btn-add:active { transform: scale(0.98); }
 
         /* SESSIONS & TOOLS */
-        .tool-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
-        .btn-tool { background: var(--surface-2); border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 12px; font-size: 9px; font-weight: 800; }
+        .tool-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 15px; }
+        .btn-tool { background: var(--surface-2); border: 1px solid var(--border); color: #fff; padding: 12px 5px; border-radius: 12px; font-size: 10px; font-weight: 800; cursor: pointer; }
 
         /* LIST */
-        .list { margin-top: 20px; padding-bottom: 30px; }
-        .entry { background: var(--surface); padding: 14px; border-radius: 18px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .qty-box { background: var(--brand); color: #fff; min-width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; margin-right: 12px; }
+        .list { margin-top: 20px; flex: 1; }
+        .entry { background: var(--surface); padding: 14px; border-radius: 16px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .qty-box { background: var(--brand); color: #fff; min-width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; margin-right: 12px; }
+        .btn-remove { background: none; border: none; color: var(--error); font-size: 20px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
-        .slogan { text-align: center; font-size: 8px; color: var(--mute); letter-spacing: 4px; margin-top: 20px; text-transform: uppercase; }
+        .slogan { text-align: center; font-size: 9px; color: var(--mute); letter-spacing: 4px; margin-top: 20px; padding-bottom: 10px; text-transform: uppercase; }
 
-        #starter { position: fixed; inset: 0; z-index: 99999; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #starter { position: fixed; inset: 0; z-index: 99999; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
     </style>
 </head>
-<body onclick="App.init()">
+<body>
 
+    <!-- Tela Inicial de Permissão -->
     <div id="starter">
-        <div style="font-family:'Orbitron'; font-size:32px; color:var(--brand); margin-bottom:40px; text-shadow:0 0 20px var(--brand);">APEX TITANIUM</div>
-        <button class="btn-add" style="width:auto; padding:20px 60px;">CARREGAR MOTOR</button>
+        <div style="font-family:'Orbitron', sans-serif; font-size:32px; color:var(--brand); margin-bottom:40px; text-shadow:0 0 20px var(--brand); text-align: center;">APEX TITANIUM</div>
+        <button class="btn-add" style="width:100%; max-width: 300px; padding:20px;" onclick="App.init()">CARREGAR MOTOR</button>
+        <p style="color: var(--mute); font-size: 11px; margin-top: 20px; text-align: center;">Permita o acesso à câmera na próxima etapa.</p>
     </div>
 
-    <div id="app" style="display:none; flex-direction:column; height:100vh;">
+    <!-- Interface Principal -->
+    <div id="app" style="display:none;">
         <header>
             <div class="logo">APEX <span style="color:var(--brand)">v190</span></div>
-            <div id="cat-indicator" style="font-size:8px; color:var(--success)">OFFLINE</div>
+            <div id="cat-indicator" style="font-size:10px; font-weight: 800; color:var(--success)">OFFLINE</div>
         </header>
 
         <div class="viewport-wrapper">
             <div id="reader"></div>
             <div class="cam-ui">
-                <button class="icon-btn" onclick="App.switchCam()">🔄</button>
-                <button class="icon-btn" onclick="App.toggleFlash()">🔦</button>
+                <button class="icon-btn" onclick="App.switchCam()" aria-label="Trocar Câmera">🔄</button>
+                <button class="icon-btn" onclick="App.toggleFlash()" aria-label="Ligar Lanterna">🔦</button>
             </div>
             <div class="overlay"><div class="laser"></div></div>
         </div>
@@ -83,8 +120,8 @@
             </div>
 
             <div class="input-grid">
-                <input type="text" id="inp-code" placeholder="CÓDIGO" oninput="App.lookup(this.value)">
-                <input type="number" id="inp-qty" value="1">
+                <input type="text" id="inp-code" placeholder="CÓDIGO" autocomplete="off" oninput="App.lookup(this.value)">
+                <input type="number" id="inp-qty" value="1" min="1" inputmode="numeric">
             </div>
 
             <button class="btn-add" onclick="App.confirm()">REGISTRAR ENTRADA</button>
@@ -93,7 +130,7 @@
                 <button class="btn-tool" onclick="document.getElementById('f-cat').click()">IMPORTAR</button>
                 <button class="btn-tool" onclick="App.export()">EXPORTAR</button>
                 <button class="btn-tool" style="color:var(--error)" onclick="App.clear()">LIMPAR</button>
-                <input type="file" id="f-cat" style="display:none" onchange="App.import(event)">
+                <input type="file" id="f-cat" accept=".csv, .txt" style="display:none" onchange="App.import(event)">
             </div>
 
             <div id="log" class="list"></div>
@@ -111,27 +148,58 @@
             camIdx: 0,
             flash: false,
 
-            init() {
+            async init() {
                 document.getElementById('starter').style.display = 'none';
                 document.getElementById('app').style.display = 'flex';
-                this.startScanner();
+                document.getElementById('app').style.flexDirection = 'column';
+                document.getElementById('app').style.height = '100dvh';
                 this.render();
+                await this.startScanner();
             },
 
             async startScanner() {
-                this.cameras = await Html5Qrcode.getCameras();
-                if(this.cameras.length > 0) this.runCam(this.cameras[this.camIdx].id);
+                try {
+                    this.cameras = await Html5Qrcode.getCameras();
+                    if(this.cameras && this.cameras.length > 0) {
+                        // Prefere a câmera traseira se houver mais de uma
+                        this.camIdx = this.cameras.length > 1 ? 1 : 0; 
+                        await this.runCam(this.cameras[this.camIdx].id);
+                    } else {
+                        alert("Nenhuma câmera encontrada no dispositivo.");
+                    }
+                } catch (err) {
+                    alert("Erro ao acessar a câmera. Verifique as permissões do navegador.");
+                    console.error(err);
+                }
             },
 
             async runCam(id) {
-                if(this.scanner) await this.scanner.stop();
+                if(this.scanner) {
+                    try { await this.scanner.stop(); } catch(e) { console.log("Erro ao parar scanner ativo", e); }
+                    this.scanner.clear();
+                }
+
                 this.scanner = new Html5Qrcode("reader");
-                await this.scanner.start(id, { fps: 30, qrbox: {width: 300, height: 150} }, (val) => {
-                    this.process(val);
-                });
+                
+                // Calcula tamanho dinâmico do leitor baseado na largura da tela
+                const screenWidth = window.innerWidth;
+                const qrSize = Math.min(screenWidth * 0.7, 250); 
+
+                try {
+                    await this.scanner.start(id, { 
+                        fps: 15, // Reduzido levemente para economizar bateria no mobile
+                        qrbox: { width: qrSize, height: qrSize * 0.5 },
+                        aspectRatio: 1.0 // Ajuda na renderização do feed da câmera
+                    }, (val) => {
+                        this.process(val);
+                    });
+                } catch (err) {
+                    console.error("Falha ao iniciar stream da câmera", err);
+                }
             },
 
             async switchCam() {
+                if(this.cameras.length < 2) return;
                 this.camIdx = (this.camIdx + 1) % this.cameras.length;
                 this.runCam(this.cameras[this.camIdx].id);
             },
@@ -139,51 +207,93 @@
             async toggleFlash() {
                 this.flash = !this.flash;
                 try {
-                    await this.scanner.applyVideoConstraints({ focusMode: 'continuous', advanced: [{torch: this.flash}] });
-                } catch(e) { alert("Flash não suportado nesta lente."); }
+                    if(this.scanner && this.scanner.getState() === Html5QrcodeScannerState.SCANNING) {
+                        await this.scanner.applyVideoConstraints({ advanced: [{torch: this.flash}] });
+                    }
+                } catch(e) { 
+                    alert("Lanterna não suportada por esta câmera ou navegador."); 
+                    this.flash = false;
+                }
             },
 
             lookup(code) {
+                if (!code.trim()) {
+                    document.getElementById('display-name').innerText = "AGUARDANDO SENSOR...";
+                    return;
+                }
                 const name = this.cat.get(code) || "ITEM NÃO CADASTRADO";
                 document.getElementById('display-name').innerText = name;
             },
 
             process(code) {
-                const qty = parseInt(document.getElementById('inp-qty').value) || 1;
+                const qtyInput = document.getElementById('inp-qty');
+                const qty = parseInt(qtyInput.value) || 1;
                 const item = this.data.find(i => i.code === code);
                 
-                if(item) item.qty += qty;
-                else this.data.unshift({ code, qty, name: this.cat.get(code) || "Novo", time: new Date().toLocaleTimeString() });
+                if(item) {
+                    item.qty += qty;
+                    item.time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                } else {
+                    this.data.unshift({ 
+                        code, 
+                        qty, 
+                        name: this.cat.get(code) || "Novo Item", 
+                        time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) 
+                    });
+                }
                 
-                if(navigator.vibrate) navigator.vibrate(50);
+                // Feedback Háptico
+                if(navigator.vibrate) navigator.vibrate([50, 50, 50]); 
+                
                 this.save();
-                document.getElementById('inp-code').value = code;
+                
+                // Reset da interface
+                const inpCode = document.getElementById('inp-code');
+                inpCode.value = code;
                 this.lookup(code);
+                qtyInput.value = 1; // Reseta a quantidade após o bip
+                
+                // Limpa o input após 3 segundos para a próxima leitura
+                setTimeout(() => {
+                    if(inpCode.value === code) {
+                        inpCode.value = "";
+                        this.lookup("");
+                    }
+                }, 3000);
             },
 
             confirm() {
                 const code = document.getElementById('inp-code').value;
-                if(code) {
-                    this.process(code);
-                    document.getElementById('inp-code').value = "";
-                    document.getElementById('display-name').innerText = "AGUARDANDO SENSOR...";
+                if(code.trim()) {
+                    this.process(code.trim());
+                } else {
+                    alert("Digite um código primeiro.");
                 }
             },
 
             import(e) {
+                const file = e.target.files[0];
+                if(!file) return;
+
                 const reader = new FileReader();
                 reader.onload = (ev) => {
                     const lines = ev.target.result.split('\n');
                     const obj = {};
                     lines.forEach(l => {
-                        const [c, n] = l.split(',');
-                        if(c && n) obj[c.trim()] = n.trim();
+                        const parts = l.split(',');
+                        if(parts.length >= 2) {
+                            const c = parts[0].trim();
+                            const n = parts[1].trim();
+                            if(c && n) obj[c] = n;
+                        }
                     });
                     this.cat = new Map(Object.entries(obj));
                     localStorage.setItem('apex_cat', JSON.stringify(obj));
                     this.render();
+                    alert(`${this.cat.size} itens importados com sucesso!`);
+                    e.target.value = ''; // Reseta o input file
                 };
-                reader.readAsText(e.target.files[0]);
+                reader.readAsText(file);
             },
 
             save() {
@@ -192,29 +302,55 @@
             },
 
             export() {
+                if(this.data.length === 0) {
+                    alert("Não há dados para exportar.");
+                    return;
+                }
                 let csv = "CÓDIGO,NOME,QTD,HORA\n";
                 this.data.forEach(i => csv += `${i.code},${i.name},${i.qty},${i.time}\n`);
-                const blob = new Blob([csv], {type: 'text/csv'});
+                
+                // Solução robusta de exportação para mobile
+                const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csv], {type: 'text/csv;charset=utf-8;'});
                 const url = URL.createObjectURL(blob);
-                const a = document.createElement('a'); a.href = url; a.download = "APEX_EXPORT.csv"; a.click();
+                const a = document.createElement('a'); 
+                a.href = url; 
+                a.download = `APEX_EXPORT_${new Date().getTime()}.csv`; 
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
             },
 
-            clear() { if(confirm("Apagar todos os dados?")) { this.data = []; this.save(); } },
+            clear() { 
+                if(this.data.length > 0 && confirm("ATENÇÃO: Deseja apagar todo o histórico de leituras?")) { 
+                    this.data = []; 
+                    this.save(); 
+                } 
+            },
+
+            removeItem(code) {
+                if(confirm("Remover este item da lista?")) {
+                    this.data = this.data.filter(x => x.code !== code);
+                    this.save();
+                }
+            },
 
             render() {
                 document.getElementById('cat-indicator').innerText = this.cat.size > 0 ? `${this.cat.size} ITENS` : "SEM CATÁLOGO";
-                document.getElementById('log').innerHTML = this.data.map(i => `
+                document.getElementById('cat-indicator').style.color = this.cat.size > 0 ? "var(--success)" : "var(--mute)";
+                
+                document.getElementById('log').innerHTML = this.data.length > 0 ? this.data.map(i => `
                     <div class="entry">
-                        <div style="display:flex; align-items:center">
+                        <div style="display:flex; align-items:center; overflow: hidden; padding-right: 10px;">
                             <div class="qty-box">${i.qty}</div>
-                            <div>
-                                <div style="font-weight:900; font-size:13px">${i.name}</div>
+                            <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                <div style="font-weight:900; font-size:13px; text-overflow: ellipsis; overflow: hidden;">${i.name}</div>
                                 <div style="font-size:10px; color:var(--mute)">${i.code} | ${i.time}</div>
                             </div>
                         </div>
-                        <button onclick="App.data=App.data.filter(x=>x.code!='${i.code}');App.save()" style="background:none; border:none; color:var(--error); font-size:18px">✕</button>
+                        <button class="btn-remove" onclick="App.removeItem('${i.code}')" aria-label="Remover">✕</button>
                     </div>
-                `).join('');
+                `).join('') : `<div style="text-align:center; padding: 20px; color: var(--mute); font-size: 12px;">Nenhum item registrado.</div>`;
             }
         };
     </script>
