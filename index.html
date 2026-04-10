@@ -2,7 +2,6 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <!-- Viewport otimizado para evitar zoom não intencional e respeitar áreas seguras -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>APEX TITANIUM v190</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
@@ -14,7 +13,6 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
-        /* Uso de dvh (Dynamic Viewport Height) para lidar com a barra de endereços mobile */
         body { 
             background: var(--bg); 
             color: var(--text); 
@@ -41,7 +39,7 @@
         /* VIEWPORT OPTIMIZED */
         .viewport-wrapper { position: relative; width: 100%; height: 35dvh; background: #000; overflow: hidden; }
         #reader { width: 100% !important; height: 100% !important; display: flex; align-items: center; justify-content: center; }
-        #reader video { object-fit: cover !important; } /* Força o vídeo a preencher o espaço */
+        #reader video { object-fit: cover !important; }
         
         .overlay { position: absolute; inset: 0; pointer-events: none; z-index: 10; border: 30px solid rgba(0,0,0,0.4); }
         .laser { position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: var(--brand); box-shadow: 0 0 15px var(--brand); animation: scan 2s infinite ease-in-out; }
@@ -55,7 +53,7 @@
         /* CONTROL PANEL */
         .panel { 
             flex: 1; 
-            padding: 15px 20px calc(20px + env(safe-area-inset-bottom)); /* Espaço para barra de gestos do iOS/Android */
+            padding: 15px 20px calc(20px + env(safe-area-inset-bottom)); 
             background: var(--bg); 
             border-top: 1px solid var(--border); 
             overflow-y: auto; 
@@ -65,9 +63,33 @@
         .status-bar { text-align: center; margin-bottom: 12px; min-height: 18px; }
         .p-name { color: var(--brand); font-weight: 900; font-size: 13px; text-transform: uppercase; }
 
-        .input-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 15px; }
-        input { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px; color: #fff; text-align: center; font-size: 16px; font-weight: 700; transition: 0.2s; width: 100%; }
+        /* === CORREÇÃO DOS INPUTS AQUI === */
+        .input-grid { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 15px; 
+            width: 100%; 
+        }
+        
+        input { 
+            background: var(--surface); 
+            border: 1px solid var(--border); 
+            border-radius: 14px; 
+            padding: 14px 10px; /* Padding um pouco menor para caber em telas finas */
+            color: #fff; 
+            text-align: center; 
+            font-size: 16px; 
+            font-weight: 700; 
+            transition: 0.2s; 
+            width: 100%;
+            min-width: 0; /* IMPEDE QUE O NAVEGADOR ESTOURE A TELA */
+        }
+        
+        #inp-code { flex: 7; } /* Ocupa 70% do espaço */
+        #inp-qty { flex: 3; }  /* Ocupa 30% do espaço */
+        
         input:focus { border-color: var(--brand); outline: none; background: var(--surface-2); }
+        /* ================================ */
         
         .btn-add { background: var(--brand); color: #fff; border: none; padding: 16px; border-radius: 14px; font-weight: 900; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; width: 100%; box-shadow: 0 4px 15px rgba(59,130,246,0.3); cursor: pointer; }
         .btn-add:active { transform: scale(0.98); }
@@ -119,6 +141,7 @@
                 <div id="display-name" class="p-name">AGUARDANDO SENSOR...</div>
             </div>
 
+            <!-- Ajuste Aplicado Aqui -->
             <div class="input-grid">
                 <input type="text" id="inp-code" placeholder="CÓDIGO" autocomplete="off" oninput="App.lookup(this.value)">
                 <input type="number" id="inp-qty" value="1" min="1" inputmode="numeric">
@@ -161,7 +184,6 @@
                 try {
                     this.cameras = await Html5Qrcode.getCameras();
                     if(this.cameras && this.cameras.length > 0) {
-                        // Prefere a câmera traseira se houver mais de uma
                         this.camIdx = this.cameras.length > 1 ? 1 : 0; 
                         await this.runCam(this.cameras[this.camIdx].id);
                     } else {
@@ -180,16 +202,14 @@
                 }
 
                 this.scanner = new Html5Qrcode("reader");
-                
-                // Calcula tamanho dinâmico do leitor baseado na largura da tela
                 const screenWidth = window.innerWidth;
                 const qrSize = Math.min(screenWidth * 0.7, 250); 
 
                 try {
                     await this.scanner.start(id, { 
-                        fps: 15, // Reduzido levemente para economizar bateria no mobile
+                        fps: 15,
                         qrbox: { width: qrSize, height: qrSize * 0.5 },
-                        aspectRatio: 1.0 // Ajuda na renderização do feed da câmera
+                        aspectRatio: 1.0 
                     }, (val) => {
                         this.process(val);
                     });
@@ -242,18 +262,15 @@
                     });
                 }
                 
-                // Feedback Háptico
                 if(navigator.vibrate) navigator.vibrate([50, 50, 50]); 
                 
                 this.save();
                 
-                // Reset da interface
                 const inpCode = document.getElementById('inp-code');
                 inpCode.value = code;
                 this.lookup(code);
-                qtyInput.value = 1; // Reseta a quantidade após o bip
+                qtyInput.value = 1; 
                 
-                // Limpa o input após 3 segundos para a próxima leitura
                 setTimeout(() => {
                     if(inpCode.value === code) {
                         inpCode.value = "";
@@ -291,7 +308,7 @@
                     localStorage.setItem('apex_cat', JSON.stringify(obj));
                     this.render();
                     alert(`${this.cat.size} itens importados com sucesso!`);
-                    e.target.value = ''; // Reseta o input file
+                    e.target.value = '';
                 };
                 reader.readAsText(file);
             },
@@ -309,7 +326,6 @@
                 let csv = "CÓDIGO,NOME,QTD,HORA\n";
                 this.data.forEach(i => csv += `${i.code},${i.name},${i.qty},${i.time}\n`);
                 
-                // Solução robusta de exportação para mobile
                 const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csv], {type: 'text/csv;charset=utf-8;'});
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a'); 
